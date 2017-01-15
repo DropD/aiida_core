@@ -26,7 +26,7 @@ class Data(VerdiCommandRouter):
         """
         A dictionary with valid commands and functions to be called.
         """
-        ## Add here the classes to be supported.
+        # Add here the classes to be supported.
         self.routed_subcommands = {
             'upf': _Upf,
             'structure': _Structure,
@@ -224,7 +224,7 @@ class Visualizable(object):
         """
         method_names = dir(self)  # get list of class methods names
         valid_formats = [i[len(self.show_prefix):] for i in method_names
-                         if i.startswith(self.show_prefix) and \
+                         if i.startswith(self.show_prefix) and
                          not i.endswith(self.show_parameters_postfix)]  # filter
 
         return {k: getattr(self, self.show_prefix + k) for k in valid_formats}
@@ -234,7 +234,8 @@ class Visualizable(object):
         Show the data node with a visualization program.
         """
         # DEVELOPER NOTE: to add a new plugin, just add a _show_xxx() method.
-        import argparse, os
+        import argparse
+        import os
 
         parser = argparse.ArgumentParser(
             prog=self.get_full_command_name(),
@@ -277,7 +278,7 @@ class Visualizable(object):
         if format is None:
             print >> sys.stderr, (
                 "Default format is not defined, please specify.\n"
-                  "Valid formats are:")
+                "Valid formats are:")
             for i in self.get_show_plugins().keys():
                 print >> sys.stderr, "  {}".format(i)
             sys.exit(1)
@@ -302,7 +303,7 @@ class Visualizable(object):
             try:
                 if not isinstance(n, self.dataclass):
                     print >> sys.stderr, ("Node {} is of class {} instead "
-                          "of {}".format(n, type(n), self.dataclass))
+                                          "of {}".format(n, type(n), self.dataclass))
                     sys.exit(1)
             except AttributeError:
                 pass
@@ -332,7 +333,7 @@ class Exportable(object):
         """
         method_names = dir(self)  # get list of class methods names
         valid_formats = [i[len(self.export_prefix):] for i in method_names
-                         if i.startswith(self.export_prefix) and \
+                         if i.startswith(self.export_prefix) and
                          not i.endswith(self.export_parameters_postfix)]  # filter
 
         return {k: getattr(self, self.export_prefix + k) for k in valid_formats}
@@ -385,7 +386,7 @@ class Exportable(object):
         if format is None:
             print >> sys.stderr, (
                 "Default format is not defined, please specify.\n"
-                  "Valid formats are:")
+                "Valid formats are:")
             for i in self.get_export_plugins().keys():
                 print >> sys.stderr, "  {}".format(i)
             sys.exit(1)
@@ -406,7 +407,7 @@ class Exportable(object):
         try:
             if not isinstance(n, self.dataclass):
                 print >> sys.stderr, ("Node {} is of class {} instead "
-                      "of {}".format(n, type(n), self.dataclass))
+                                      "of {}".format(n, type(n), self.dataclass))
                 sys.exit(1)
         except AttributeError:
             pass
@@ -430,13 +431,14 @@ class Importable(object):
         """
         method_names = dir(self)  # get list of class methods names
         valid_formats = [i[len(self.import_prefix):] for i in method_names
-                         if i.startswith(self.import_prefix) and \
+                         if i.startswith(self.import_prefix) and
                          not i.endswith(self.import_parameters_postfix)]  # filter
 
         return {k: getattr(self, self.import_prefix + k) for k in valid_formats}
 
     def importfile(self, *args):
-        import argparse, sys
+        import argparse
+        import sys
 
         parser = argparse.ArgumentParser(
             prog=self.get_full_command_name(),
@@ -475,7 +477,7 @@ class Importable(object):
         if format is None:
             print >> sys.stderr, (
                 "Default format is not defined, please specify.\n"
-                  "Valid formats are:")
+                "Valid formats are:")
             for i in self.get_import_plugins().keys():
                 print >> sys.stderr, "  {}".format(i)
             sys.exit(1)
@@ -512,12 +514,12 @@ class Depositable(object):
         """
         Get the list of all implemented deposition methods for data class.
         """
-        method_names = dir(self) # get list of class methods names
-        valid_formats = [ i[len(self.deposit_prefix):] for i in method_names
-                         if i.startswith(self.deposit_prefix) and \
-                            not i.endswith(self.deposit_parameters_postfix)] # filter
+        method_names = dir(self)  # get list of class methods names
+        valid_formats = [i[len(self.deposit_prefix):] for i in method_names
+                         if i.startswith(self.deposit_prefix) and
+                         not i.endswith(self.deposit_parameters_postfix)]  # filter
 
-        return {k: getattr(self,self.deposit_prefix + k) for k in valid_formats}
+        return {k: getattr(self, self.deposit_prefix + k) for k in valid_formats}
 
     def deposit(self, *args):
         """
@@ -552,7 +554,7 @@ class Depositable(object):
             if not cmd.startswith(self.deposit_prefix) or \
                not cmd.endswith(self.deposit_parameters_postfix):
                 continue
-            getattr(self,cmd)(parser)
+            getattr(self, cmd)(parser)
 
         args = list(args)
         parsed_args = vars(parser.parse_args(args))
@@ -568,7 +570,7 @@ class Depositable(object):
         if database is None:
             print >> sys.stderr, (
                 "Default database is not defined, please specify.\n"
-                  "Valid databases are:")
+                "Valid databases are:")
             for i in self.get_deposit_plugins().keys():
                 print >> sys.stderr, "  {}".format(i)
             sys.exit(1)
@@ -587,14 +589,14 @@ class Depositable(object):
         n = load_node(data_id)
 
         try:
-            if not isinstance(n,self.dataclass):
+            if not isinstance(n, self.dataclass):
                 print >> sys.stderr, ("Node {} is of class {} instead "
-                      "of {}".format(n,type(n),self.dataclass))
+                                      "of {}".format(n, type(n), self.dataclass))
                 sys.exit(1)
         except AttributeError:
             pass
 
-        calc = func(n,**parsed_args)
+        calc = func(n, **parsed_args)
         print calc
 
 
@@ -711,7 +713,7 @@ class _Upf(VerdiCommandWithSubcommands, Importable):
                 qb = QueryBuilder()
                 qb.append(
                     Group,
-                    filters={"name":  {'like': group_name}}
+                    filters={"name": {'like': group_name}}
                 )
                 qb.append(
                     UpfData,
@@ -755,9 +757,9 @@ class _Upf(VerdiCommandWithSubcommands, Importable):
             print >> sys.stderr, ("upf family {} not found".format(group_name))
 
         for u in group.nodes:
-            dest_path = os.path.join(folder,u.filename)
+            dest_path = os.path.join(folder, u.filename)
             if not os.path.isfile(dest_path):
-                with open(dest_path,'w') as dest:
+                with open(dest_path, 'w') as dest:
                     with u._get_folder_pathsubfolder.open(u.filename) as source:
                         dest.write(source.read())
             else:
@@ -869,7 +871,7 @@ class _Bands(VerdiCommandWithSubcommands, Listable, Visualizable, Exportable):
                     all_symbols = [_["symbols"][0] for _ in akinds]
                     if not all(
                             [s in all_symbols for s in args.element_only]
-                            ):
+                    ):
                         continue
 
                 # We want only the StructureData that have attributes
@@ -967,7 +969,9 @@ class _Bands(VerdiCommandWithSubcommands, Listable, Visualizable, Exportable):
         """
         Plugin for show the bands with the XMGrace plotting software.
         """
-        import tempfile, subprocess, numpy
+        import tempfile
+        import subprocess
+        import numpy
         from aiida.orm.data.array.bands import max_num_agr_colors
 
         list_files = []
@@ -998,7 +1002,7 @@ class _Bands(VerdiCommandWithSubcommands, Listable, Visualizable, Exportable):
             if e.errno == 2:
                 print ("No executable '{}' found. Add to the path, "
                        "or try with an absolute path.".format(
-                    exec_name))
+                           exec_name))
                 sys.exit(1)
             else:
                 raise
@@ -1143,7 +1147,8 @@ class _Structure(VerdiCommandWithSubcommands,
         """
         Plugin for xcrysden
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         if len(structure_list) > 1:
             raise MultipleObjectsError("Visualization of multiple objects "
@@ -1164,12 +1169,12 @@ class _Structure(VerdiCommandWithSubcommands,
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                        exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
 
-    def _show_ase(self,exec_name,structure_list):
+    def _show_ase(self, exec_name, structure_list):
         """
         Plugin to show the structure with the ASE visualizer
         """
@@ -1184,7 +1189,8 @@ class _Structure(VerdiCommandWithSubcommands,
         """
         Plugin for vmd
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         if len(structure_list) > 1:
             raise MultipleObjectsError("Visualization of multiple objects "
@@ -1205,7 +1211,7 @@ class _Structure(VerdiCommandWithSubcommands,
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                        exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
@@ -1214,7 +1220,8 @@ class _Structure(VerdiCommandWithSubcommands,
         """
         Plugin for jmol
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         with tempfile.NamedTemporaryFile() as f:
             for structure in structure_list:
@@ -1231,7 +1238,7 @@ class _Structure(VerdiCommandWithSubcommands,
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                        exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
@@ -1246,14 +1253,14 @@ class _Structure(VerdiCommandWithSubcommands,
             from aiida.orm import DataFactory
             ParameterData = DataFactory('parameter')
             parameters = load_node(parameter_data, parent_class=ParameterData)
-        print node._exportstring('tcod',parameters=parameters,**kwargs)
+        print node._exportstring('tcod', parameters=parameters, **kwargs)
 
     def _export_tcod_parameters(self, parser, **kwargs):
         """
         Command line parameters for TCOD
         """
         from aiida.tools.dbexporters.tcod import extend_with_cmdline_parameters
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
 
     def _export_xsf(self, node, **kwargs):
         """
@@ -1282,16 +1289,16 @@ class _Structure(VerdiCommandWithSubcommands,
         # The minimal cell is the cell the just accomodates the structure given,
         # defined by the minimum and maximum of position in each dimension
         parser.add_argument('--vacuum-factor', type=float, default=1.0,
-                help = 'The factor by which the cell accomodating the structure should be increased, default: 1.0')
-        #To that increased cell, we can also add a "safety margin"
+                            help='The factor by which the cell accomodating the structure should be increased, default: 1.0')
+        # To that increased cell, we can also add a "safety margin"
         parser.add_argument('--vacuum-addition', type=float, default=10.0,
-                help = 'The distance to add to the unit cell after vacuum-factor was applied to expand in each dimension, default: 10.0')
-        parser.add_argument('--pbc', type=int, nargs = 3, default= [0,0,0],
-                help = """
+                            help='The distance to add to the unit cell after vacuum-factor was applied to expand in each dimension, default: 10.0')
+        parser.add_argument('--pbc', type=int, nargs=3, default=[0, 0, 0],
+                            help="""
                 Set periodic boundary conditions for each lattice direction,
                 0 for no periodicity, any other integer for periodicity""")
-        parser.add_argument('--view', action='store_true', default = False, help= 'View resulting structure using ASE')
-        parser.add_argument('--dont-store', action='store_true', default = False, help= 'Do not store the structure')
+        parser.add_argument('--view', action='store_true', default=False, help='View resulting structure using ASE')
+        parser.add_argument('--dont-store', action='store_true', default=False, help='Do not store the structure')
 
     def _import_xyz(self, filename, **kwargs):
         """
@@ -1305,25 +1312,25 @@ class _Structure(VerdiCommandWithSubcommands,
         view_in_ase = kwargs.pop('view')
 
         print 'importing XYZ-structure from: \n  {}'.format(abspath(filename))
-        filepath =  abspath(filename)
+        filepath = abspath(filename)
         with open(filepath) as f:
             xyz_txt = f.read()
         new_structure = self.dataclass()
         try:
             new_structure._parse_xyz(xyz_txt)
-            new_structure._adjust_default_cell( vacuum_addition = vacuum_addition,
-                                                vacuum_factor = vacuum_factor,
-                                                pbc = pbc)
+            new_structure._adjust_default_cell(vacuum_addition=vacuum_addition,
+                                               vacuum_factor=vacuum_factor,
+                                               pbc=pbc)
 
             if not dont_store:
                 new_structure.store()
             if view_in_ase:
                 from ase.visualize import view
                 view(new_structure.get_ase())
-            print  (
-                    '  Succesfully imported structure {}, '
-                    '(PK = {})'.format(new_structure.get_formula(), new_structure.pk)
-                )
+            print (
+                '  Succesfully imported structure {}, '
+                '(PK = {})'.format(new_structure.get_formula(), new_structure.pk)
+            )
 
         except ValueError as e:
             print e
@@ -1338,7 +1345,7 @@ class _Structure(VerdiCommandWithSubcommands,
         view_in_ase = kwargs.pop('view')
 
         print 'importing structure from: \n  {}'.format(abspath(filename))
-        filepath =  abspath(filename)
+        filepath = abspath(filename)
 
         try:
             new_structure = get_structuredata_from_qeinput(filepath=filepath)
@@ -1348,10 +1355,10 @@ class _Structure(VerdiCommandWithSubcommands,
             if view_in_ase:
                 from ase.visualize import view
                 view(new_structure.get_ase())
-            print  (
-                    '  Succesfully imported structure {}, '
-                    '(PK = {})'.format(new_structure.get_formula(), new_structure.pk)
-                )
+            print (
+                '  Succesfully imported structure {}, '
+                '(PK = {})'.format(new_structure.get_formula(), new_structure.pk)
+            )
 
         except ValueError as e:
             print e
@@ -1367,16 +1374,16 @@ class _Structure(VerdiCommandWithSubcommands,
             from aiida.orm import DataFactory
             ParameterData = DataFactory('parameter')
             parameters = load_node(parameter_data, parent_class=ParameterData)
-        return deposit(node,parameters=parameters,**kwargs)
+        return deposit(node, parameters=parameters, **kwargs)
 
-    def _deposit_tcod_parameters(self,parser,**kwargs):
+    def _deposit_tcod_parameters(self, parser, **kwargs):
         """
         Command line parameters deposition plugin for TCOD.
         """
         from aiida.tools.dbexporters.tcod import (deposition_cmdline_parameters,
                                                   extend_with_cmdline_parameters)
-        deposition_cmdline_parameters(parser,self.dataclass.__name__)
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        deposition_cmdline_parameters(parser, self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
 
 
 class _Cif(VerdiCommandWithSubcommands,
@@ -1406,7 +1413,8 @@ class _Cif(VerdiCommandWithSubcommands,
         """
         Plugin for jmol
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         with tempfile.NamedTemporaryFile() as f:
             for structure in structure_list:
@@ -1423,7 +1431,7 @@ class _Cif(VerdiCommandWithSubcommands,
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                        exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
@@ -1495,14 +1503,14 @@ class _Cif(VerdiCommandWithSubcommands,
             from aiida.orm import DataFactory
             ParameterData = DataFactory('parameter')
             parameters = load_node(parameter_data, parent_class=ParameterData)
-        print node._exportstring('tcod',parameters=parameters,**kwargs)
+        print node._exportstring('tcod', parameters=parameters, **kwargs)
 
-    def _export_tcod_parameters(self,parser,**kwargs):
+    def _export_tcod_parameters(self, parser, **kwargs):
         """
         Command line parameters for TCOD
         """
         from aiida.tools.dbexporters.tcod import extend_with_cmdline_parameters
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
 
     def _import_cif(self, filename, **kwargs):
         """
@@ -1527,7 +1535,7 @@ class _Cif(VerdiCommandWithSubcommands,
             from aiida.orm import DataFactory
             ParameterData = DataFactory('parameter')
             parameters = load_node(parameter_data, parent_class=ParameterData)
-        return deposit(node,parameters=parameters,**kwargs)
+        return deposit(node, parameters=parameters, **kwargs)
 
     def _deposit_tcod_parameters(self, parser, **kwargs):
         """
@@ -1535,8 +1543,8 @@ class _Cif(VerdiCommandWithSubcommands,
         """
         from aiida.tools.dbexporters.tcod import (deposition_cmdline_parameters,
                                                   extend_with_cmdline_parameters)
-        deposition_cmdline_parameters(parser,self.dataclass.__name__)
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        deposition_cmdline_parameters(parser, self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
 
 
 class _Trajectory(VerdiCommandWithSubcommands,
@@ -1565,7 +1573,8 @@ class _Trajectory(VerdiCommandWithSubcommands,
         """
         Plugin for jmol
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         with tempfile.NamedTemporaryFile() as f:
             for trajectory in trajectory_list:
@@ -1582,7 +1591,7 @@ class _Trajectory(VerdiCommandWithSubcommands,
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                        exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
@@ -1600,7 +1609,8 @@ class _Trajectory(VerdiCommandWithSubcommands,
         """
         Plugin for xcrysden
         """
-        import tempfile, subprocess
+        import tempfile
+        import subprocess
 
         if len(trajectory_list) > 1:
             raise MultipleObjectsError("Visualization of multiple trajectories "
@@ -1612,16 +1622,16 @@ class _Trajectory(VerdiCommandWithSubcommands,
             f.flush()
 
             try:
-                subprocess.check_output([exec_name, '--xsf',f.name])
+                subprocess.check_output([exec_name, '--xsf', f.name])
             except subprocess.CalledProcessError:
                 # The program died: just print a message
                 print "Note: the call to {} ended with an error.".format(
-                       exec_name)
+                    exec_name)
             except OSError as e:
                 if e.errno == 2:
                     print ("No executable '{}' found. Add to the path, "
                            "or try with an absolute path.".format(
-                                                           exec_name))
+                               exec_name))
                     sys.exit(1)
                 else:
                     raise
@@ -1631,45 +1641,46 @@ class _Trajectory(VerdiCommandWithSubcommands,
         Describe command line parameters for _show_pos
         """
         parser.add_argument('-s', '--stepsize',
-                type=int,
-                help=''
-                    'The stepsize for the trajectory, set it higher to reduce '
-                    'number of points',
-                default=1
-            )
+                            type=int,
+                            help=''
+                            'The stepsize for the trajectory, set it higher to reduce '
+                            'number of points',
+                            default=1
+                            )
         parser.add_argument('--mintime',
-                type=int, default=None,
-                help='The time to plot from'
-            )
+                            type=int, default=None,
+                            help='The time to plot from'
+                            )
         parser.add_argument('--maxtime',
-                type=int, default=None,
-                help='The time to plot to'
-            )
+                            type=int, default=None,
+                            help='The time to plot to'
+                            )
         parser.add_argument('-e', '--elements',
-                type=str, nargs='+',
-                help='Show only atoms of that species'
-            )
+                            type=str, nargs='+',
+                            help='Show only atoms of that species'
+                            )
         parser.add_argument('-i', '--indices',
-                type=int, nargs='+',
-                help='Show only these indices'
-            )
+                            type=int, nargs='+',
+                            help='Show only these indices'
+                            )
         parser.add_argument('--dont-block',
-                action='store_true',
-                help="Don't block interpreter when showing plot"
-            )
+                            action='store_true',
+                            help="Don't block interpreter when showing plot"
+                            )
 
     def _show_mpl_heatmap_parameters(self, parser):
         """
         Describe command line parameters for _show_mpl_heatmap
         """
         parser.add_argument('-c', '--contours',
-                type=float, nargs='+',
-                help='Isovalues to plot'
-            )
-        parser.add_argument( '--sampling-stepsize',
-                type=int,
-                help='Sample positions in plot every sampling_stepsize timestep'
-            )
+                            type=float, nargs='+',
+                            help='Isovalues to plot'
+                            )
+        parser.add_argument('--sampling-stepsize',
+                            type=int,
+                            help='Sample positions in plot every sampling_stepsize timestep'
+                            )
+
     def _show_mpl_pos(self, exec_name, trajectory_list, **kwargs):
         """
         Produces a matplotlib plot of the trajectory
@@ -1683,7 +1694,6 @@ class _Trajectory(VerdiCommandWithSubcommands,
         """
         for t in trajectory_list:
             t.show_mpl_heatmap(**kwargs)
-
 
     def _export_xsf(self, node, **kwargs):
         """
@@ -1710,7 +1720,7 @@ class _Trajectory(VerdiCommandWithSubcommands,
         Command line parameters for TCOD
         """
         from aiida.tools.dbexporters.tcod import extend_with_cmdline_parameters
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
 
     def _export_cif(self, node, **kwargs):
         """
@@ -1738,7 +1748,7 @@ class _Trajectory(VerdiCommandWithSubcommands,
             from aiida.orm import DataFactory
             ParameterData = DataFactory('parameter')
             parameters = load_node(parameter_data, parent_class=ParameterData)
-        return deposit(node,parameters=parameters,**kwargs)
+        return deposit(node, parameters=parameters, **kwargs)
 
     def _deposit_tcod_parameters(self, parser, **kwargs):
         """
@@ -1746,8 +1756,8 @@ class _Trajectory(VerdiCommandWithSubcommands,
         """
         from aiida.tools.dbexporters.tcod import (deposition_cmdline_parameters,
                                                   extend_with_cmdline_parameters)
-        deposition_cmdline_parameters(parser,self.dataclass.__name__)
-        extend_with_cmdline_parameters(parser,self.dataclass.__name__)
+        deposition_cmdline_parameters(parser, self.dataclass.__name__)
+        extend_with_cmdline_parameters(parser, self.dataclass.__name__)
         self._export_cif_parameters(parser)
 
 

@@ -98,7 +98,7 @@ class PwInputFile(object):
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
               to the current AiiDa convention.
-            
+
 
         Examples: ::
 
@@ -203,16 +203,16 @@ class PwInputFile(object):
     def get_structuredata(self):
         """
         Return a StructureData object based on the data in the input file.
-        
+
         This uses all of the data in the input file to do the necessary unit 
         conversion, ect. and then creates an AiiDa StructureData object.
-    
+
         All of the names corresponding of the Kind objects composing the 
         StructureData object will match those found in the ATOMIC_SPECIES 
         block, so the pseudopotentials can be linked to the calculation using 
         the kind.name for each specific type of atom (in the event that you 
         wish to use different pseudo's for two or more of the same atom).
-    
+
         :return: StructureData object of the structure in the input file
         :rtype: aiida.orm.data.structure.StructureData
         :raises aiida.common.exceptions.ParsingError: if there are issues
@@ -409,7 +409,7 @@ def str2val(valstr):
 def parse_namelists(txt):
     """
     Parse txt to extract a dictionary of the namelist info.
-    
+
     :param txt: A single string containing the QE input text to be parsed.
     :type txt: str
 

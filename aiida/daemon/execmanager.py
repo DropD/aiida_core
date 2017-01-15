@@ -34,13 +34,13 @@ def update_running_calcs_status(authinfo):
     from aiida.scheduler.datastructures import JobInfo
     from aiida.utils.logger import get_dblogger_extra
     from aiida.backends.utils import QueryFactory
-    
+
     if not authinfo.enabled:
         return
 
     execlogger.debug("Updating running calc status for user {} "
                      "and machine {}".format(
-        authinfo.aiidauser.email, authinfo.dbcomputer.name))
+                         authinfo.aiidauser.email, authinfo.dbcomputer.name))
 
     qmanager = QueryFactory()()
     calcs_to_inquire = qmanager.query_jobcalculations_by_computer_user_state(
@@ -50,9 +50,9 @@ def update_running_calcs_status(authinfo):
     )
 
     #~ calcs_to_inquire = list(JobCalculation._get_all_with_state(
-        #~ state=calc_states.WITHSCHEDULER,
-        #~ computer=authinfo.dbcomputer,
-        #~ user=authinfo.aiidauser)
+    #~ state=calc_states.WITHSCHEDULER,
+    #~ computer=authinfo.dbcomputer,
+    #~ user=authinfo.aiidauser)
     #~ )
 
     # NOTE: no further check is done that machine and
@@ -95,7 +95,7 @@ def update_running_calcs_status(authinfo):
                     if jobid is None:
                         execlogger.error("JobCalculation {} is WITHSCHEDULER "
                                          "but no job id was found!".format(
-                            c.pk), extra=logger_extra)
+                                             c.pk), extra=logger_extra)
                         continue
 
                     # I check if the calculation to be checked (c)
@@ -106,7 +106,7 @@ def update_running_calcs_status(authinfo):
                         jobinfo = found_jobs[jobid]
                         execlogger.debug("Inquirying calculation {} (jobid "
                                          "{}): it has job_state={}".format(
-                            c.pk, jobid, jobinfo.job_state), extra=logger_extra)
+                                             c.pk, jobid, jobinfo.job_state), extra=logger_extra)
                         # For the moment, FAILED is not defined
                         if jobinfo.job_state in [job_states.DONE]:  # , job_states.FAILED]:
                             computed.append(c)
@@ -116,8 +116,8 @@ def update_running_calcs_status(authinfo):
                                 # Someone already set it, just skip
                                 pass
 
-                        ## Do not set the WITHSCHEDULER state multiple times,
-                        ## this would raise a ModificationNotAllowed
+                        # Do not set the WITHSCHEDULER state multiple times,
+                        # this would raise a ModificationNotAllowed
                         # else:
                         # c._set_state(calc_states.WITHSCHEDULER)
 
@@ -128,7 +128,7 @@ def update_running_calcs_status(authinfo):
                         execlogger.debug("Inquirying calculation {} (jobid "
                                          "{}): not found, assuming "
                                          "job_state={}".format(
-                            c.pk, jobid, job_states.DONE), extra=logger_extra)
+                                             c.pk, jobid, job_states.DONE), extra=logger_extra)
 
                         # calculation c is not found in the output of qstat
                         computed.append(c)
@@ -167,7 +167,7 @@ def update_running_calcs_status(authinfo):
                     execlogger.warning("There was an exception while "
                                        "retrieving the detailed jobinfo "
                                        "for calculation {} ({}): {}".format(
-                        c.pk, e.__class__.__name__, e.message),
+                                           c.pk, e.__class__.__name__, e.message),
                                        extra=logger_extra)
                     continue
                 finally:
@@ -191,17 +191,17 @@ def retrieve_jobs():
     qmanager = QueryFactory()()
     # I create a unique set of pairs (computer, aiidauser)
     computers_users_to_check = qmanager.query_jobcalculations_by_computer_user_state(
-            state=calc_states.COMPUTED,
-            only_computer_user_pairs=True,
-            only_enabled=True
-        )
+        state=calc_states.COMPUTED,
+        only_computer_user_pairs=True,
+        only_enabled=True
+    )
 
     # I create a unique set of pairs (computer, aiidauser)
     #~ computers_users_to_check = list(
-        #~ JobCalculation._get_all_with_state(
-            #~ state=calc_states.COMPUTED,
-            #~ only_computer_user_pairs=True,
-            #~ only_enabled=True)
+    #~ JobCalculation._get_all_with_state(
+    #~ state=calc_states.COMPUTED,
+    #~ only_computer_user_pairs=True,
+    #~ only_enabled=True)
     #~ )
 
     for computer, aiidauser in computers_users_to_check:
@@ -214,9 +214,9 @@ def retrieve_jobs():
             msg = ("Error while retrieving calculation status for "
                    "aiidauser={} on computer={}, "
                    "error type is {}, error message: {}".format(
-                aiidauser.email,
-                computer.name,
-                e.__class__.__name__, e.message))
+                       aiidauser.email,
+                       computer.name,
+                       e.__class__.__name__, e.message))
             execlogger.error(msg)
             # Continue with next computer
             continue
@@ -233,10 +233,10 @@ def update_jobs():
     qmanager = QueryFactory()()
     # I create a unique set of pairs (computer, aiidauser)
     computers_users_to_check = qmanager.query_jobcalculations_by_computer_user_state(
-            state=calc_states.WITHSCHEDULER,
-            only_computer_user_pairs=True,
-            only_enabled=True
-        )
+        state=calc_states.WITHSCHEDULER,
+        only_computer_user_pairs=True,
+        only_enabled=True
+    )
 
     for computer, aiidauser in computers_users_to_check:
 
@@ -250,9 +250,9 @@ def update_jobs():
             msg = ("Error while updating calculation status "
                    "for aiidauser={} on computer={}, "
                    "error type is {}, error message: {}".format(
-                aiidauser.email,
-                computer.name,
-                e.__class__.__name__, e.message))
+                       aiidauser.email,
+                       computer.name,
+                       e.__class__.__name__, e.message))
             execlogger.error(msg)
             # Continue with next computer
             continue
@@ -266,14 +266,13 @@ def submit_jobs():
     from aiida.utils.logger import get_dblogger_extra
     from aiida.backends.utils import get_authinfo, QueryFactory
 
-
     qmanager = QueryFactory()()
     # I create a unique set of pairs (computer, aiidauser)
     computers_users_to_check = qmanager.query_jobcalculations_by_computer_user_state(
-            state=calc_states.TOSUBMIT,
-            only_computer_user_pairs=True,
-            only_enabled=True
-        )
+        state=calc_states.TOSUBMIT,
+        only_computer_user_pairs=True,
+        only_enabled=True
+    )
 
     for computer, aiidauser in computers_users_to_check:
 
@@ -288,12 +287,12 @@ def submit_jobs():
                 # Put each calculation in the SUBMISSIONFAILED state because
                 # I do not have AuthInfo to submit them
                 calcs_to_inquire = qmanager.query_jobcalculations_by_computer_user_state(
-                        state=calc_states.TOSUBMIT,
-                        computer=computer, user=aiidauser
-                    )
+                    state=calc_states.TOSUBMIT,
+                    computer=computer, user=aiidauser
+                )
                 #~ calcs_to_inquire = JobCalculation._get_all_with_state(
-                    #~ state=calc_states.TOSUBMIT,
-                    #~ computer=computer, user=aiidauser)
+                #~ state=calc_states.TOSUBMIT,
+                #~ computer=computer, user=aiidauser)
                 for calc in calcs_to_inquire:
                     try:
                         calc._set_state(calc_states.SUBMISSIONFAILED)
@@ -304,8 +303,8 @@ def submit_jobs():
                     execlogger.error("Submission of calc {} failed, "
                                      "computer pk= {} ({}) is not configured "
                                      "for aiidauser {}".format(
-                        calc.pk, computer.pk, computer.get_name(),
-                        aiidauser.email),
+                                         calc.pk, computer.pk, computer.get_name(),
+                                         aiidauser.email),
                                      extra=logger_extra)
                 # Go to the next (dbcomputer,aiidauser) pair
                 continue
@@ -317,9 +316,9 @@ def submit_jobs():
             msg = ("Error while submitting jobs "
                    "for aiidauser={} on computer={}, "
                    "error type is {}, traceback: {}".format(
-                aiidauser.email,
-                computer.name,
-                e.__class__.__name__, traceback.format_exc()))
+                       aiidauser.email,
+                       computer.name,
+                       e.__class__.__name__, traceback.format_exc()))
             print msg
             execlogger.error(msg)
             # Continue with next computer
@@ -336,22 +335,19 @@ def submit_jobs_with_authinfo(authinfo):
 
     from aiida.backends.utils import QueryFactory
 
-
-
     if not authinfo.enabled:
         return
 
     execlogger.debug("Submitting jobs for user {} "
                      "and machine {}".format(
-        authinfo.aiidauser.email, authinfo.dbcomputer.name))
+                         authinfo.aiidauser.email, authinfo.dbcomputer.name))
 
     qmanager = QueryFactory()()
     # I create a unique set of pairs (computer, aiidauser)
     calcs_to_inquire = qmanager.query_jobcalculations_by_computer_user_state(
-            state=calc_states.TOSUBMIT,
+        state=calc_states.TOSUBMIT,
         computer=authinfo.dbcomputer,
         user=authinfo.aiidauser)
-
 
     # I avoid to open an ssh connection if there are
     # no calcs with state WITHSCHEDULER
@@ -372,7 +368,7 @@ def submit_jobs_with_authinfo(authinfo):
                         # requires the user intervention
                         execlogger.warning("There was an exception for "
                                            "calculation {} ({}): {}".format(
-                            c.pk, e.__class__.__name__, e.message))
+                                               c.pk, e.__class__.__name__, e.message))
                         # I just proceed to the next calculation
                         continue
         # Catch exceptions also at this level (this happens only if there is
@@ -472,7 +468,7 @@ def submit_calc(calc, authinfo, transport=None):
 
             codes_info = calcinfo.codes_info
             input_codes = [load_node(_.code_uuid, parent_class=Code)
-                           for _ in codes_info ]
+                           for _ in codes_info]
 
             for code in input_codes:
                 if not code.can_run_on(computer):
@@ -563,7 +559,7 @@ def submit_calc(calc, authinfo, transport=None):
                 for src_abs_path, dest_rel_path in local_copy_list:
                     execlogger.debug("[submission of calc {}] "
                                      "copying local file/folder to {}".format(
-                        calc.pk, dest_rel_path),
+                                         calc.pk, dest_rel_path),
                                      extra=logger_extra)
                     t.put(src_abs_path, dest_rel_path)
 
@@ -624,12 +620,12 @@ def submit_calc(calc, authinfo, transport=None):
             # the only ones submitting this calculations,
             # so I do not check the ModificationNotAllowed
             calc._set_state(calc_states.WITHSCHEDULER)
-            ## I do not set the state to queued; in this way, if the
-            ## daemon is down, the user sees '(unknown)' as last state
-            ## and understands that the daemon is not running.
+            # I do not set the state to queued; in this way, if the
+            # daemon is down, the user sees '(unknown)' as last state
+            # and understands that the daemon is not running.
             # if job_tmpl.submit_as_hold:
             #    calc._set_scheduler_state(job_states.QUEUED_HELD)
-            #else:
+            # else:
             #    calc._set_scheduler_state(job_states.QUEUED)
 
             execlogger.debug("submitted calculation {} on {} with "
@@ -673,10 +669,9 @@ def retrieve_computed_for_authinfo(authinfo):
     qmanager = QueryFactory()()
     # I create a unique set of pairs (computer, aiidauser)
     calcs_to_retrieve = qmanager.query_jobcalculations_by_computer_user_state(
-            state=calc_states.COMPUTED,
+        state=calc_states.COMPUTED,
         computer=authinfo.dbcomputer,
         user=authinfo.aiidauser)
-
 
     retrieved = []
 
@@ -756,7 +751,7 @@ def retrieve_computed_for_authinfo(authinfo):
                             for rem, loc in zip(remote_names, local_names):
                                 execlogger.debug("[retrieval of calc {}] "
                                                  "Trying to retrieve remote item '{}'".format(
-                                    calc.pk, rem),
+                                                     calc.pk, rem),
                                                  extra=logger_extra)
                                 t.get(rem,
                                       os.path.join(folder.abspath, loc),
@@ -773,7 +768,7 @@ def retrieve_computed_for_authinfo(authinfo):
                         for (linkname, subclassname, filename) in retrieve_singlefile_list:
                             execlogger.debug("[retrieval of calc {}] Trying "
                                              "to retrieve remote singlefile '{}'".format(
-                                calc.pk, filename),
+                                                 calc.pk, filename),
                                              extra=logger_extra)
                             localfilename = os.path.join(
                                 folder.abspath, os.path.split(filename)[1])
@@ -799,13 +794,13 @@ def retrieve_computed_for_authinfo(authinfo):
                     # Finally, store
                     execlogger.debug("[retrieval of calc {}] "
                                      "Storing retrieved_files={}".format(
-                        calc.pk, retrieved_files.dbnode.pk),
+                                         calc.pk, retrieved_files.dbnode.pk),
                                      extra=logger_extra)
                     retrieved_files.store()
                     for fil in singlefiles:
                         execlogger.debug("[retrieval of calc {}] "
                                          "Storing retrieved_singlefile={}".format(
-                            calc.pk, fil.dbnode.pk),
+                                             calc.pk, fil.dbnode.pk),
                                          extra=logger_extra)
                         fil.store()
 

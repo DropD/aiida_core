@@ -61,4 +61,3 @@ class DbUser(Base):
     def get_aiida_class(self):
         from aiida.orm.user import User
         return User(dbuser=self)
-

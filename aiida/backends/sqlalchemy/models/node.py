@@ -47,7 +47,6 @@ class DbNode(Base):
     attributes = Column(JSONB)
     extras = Column(JSONB)
 
-
     dbcomputer_id = Column(
         Integer,
         ForeignKey('db_dbcomputer.id', deferrable=True, initially="DEFERRED", ondelete="RESTRICT"),
@@ -81,7 +80,7 @@ class DbNode(Base):
     dbcomputer = relationship(
         'DbComputer',
         # backref=backref('dbnodes')
-        backref = backref('dbnodes', passive_deletes='all', cascade='merge')
+        backref=backref('dbnodes', passive_deletes='all', cascade='merge')
     )
 
     # User
@@ -118,7 +117,6 @@ class DbNode(Base):
 
         if self.extras is None:
             self.extras = dict()
-
 
     # XXX repetition between django/sqlalchemy here.
     def get_aiida_class(self):
@@ -388,5 +386,5 @@ DbNode.state_instance = relationship(
 # most recent state's state (the string) for this dbnode
 DbNode.state = column_property(
     select([recent_states.c.state]).
-        where(recent_states.c.dbnode_id == foreign(DbNode.id))
+    where(recent_states.c.dbnode_id == foreign(DbNode.id))
 )

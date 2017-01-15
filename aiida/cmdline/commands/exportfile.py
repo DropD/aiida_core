@@ -60,12 +60,12 @@ class Export(VerdiCommand):
 
         zipsubgroup = parser.add_mutually_exclusive_group()
         zipsubgroup.add_argument('-z', '--zipfile-compressed',
-                            dest='zipfilec', action='store_true',
-                            help="Store as zip file (experimental, should be "
+                                 dest='zipfilec', action='store_true',
+                                 help="Store as zip file (experimental, should be "
                                  "faster")
         zipsubgroup.add_argument('-Z', '--zipfile-uncompressed',
-                            dest='zipfileu', action='store_true',
-                            help="Store as uncompressed zip file "
+                                 dest='zipfileu', action='store_true',
+                                 help="Store as uncompressed zip file "
                                  "(experimental, should be faster")
         parser.set_defaults(zipfilec=False)
         parser.set_defaults(zipfileu=False)
@@ -156,7 +156,7 @@ class Export(VerdiCommand):
                 what=what_list, also_parents=not parsed_args.no_parents,
                 also_calc_outputs=not parsed_args.no_calc_outputs,
                 outfile=parsed_args.output_file,
-                overwrite=parsed_args.overwrite,**additional_kwargs)
+                overwrite=parsed_args.overwrite, **additional_kwargs)
         except IOError as e:
             print >> sys.stderr, "IOError: {}".format(e.message)
             sys.exit(1)

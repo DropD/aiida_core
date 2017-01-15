@@ -180,19 +180,19 @@ class Calculation(VerdiCommandWithSubcommands):
                             type=int, default=None,
                             help='set a limit to the number of rows returned')
         parser.add_argument('-o', '--order-by',
-                            choices=['id', 'ctime'], 
+                            choices=['id', 'ctime'],
                             default='ctime',
                             help='order the results')
         parser.add_argument('--project',
                             choices=(
-                                    'pk', 'state', 'ctime', 'sched', 'computer',
-                                    'type', 'description', 'label', 'uuid',
-                                    'mtime', 'user'
-                                ),
+                                'pk', 'state', 'ctime', 'sched', 'computer',
+                                'type', 'description', 'label', 'uuid',
+                                'mtime', 'user'
+                            ),
                             nargs='+',
                             default=('pk', 'state', 'ctime', 'sched', 'computer', 'type'),
                             help="Define the list of properties to show"
-                        )
+                            )
 
         args = list(args)
         parsed_args = parser.parse_args(args)
@@ -806,7 +806,7 @@ class Calculation(VerdiCommandWithSubcommands):
             # initialize a key of info for a given computer
             remotes[computer.name] = {'transport': get_authinfo(
                 computer=computer, aiidauser=user._dbuser).get_transport(),
-                                      'computer': computer,
+                'computer': computer,
             }
 
             # select the calc pks done on this computer

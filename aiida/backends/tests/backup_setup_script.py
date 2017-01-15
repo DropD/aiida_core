@@ -45,8 +45,8 @@ class TestBackupSetupScriptUnit(AiidaTestCase):
         # Checking parsing of backup variables with all the answers given
         ac = utils.ArrayCounter()
         answers = ["2013-07-28 20:48:53.197537+02:00", "y",
-                    "2", "y", "2015-07-28 20:48:53.197537+02:00", "y",
-                    "3", "y", "4", "y"]
+                   "2", "y", "2015-07-28 20:48:53.197537+02:00", "y",
+                   "3", "y", "4", "y"]
         utils.raw_input = lambda _: answers[ac.array_counter()]
         bk_vars = _backup_setup_inst.construct_backup_variables("")
         # Check the parsed answers
@@ -82,11 +82,11 @@ class TestBackupSetupScriptIntegration(AiidaTestCase):
                        "",                  # should the folder be created?
                        "n",                 # print config explanation?
                        "",                  # configure the backup conf file now?
-                       "2014-07-18 13:54:53.688484+00:00", # start date of backup?
+                       "2014-07-18 13:54:53.688484+00:00",  # start date of backup?
                        "",                  # is it correct?
                        "",                  # days to backup?
                        "",                  # is it correct?
-                       "2015-04-11 13:55:53.688484+00:00", # end date of backup
+                       "2015-04-11 13:55:53.688484+00:00",  # end date of backup
                        "",                  # is it correct?
                        "1",                 # periodicity
                        "",                  # is it correct?
@@ -97,7 +97,6 @@ class TestBackupSetupScriptIntegration(AiidaTestCase):
             # Run the setup script and catch the sysout
             with Capturing():
                 backup_setup.BackupSetup().run()
-
 
             # Get the backup configuration files & dirs
             backup_conf_records = [f for f in os.listdir(temp_aiida_folder)]

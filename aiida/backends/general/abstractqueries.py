@@ -4,11 +4,11 @@ from abc import ABCMeta, abstractmethod
 class AbstractQueryManager(object):
     __metaclass__ = ABCMeta
 
-
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         pass
     # This is an example of a query that could be overriden by a better implementation,
     # for performance reasons:
+
     def query_jobcalculations_by_computer_user_state(
             self, state, computer=None, user=None,
             only_computer_user_pairs=False,
@@ -49,7 +49,7 @@ class AbstractQueryManager(object):
 
         if state not in calc_states:
             raise InputValidationError("querying for calculation state='{}', but it "
-                                "is not a valid calculation state".format(state))
+                                       "is not a valid calculation state".format(state))
 
         calcfilter = {'state': {'==': state}}
         computerfilter = {"enabled": {'==': True}}
@@ -96,4 +96,3 @@ class AbstractQueryManager(object):
             returnresult = qb.all()
             returnresult = zip(*returnresult)[0]
         return returnresult
-

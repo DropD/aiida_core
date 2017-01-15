@@ -62,7 +62,7 @@ class BaseCodtoolsParser(Parser):
         """
         Checks the output folder for standard output and standard error
         files, returns their absolute paths on success.
-        
+
         :param retrieved: A dictionary of retrieved nodes, as obtained from the
           parser.
         """
@@ -75,7 +75,7 @@ class BaseCodtoolsParser(Parser):
             raise InvalidOperation("Calculation not in {} state"
                                    .format(calc_states.PARSING))
 
-        # Check that the retrieved folder is there 
+        # Check that the retrieved folder is there
         try:
             out_folder = retrieved[self._calc._get_linkname_retrieved()]
         except KeyError:
@@ -125,7 +125,7 @@ class BaseCodtoolsParser(Parser):
 
         output_nodes.append(('messages',
                              ParameterData(dict={'output_messages':
-                                                     messages})))
+                                                 messages})))
 
         return success, output_nodes
 

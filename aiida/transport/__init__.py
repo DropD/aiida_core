@@ -3,7 +3,10 @@ import aiida.common
 from aiida.common.exceptions import InternalError
 from aiida.common.extendeddicts import FixedFieldsAttributeDict
 
-import os, re, fnmatch, sys  # for glob commands
+import os
+import re
+import fnmatch
+import sys  # for glob commands
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. and 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Python Software Foundation. All rights reserved."
 __license__ = "MIT license, and Python license, see LICENSE.txt file"
@@ -49,8 +52,8 @@ class TransportInternalError(InternalError):
     pass
 
 
-def copy_from_remote_to_remote(transportsource,transportdestination,
-                                  remotesource,remotedestination,**kwargs):
+def copy_from_remote_to_remote(transportsource, transportdestination,
+                               remotesource, remotedestination, **kwargs):
     """
     Copy files or folders from a remote computer to another remote computer.
 
@@ -64,8 +67,9 @@ def copy_from_remote_to_remote(transportsource,transportdestination,
     .. note:: it uses the method transportsource.copy_from_remote_to_remote
     """
     transportsource.copy_from_remote_to_remote(transportdestination,
-                                               remotesource,remotedestination,
+                                               remotesource, remotedestination,
                                                **kwargs)
+
 
 class Transport(object):
     """
@@ -204,7 +208,6 @@ class Transport(object):
 
         raise NotImplementedError
 
-
     def chmod(self, path, mode):
         """
         Change permissions of a path.
@@ -213,7 +216,6 @@ class Transport(object):
         :param int mode: new permissions
         """
         raise NotImplementedError
-
 
     def chown(self, path, uid, gid):
         """
@@ -228,7 +230,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def copy(self, remotesource, remotedestination, *args, **kwargs):
         """
         Copy a file or a directory from remote source to remote destination
@@ -240,7 +241,6 @@ class Transport(object):
         :raises: IOError, if one of src or dst does not exist
         """
         raise NotImplementedError
-
 
     def copyfile(self, remotesource, remotedestination, *args, **kwargs):
         """
@@ -254,7 +254,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def copytree(self, remotesource, remotedestination, *args, **kwargs):
         """
         Copy a folder from remote source to remote destination
@@ -267,9 +266,8 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
-    def copy_from_remote_to_remote(self,transportdestination,
-                                      remotesource,remotedestination,**kwargs):
+    def copy_from_remote_to_remote(self, transportdestination,
+                                   remotesource, remotedestination, **kwargs):
         """
         Copy files or folders from a remote computer to another remote computer.
 
@@ -294,16 +292,16 @@ class Transport(object):
         from aiida.common.folders import SandboxFolder
 
         kwargs_get = {'callback': None,
-                      'dereference': kwargs.pop('dereference',True),
+                      'dereference': kwargs.pop('dereference', True),
                       'overwrite': True,
                       'ignore_nonexisting': False,
                       }
         # TODO: dereference should be set to False in the following, as soon as
         # dereference=False is supported by all transport plugins
-        kwargs_put = {'callback': kwargs.pop('callback',None),
+        kwargs_put = {'callback': kwargs.pop('callback', None),
                       'dereference': True,
-                      'overwrite': kwargs.pop('overwrite',True),
-                      'ignore_nonexisting': kwargs.pop('ignore_nonexisting',False),
+                      'overwrite': kwargs.pop('overwrite', True),
+                      'ignore_nonexisting': kwargs.pop('ignore_nonexisting', False),
                       }
 
         if kwargs:
@@ -317,9 +315,8 @@ class Transport(object):
             # from sandbox.get_abs_path('*') would not work for files
             # beginning with a dot ('.').
             for filename in sandbox.get_content_list():
-                transportdestination.put(os.path.join(sandbox.abspath,filename),
-                                         remotedestination,**kwargs_put)
-
+                transportdestination.put(os.path.join(sandbox.abspath, filename),
+                                         remotedestination, **kwargs_put)
 
     def _exec_command_internal(self, command, **kwargs):
         """
@@ -337,7 +334,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def exec_command_wait(self, command, **kwargs):
         """
         Execute the command on the shell, waits for it to finish,
@@ -351,7 +347,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def get(self, remotepath, localpath, *args, **kwargs):
         """
         Retrieve a file or folder from remote source to local destination
@@ -361,7 +356,6 @@ class Transport(object):
         :param localpath: (str) local_folder_path
         """
         raise NotImplementedError
-
 
     def getfile(self, remotepath, localpath, *args, **kwargs):
         """
@@ -373,7 +367,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def gettree(self, remotepath, localpath, *args, **kwargs):
         """
         Retrieve a folder recursively from remote source to local destination
@@ -384,7 +377,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def getcwd(self):
         """
         Get working directory
@@ -392,7 +384,6 @@ class Transport(object):
         :return: a string identifying the current working directory
         """
         raise NotImplementedError
-
 
     def get_attribute(self, path):
         """
@@ -417,7 +408,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def get_mode(self, path):
         """
         Return the portion of the file's mode that can be set by chmod().
@@ -429,7 +419,6 @@ class Transport(object):
 
         return stat.S_IMODE(self.get_attribute(path).st_mode)
 
-
     def isdir(self, path):
         """
         True if path is an existing directory.
@@ -439,7 +428,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def isfile(self, path):
         """
         Return True if path is an existing file.
@@ -448,7 +436,6 @@ class Transport(object):
         :return: boolean
         """
         raise NotImplementedError
-
 
     def listdir(self, path='.', pattern=None):
         """
@@ -462,7 +449,6 @@ class Transport(object):
         :return: a list of strings
         """
         raise NotImplementedError
-
 
     def makedirs(self, path, ignore_existing=False):
         """
@@ -478,7 +464,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def mkdir(self, path, ignore_existing=False):
         """
         Create a folder (directory) named path.
@@ -490,7 +475,6 @@ class Transport(object):
         :raises: OSError, if directory at path already exists
         """
         raise NotImplementedError
-
 
     def normalize(self, path='.'):
         """
@@ -504,7 +488,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def put(self, localpath, remotepath, *args, **kwargs):
         """
         Put a file or a directory from local src to remote dst.
@@ -516,7 +499,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def putfile(self, localpath, remotepath, *args, **kwargs):
         """
         Put a file from local src to remote dst.
@@ -526,7 +508,6 @@ class Transport(object):
         :param str remotepath: path to remote file
         """
         raise NotImplementedError
-
 
     def puttree(self, localpath, remotepath, *args, **kwargs):
         """
@@ -538,7 +519,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def remove(self, path):
         """
         Remove the file at the given path. This only works on files;
@@ -549,7 +529,6 @@ class Transport(object):
         :raise IOError: if the path is a directory
         """
         raise NotImplementedError
-
 
     def rename(self, oldpath, newpath):
         """
@@ -563,7 +542,6 @@ class Transport(object):
         """
         raise NotImplementedError
 
-
     def rmdir(self, path):
         """
         Remove the folder named path.
@@ -572,7 +550,6 @@ class Transport(object):
         :param str path: absolute path to the folder to remove
         """
         raise NotImplementedError
-
 
     def rmtree(self, path):
         """
@@ -628,7 +605,6 @@ class Transport(object):
             self.logger.error("Problem executing whoami. Exit code: {}, stdout: '{}', "
                               "stderr: '{}'".format(retval, username, stderr))
             raise IOError("Error while executing whoami. Exit code: {}".format(retval))
-
 
     def path_exists(self, path):
         """
@@ -688,7 +664,7 @@ class Transport(object):
                               sys.getdefaultencoding())
         try:
             # names = os.listdir(dirname)
-            #print dirname
+            # print dirname
             names = self.listdir(dirname)
         except os.error:
             return []

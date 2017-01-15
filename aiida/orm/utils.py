@@ -66,7 +66,6 @@ def load_node(node_id=None, pk=None, uuid=None, parent_class=None):
     # the implementation is frozen to the default one at import time.
     from aiida.orm.implementation import Node
 
-
     if int(node_id is None) + int(pk is None) + int(uuid is None) == 3:
         raise ValueError("one of the parameters 'node_id', 'pk' and 'uuid' "
                          "has to be supplied")

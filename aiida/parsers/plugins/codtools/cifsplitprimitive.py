@@ -52,6 +52,6 @@ class CifsplitprimitiveParser(BaseCodtoolsParser):
             content = [x.strip('\n') for x in content]
             output_nodes.append(('messages',
                                  ParameterData(dict={'output_messages':
-                                                         content})))
+                                                     content})))
 
         return success, output_nodes

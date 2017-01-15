@@ -172,7 +172,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
         # case of semimetals, fermi energy at the crossing of two bands
         # this will only work if the dirac point is computed!
         elif (any(i[0] == fermi_energy for i in max_mins) and
-                  any(i[1] == fermi_energy for i in max_mins)):
+              any(i[1] == fermi_energy for i in max_mins)):
             return False, 0.
         # insulating case
         else:
@@ -445,7 +445,7 @@ class BandsData(KpointsData):
         # as a result, where there are discontinuities in the path,
         # I have two consecutive points with the same x coordinate
         distances = [numpy.linalg.norm(kpoints[i] - kpoints[i - 1]) if not
-        (i in labels_indices and i - 1 in labels_indices) else 0.
+                     (i in labels_indices and i - 1 in labels_indices) else 0.
                      for i in range(1, len(kpoints))]
         x = [float(sum(distances[:i])) for i in range(len(distances) + 1)]
 

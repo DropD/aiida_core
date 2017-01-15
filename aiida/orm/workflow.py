@@ -8,6 +8,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 def kill_from_pk(pk, verbose=False):
     """
     Kills a workflow without loading the class, useful when there was a problem
@@ -21,4 +22,3 @@ def kill_from_pk(pk, verbose=False):
         Workflow.get_subclass_from_pk(pk).kill(verbose=verbose)
     except IndexError:
         raise NotExistent("No workflow with pk= {} found.".format(pk))
-

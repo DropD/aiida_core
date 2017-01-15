@@ -207,7 +207,7 @@ class QueryTool(AbstractQueryTool):
             #            yield r.get_aiida_class(), {
             #                'extras': self._create_extra_dict(r.dbextras.all()),
             #                'attrs': self._create_attr_dict(r.dbattributes.all())}
-            #return res.distinct()
+            # return res.distinct()
 
     def create_extras_dict(self):
         """
@@ -394,7 +394,7 @@ class QueryTool(AbstractQueryTool):
         #
         #    new_entry.datatype = 'list'
         #    new_entry.ival = length
-        #elif isinstance(value, dict):
+        # elif isinstance(value, dict):
         #    new_entry.datatype = 'dict'
         #    new_entry.ival = len(value)
         else:
@@ -432,4 +432,3 @@ class QueryTool(AbstractQueryTool):
             pass
         else:
             attrdict[key] = reldata
-

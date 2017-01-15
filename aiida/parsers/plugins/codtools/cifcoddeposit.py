@@ -62,7 +62,7 @@ class CifcoddepositParser(CiffilterParser):
         output_nodes = []
         output_nodes.append(('messages',
                              ParameterData(dict={'output_messages':
-                                                     messages,
+                                                 messages,
                                                  'status': status})))
 
         if status == cod_deposition_states.SUCCESS:

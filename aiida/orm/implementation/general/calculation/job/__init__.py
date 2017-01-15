@@ -688,7 +688,7 @@ class AbstractJobCalculation(object):
         for item in retrieve_list:
             if not isinstance(item, basestring):
                 if (not (isinstance(item, (tuple, list))) or
-                            len(item) != 3):
+                        len(item) != 3):
                     raise ValueError(
                         "You should pass a list containing either "
                         "strings or lists/tuples"
@@ -1298,7 +1298,7 @@ class AbstractJobCalculation(object):
                 else:
                     raise MultipleObjectsError("More than one output node "
                                                "with label '{}' for calc with pk= {}".format(
-                        retrieved_linkname, self.pk))
+                                                   retrieved_linkname, self.pk))
 
         if retrieved_node is None:
             return None
@@ -1357,7 +1357,7 @@ class AbstractJobCalculation(object):
                 "An error occurred while trying to kill "
                 "calculation {} (jobid {}), see log "
                 "(maybe the calculation already finished?)"
-                    .format(self.pk, self.get_job_id()))
+                .format(self.pk, self.get_job_id()))
         else:
             # Do not set the state, but let the parser do its job
             # self._set_state(calc_states.FAILED)
@@ -1413,7 +1413,7 @@ class AbstractJobCalculation(object):
 
         # I create the job template to pass to the scheduler
         job_tmpl = JobTemplate()
-        ## TODO: in the future, allow to customize the following variables
+        # TODO: in the future, allow to customize the following variables
         job_tmpl.submit_as_hold = False
         job_tmpl.rerunnable = False
         job_tmpl.job_environment = {}
@@ -1431,11 +1431,11 @@ class AbstractJobCalculation(object):
                          if calcinfo.retrieve_list is not None
                          else [])
         if (job_tmpl.sched_output_path is not None and
-                    job_tmpl.sched_output_path not in retrieve_list):
+                job_tmpl.sched_output_path not in retrieve_list):
             retrieve_list.append(job_tmpl.sched_output_path)
         if not job_tmpl.sched_join_files:
             if (job_tmpl.sched_error_path is not None and
-                        job_tmpl.sched_error_path not in retrieve_list):
+                    job_tmpl.sched_error_path not in retrieve_list):
                 retrieve_list.append(job_tmpl.sched_error_path)
         self._set_retrieve_list(retrieve_list)
 
@@ -1450,7 +1450,7 @@ class AbstractJobCalculation(object):
                 raise PluginInternalError("[presubmission of calc {}] "
                                           "retrieve_singlefile_list subclass problem: "
                                           "{} is not subclass of SinglefileData".format(
-                    self.pk, FileSubclass.__name__))
+                                              self.pk, FileSubclass.__name__))
         self._set_retrieve_singlefile_list(retrieve_singlefile_list)
 
         # the if is done so that if the method returns None, this is
@@ -1476,7 +1476,7 @@ class AbstractJobCalculation(object):
         job_tmpl.job_resource = s.create_job_resource(**resources_dict)
 
         subst_dict = {'tot_num_mpiprocs':
-                          job_tmpl.job_resource.get_tot_num_mpiprocs()}
+                      job_tmpl.job_resource.get_tot_num_mpiprocs()}
 
         for k, v in job_tmpl.job_resource.iteritems():
             subst_dict[k] = v
@@ -1618,7 +1618,7 @@ class AbstractJobCalculation(object):
             raise PluginInternalError(
                 "[presubmission of calc {}] "
                 "remote_copy_list format problem: {}".
-                    format(this_pk, e.message))
+                format(this_pk, e.message))
 
         for (remote_computer_uuid, remote_abs_path,
              dest_rel_path) in remote_copy_list:
@@ -1687,8 +1687,8 @@ class AbstractJobCalculation(object):
         else:
             subfolder_basename = subfolder_name
 
-        ## Find a new subfolder.
-        ## I do not user tempfile.mkdtemp, because it puts random characters
+        # Find a new subfolder.
+        # I do not user tempfile.mkdtemp, because it puts random characters
         # at the end of the directory name, therefore making difficult to
         # understand the order in which directories where stored
         counter = 0

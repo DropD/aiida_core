@@ -10,6 +10,7 @@ __authors__ = "The AiiDA team."
 
 
 class TestDefaultsDict(unittest.TestCase):
+
     def setUp(self):
         self.defaults_dict = DefaultsDict(
             valid_keys=['foo', 'bar'],
@@ -281,6 +282,7 @@ class TestAttributeDictSerialize(unittest.TestCase):
 
 
 class TestFFAD(unittest.TestCase):
+
     def test_insertion(self):
         a = TestFFADExample()
         a['a'] = 1
@@ -320,6 +322,7 @@ class TestFFAD(unittest.TestCase):
 
 
 class TestDFAD(unittest.TestCase):
+
     def test_insertion_and_retrieval(self):
         a = TestDFADExample()
         a['a'] = 1
@@ -352,7 +355,6 @@ class TestDFAD(unittest.TestCase):
         self.assertEquals(set(TestDFADExample.get_default_fields()),
                           set(['a', 'b', 'c']))
 
-
     def test_validation(self):
         o = TestDFADExample()
 
@@ -374,4 +376,3 @@ class TestDFAD(unittest.TestCase):
         # a.a must be a positive integer
         with self.assertRaises(ValidationError):
             o.validate()
-

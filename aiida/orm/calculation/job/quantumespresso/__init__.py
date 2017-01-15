@@ -34,13 +34,13 @@ class BasePwCpInputGenerator(object):
     _DATAFILE_XML = 'undefined.xml'
     _ENVIRON_INPUT_FILE_NAME = 'environ.in'
 
-    ## NOTE!! DO NOT UPDATE lists and dictionaries defined here,
-    ## they will be changed for all classes of the current run!
+    # NOTE!! DO NOT UPDATE lists and dictionaries defined here,
+    # they will be changed for all classes of the current run!
 
     # Additional files that should always be retrieved for the specific plugin
     _internal_retrieve_list = []
 
-    ## Default PW output parser provided by AiiDA
+    # Default PW output parser provided by AiiDA
     # to be defined in the subclass
 
     _automatic_namelists = {}
@@ -142,7 +142,7 @@ class BasePwCpInputGenerator(object):
             },
         }
 
-    def _generate_PWCPinputdata(self,parameters,settings_dict,pseudos,structure,kpoints=None):
+    def _generate_PWCPinputdata(self, parameters, settings_dict, pseudos, structure, kpoints=None):
         """
         This method creates the content of an input file
         in the PW/CP format.
@@ -233,8 +233,8 @@ class BasePwCpInputGenerator(object):
                 pseudo_filenames[ps.pk] = filename
                 # I add this pseudo file to the list of files to copy
                 local_copy_list_to_append.append((ps.get_file_abs_path(),
-                                        os.path.join(self._PSEUDO_SUBFOLDER,
-                                                     filename)))
+                                                  os.path.join(self._PSEUDO_SUBFOLDER,
+                                                               filename)))
             kind_names.append(kind.name)
             atomic_species_card_list.append("{} {} {}\n".format(
                 kind.name.ljust(6), kind.mass, filename))
@@ -306,10 +306,10 @@ class BasePwCpInputGenerator(object):
                 raise InputValidationError(
                     "Input structure contains {:d} sites, but "
                     "atomic velocities has length {:d}".format(
-                            len(structure.sites),
-                            len(atomic_velocities)
-                        )
+                        len(structure.sites),
+                        len(atomic_velocities)
                     )
+                )
             atomic_velocities_strings = ["ATOMIC_VELOCITIES\n"]
             for site, vel in zip(structure.sites, atomic_velocities):
                 # Checking that all 3 dimension are specified:
@@ -320,11 +320,11 @@ class BasePwCpInputGenerator(object):
                 # Appending to atomic_velocities_strings
                 atomic_velocities_strings.append(
                     "{0} {1:18.10f} {2:18.10f} {3:18.10f}\n".format(
-                            site.kind_name.ljust(6),
-                            vel[0], vel[1], vel[2]
-                        )
+                        site.kind_name.ljust(6),
+                        vel[0], vel[1], vel[2]
                     )
-            # I append to atomic_positions_card  so that velocities 
+                )
+            # I append to atomic_positions_card  so that velocities
             # are defined right after positions:
             atomic_positions_card = atomic_positions_card + "".join(atomic_velocities_strings)
             # Freeing the memory
@@ -382,7 +382,7 @@ class BasePwCpInputGenerator(object):
 
                 else:
                     if (len(kpoints_list) != 1 or
-                                tuple(kpoints_list[0]) != tuple(0., 0., 0.)):
+                            tuple(kpoints_list[0]) != tuple(0., 0., 0.)):
                         raise InputValidationError(
                             "If a gamma_only calculation is requested, the "
                             "kpoints coordinates must only be (0.,0.,0.)")
@@ -450,23 +450,23 @@ class BasePwCpInputGenerator(object):
         inputfile = ""
         for namelist_name in namelists_toprint:
             inputfile += "&{0}\n".format(namelist_name)
-            # namelist content; set to {} if not present, so that we leave an 
+            # namelist content; set to {} if not present, so that we leave an
             # empty namelist
             namelist = input_params.pop(namelist_name, {})
             for k, v in sorted(namelist.iteritems()):
                 inputfile += get_input_data_text(k, v, mapping=mapping_species)
             inputfile += "/\n"
-    
+
         # Write cards now
         inputfile += atomic_species_card
         inputfile += atomic_positions_card
         if self._use_kpoints:
             inputfile += kpoints_card
         inputfile += cell_parameters_card
-        #TODO: write CONSTRAINTS
-        #TODO: write OCCUPATIONS
-            
-        if input_params:            
+        # TODO: write CONSTRAINTS
+        # TODO: write OCCUPATIONS
+
+        if input_params:
             raise InputValidationError(
                 "The following namelists are specified in input_params, but are "
                 "not valid namelists for the current type of calculation: "
@@ -568,7 +568,7 @@ class BasePwCpInputGenerator(object):
         if set(kindnames) != set(pseudos.keys()):
             err_msg = ("Mismatch between the defined pseudos and the list of "
                        "kinds of the structure. Pseudos: {}; kinds: {}".format(
-                ",".join(pseudos.keys()), ",".join(list(kindnames))))
+                           ",".join(pseudos.keys()), ",".join(list(kindnames))))
             raise InputValidationError(err_msg)
 
         ##############################
@@ -586,14 +586,14 @@ class BasePwCpInputGenerator(object):
         if vdw_table:
             local_copy_list.append(
                 (
-                vdw_table.get_file_abs_path(),
-                os.path.join(self._PSEUDO_SUBFOLDER,
-                    os.path.split(vdw_table.get_file_abs_path())[1])
+                    vdw_table.get_file_abs_path(),
+                    os.path.join(self._PSEUDO_SUBFOLDER,
+                                 os.path.split(vdw_table.get_file_abs_path())[1])
                 )
-                )
+            )
 
-        input_filecontent, local_copy_pseudo_list = self._generate_PWCPinputdata(parameters,settings_dict,pseudos,
-                                                                                 structure,kpoints)
+        input_filecontent, local_copy_pseudo_list = self._generate_PWCPinputdata(parameters, settings_dict, pseudos,
+                                                                                 structure, kpoints)
         local_copy_list += local_copy_pseudo_list
 
         input_filename = tempfolder.get_abs_path(self._INPUT_FILE_NAME)
@@ -644,7 +644,7 @@ class BasePwCpInputGenerator(object):
                 settings_dict['CMDLINE'] = ['-environ']
             # To create a mapping from the species to an incremental fortran 1-based index
             # we use the alphabetical order as in the inputdata generation
-            mapping_species = {sp_name: (idx+1) for idx, sp_name in 
+            mapping_species = {sp_name: (idx + 1) for idx, sp_name in
                                enumerate(sorted([kind.name for kind in structure.kinds]))}
             environ_input_filename = tempfolder.get_abs_path(
                 self._ENVIRON_INPUT_FILE_NAME)
@@ -713,7 +713,7 @@ class BasePwCpInputGenerator(object):
         if settings_dict:
             raise InputValidationError("The following keys have been found in "
                                        "the settings input node, but were not understood: {}".format(
-                ",".join(settings_dict.keys())))
+                                           ",".join(settings_dict.keys())))
 
         return calcinfo
 
@@ -801,7 +801,7 @@ class BasePwCpInputGenerator(object):
         Used to get the reference structure to obtain which 
         pseudopotentials to use from a given family using 
         use_pseudos_from_family. 
-        
+
         :note: this method can be redefined in a given subclass
                to specify which is the reference structure to consider.
         """
@@ -821,7 +821,7 @@ class BasePwCpInputGenerator(object):
         if input_remote:
             raise ValidationError("Cannot set several parent calculation to a "
                                   "{} calculation".format(
-                self.__class__.__name__))
+                                      self.__class__.__name__))
 
         self.use_parent_folder(remotedata)
 
@@ -906,7 +906,7 @@ class BasePwCpInputGenerator(object):
         c2.use_code(calc_inp[self.get_linkname('code')])
         try:
             old_settings_dict = calc_inp[self.get_linkname('settings')
-            ].get_dict()
+                                         ].get_dict()
         except KeyError:
             old_settings_dict = {}
         if parent_folder_symlink is not None:

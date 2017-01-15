@@ -14,6 +14,7 @@ from aiida.orm import load_node
 import aiida.work.util as util
 from aiida.work.test_utils import DummyProcess, ExceptionProcess
 
+
 def get_true_node():
     """
     Return a TRUE node.
@@ -22,6 +23,7 @@ def get_true_node():
     """
     from aiida.orm.data.base import get_true_node
     return get_true_node()
+
 
 class ProcessEventsTester(Process):
     EVENTS = ["create", "run", "continue_", "finish", "emitted", "stop",
@@ -104,6 +106,7 @@ class FailCreateFromSavedStateProcess(DummyProcess):
 
 
 class TestDaemon(unittest.TestCase):
+
     def setUp(self):
         self.assertEquals(len(util.ProcessStack.stack()), 0)
 
@@ -153,4 +156,3 @@ class TestDaemon(unittest.TestCase):
 
         self.assertTrue(registry.has_finished(dp_pk))
         self.assertFalse(registry.has_finished(fail_pk))
-

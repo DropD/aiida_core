@@ -15,6 +15,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 def check_convert_single_to_tuple(item):
     """
     Checks if the item is a list or tuple, and converts it to a list if it is
@@ -29,12 +30,14 @@ def check_convert_single_to_tuple(item):
     else:
         return [item]
 
+
 class XyData(ArrayData):
     """
     A subclass designed to handle arrays that have an "XY" relationship to
     each other. That is there is one array, the X array, and there are several
     Y arrays, which can be considered functions of X.
     """
+
     def _arrayandname_validator(self, array, name, units):
         """
         Validates that the array is an numpy.ndarray and that the name is
@@ -54,9 +57,8 @@ class XyData(ArrayData):
                                        "floats")
         if not isinstance(units, basestring):
             raise InputValidationError("The units must always be an instance"
-                                           " of basestring.")
+                                       " of basestring.")
 
-        
     def set_x(self, x_array, x_name, x_units):
         """
         Sets the array and the name for the x values.
@@ -70,7 +72,6 @@ class XyData(ArrayData):
         self._set_attr("x_units", x_units)
         self.set_array("x_array", x_array)
 
-        
     def set_y(self, y_arrays, y_names, y_units):
         """
         Set array(s) for the y part of the dataset. Also checks if the
@@ -99,8 +100,8 @@ class XyData(ArrayData):
             raise InputValidationError("X array has not been set yet")
         # validate each of the y_arrays
         for num, (y_array, y_name, y_unit) in enumerate(
-                                            zip(y_arrays, y_names, y_units)):
-            self._arrayandname_validator(y_array,y_name,y_unit)
+                zip(y_arrays, y_names, y_units)):
+            self._arrayandname_validator(y_array, y_name, y_unit)
             if np.shape(y_array) != np.shape(x_array):
                 raise InputValidationError("y_array {} did not have the "
                                            "same shape has the x_array!"
@@ -126,7 +127,7 @@ class XyData(ArrayData):
         except (KeyError, AttributeError):
             raise NotExistent("No x array has been set yet!")
         return x_name, x_array, x_units
-    
+
     def get_y(self):
         """
         Tries to retrieve the y arrays and the y names, raises a
@@ -151,8 +152,8 @@ class XyData(ArrayData):
         except (KeyError, AttributeError):
             raise NotExistent("Could not retrieve array associated with y array"
                               " {}".format(y_names[i]))
-        return zip(y_names,y_arrays,y_units)
-    
+        return zip(y_names, y_arrays, y_units)
+
     def _exportstring(self):
         raise NotImplementedError
 

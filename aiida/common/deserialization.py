@@ -8,6 +8,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 class DeserializationException(AiidaException):
     pass
 
@@ -104,7 +105,7 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
         if not expected_set.issubset(received_set):
             if (original_class is not None
-                and original_class._subspecifier_field_name is not None):
+                    and original_class._subspecifier_field_name is not None):
                 subspecifier_string = "{}={} and ".format(
                     original_class._subspecifier_field_name,
                     original_pk)
@@ -117,12 +118,12 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             raise DeserializationException("Wrong list elements stored in {} for "
                                            "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], expected_set, received_set))
+                                               sourcestr,
+                                               subspecifier_string,
+                                               mainitem['key'], expected_set, received_set))
         if expected_set != received_set:
             if (original_class is not None and
-                        original_class._subspecifier_field_name is not None):
+                    original_class._subspecifier_field_name is not None):
                 subspecifier_string = "{}={} and ".format(
                     original_class._subspecifier_field_name,
                     original_pk)
@@ -135,9 +136,9 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             msg = ("Wrong list elements stored in {} for "
                    "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], expected_set, received_set))
+                       sourcestr,
+                       subspecifier_string,
+                       mainitem['key'], expected_set, received_set))
             if lesserrors:
                 print msg
                 #~ aiidalogger.error(msg)
@@ -167,7 +168,7 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
         if len(firstlevelsubdict) != mainitem['ival']:
             if (original_class is not None and
-                        original_class._subspecifier_field_name is not None):
+                    original_class._subspecifier_field_name is not None):
                 subspecifier_string = "{}={} and ".format(
                     original_class._subspecifier_field_name,
                     original_pk)
@@ -180,10 +181,10 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             msg = ("Wrong dict length stored in {} for "
                    "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], len(firstlevelsubdict),
-                mainitem['ival']))
+                       sourcestr,
+                       subspecifier_string,
+                       mainitem['key'], len(firstlevelsubdict),
+                       mainitem['ival']))
             if lesserrors:
                 print msg
                 #~ aiidalogger.error(msg)

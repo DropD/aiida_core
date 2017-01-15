@@ -25,6 +25,7 @@ __authors__ = "The AiiDA team."
 
 
 class Node(AbstractNode):
+
     @classmethod
     def get_subclass_from_uuid(cls, uuid):
         from aiida.backends.djsite.db.models import DbNode

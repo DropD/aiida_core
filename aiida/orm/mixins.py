@@ -78,7 +78,6 @@ class SealableWithUpdatableAttributes(Sealable):
                 "Cannot delete the attributes of a sealed calculation.")
         super(SealableWithUpdatableAttributes, self)._del_attr(key)
 
-
     @override
     def _del_attr(self, key):
         if self.is_sealed and key not in self._updatable_attributes:

@@ -14,6 +14,7 @@ __authors__ = "The AiiDA team."
 
 
 class DummyProcess(Process):
+
     @classmethod
     def define(cls, spec):
         super(DummyProcess, cls).define(spec)
@@ -25,6 +26,7 @@ class DummyProcess(Process):
 
 
 class TestTickingEngine(AiidaTestCase):
+
     def setUp(self):
         super(TestTickingEngine, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)
@@ -59,4 +61,3 @@ class TestTickingEngine(AiidaTestCase):
     def _keep_ticking(self):
         while self.ticking_engine.tick():
             pass
-

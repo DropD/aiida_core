@@ -52,7 +52,7 @@ class NnincDbImporter(DbImporter):
 
         if kwargs.keys():
             raise NotImplementedError("search keyword(s) '"
-                                      "', '".join(kwargs.keys()) + \
+                                      "', '".join(kwargs.keys()) +
                                       "' is(are) not implemented for NNIN/C")
 
         return self._query_url + '?' + "&".join(get_parts)
@@ -94,9 +94,9 @@ class NnincDbImporter(DbImporter):
             self._query_url = query_url
 
         if kwargs.keys():
-            raise NotImplementedError( \
-                "unknown database connection parameter(s): '" + \
-                "', '".join(kwargs.keys()) + \
+            raise NotImplementedError(
+                "unknown database connection parameter(s): '" +
+                "', '".join(kwargs.keys()) +
                 "', available parameters: 'query_url'")
 
     def get_supported_keywords(self):

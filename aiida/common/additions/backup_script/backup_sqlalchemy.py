@@ -98,8 +98,8 @@ class Backup(AbstractBackup):
             # Raise exception
             self._logger.error(
                 "Unexpected item type to backup: {}"
-                    .format(type(item)))
+                .format(type(item)))
             raise BackupError(
                 "Unexpected item type to backup: {}"
-                    .format(type(item)))
+                .format(type(item)))
         return source_dir

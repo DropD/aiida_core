@@ -12,6 +12,7 @@ import aiida.work.util as util
 
 
 class TestProcessSpec(AiidaTestCase):
+
     def setUp(self):
         super(TestProcessSpec, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)
@@ -68,4 +69,3 @@ class TestProcessSpec(AiidaTestCase):
 
         # Check that we can unpack
         self.assertEqual(dict(**template)['a'], 2)
-

@@ -329,8 +329,8 @@ Job Id: 74165.mycluster
 
 """
 
-## This contains in the 10-th job unexpected newlines
-## in the sched_hint field. Still, it should parse correctly.
+# This contains in the 10-th job unexpected newlines
+# in the sched_hint field. Still, it should parse correctly.
 text_qstat_f_to_test_with_unexpected_newlines = """Job Id: 549159
     Job_Name = somejob
     Job_Owner = user_549159
@@ -773,27 +773,27 @@ class TestParserQstat(unittest.TestCase):
         self.assertEquals(job_parsed, job_on_cluster)
 
         job_running = 2
-        job_running_parsed = len([j for j in job_list if j.job_state \
+        job_running_parsed = len([j for j in job_list if j.job_state
                                   and j.job_state == job_states.RUNNING])
         self.assertEquals(job_running, job_running_parsed)
 
         job_held = 2
-        job_held_parsed = len([j for j in job_list if j.job_state \
+        job_held_parsed = len([j for j in job_list if j.job_state
                                and j.job_state == job_states.QUEUED_HELD])
         self.assertEquals(job_held, job_held_parsed)
 
         job_queued = 2
-        job_queued_parsed = len([j for j in job_list if j.job_state \
+        job_queued_parsed = len([j for j in job_list if j.job_state
                                  and j.job_state == job_states.QUEUED])
         self.assertEquals(job_queued, job_queued_parsed)
 
         running_users = ['user02', 'user3']
-        parsed_running_users = [j.job_owner for j in job_list if j.job_state \
+        parsed_running_users = [j.job_owner for j in job_list if j.job_state
                                 and j.job_state == job_states.RUNNING]
         self.assertEquals(set(running_users), set(parsed_running_users))
 
         running_jobs = ['69301.mycluster', '74164.mycluster']
-        parsed_running_jobs = [j.job_id for j in job_list if j.job_state \
+        parsed_running_jobs = [j.job_id for j in job_list if j.job_state
                                and j.job_state == job_states.RUNNING]
         self.assertEquals(set(running_jobs), set(parsed_running_jobs))
 
@@ -828,27 +828,27 @@ class TestParserQstat(unittest.TestCase):
         self.assertEquals(job_parsed, job_on_cluster)
 
         job_running = 2
-        job_running_parsed = len([j for j in job_list if j.job_state \
+        job_running_parsed = len([j for j in job_list if j.job_state
                                   and j.job_state == job_states.RUNNING])
         self.assertEquals(job_running, job_running_parsed)
 
         job_held = 1
-        job_held_parsed = len([j for j in job_list if j.job_state \
+        job_held_parsed = len([j for j in job_list if j.job_state
                                and j.job_state == job_states.QUEUED_HELD])
         self.assertEquals(job_held, job_held_parsed)
 
         job_queued = 5
-        job_queued_parsed = len([j for j in job_list if j.job_state \
+        job_queued_parsed = len([j for j in job_list if j.job_state
                                  and j.job_state == job_states.QUEUED])
         self.assertEquals(job_queued, job_queued_parsed)
 
         running_users = ['somebody', 'user_556491']
-        parsed_running_users = [j.job_owner for j in job_list if j.job_state \
+        parsed_running_users = [j.job_owner for j in job_list if j.job_state
                                 and j.job_state == job_states.RUNNING]
         self.assertEquals(set(running_users), set(parsed_running_users))
 
         running_jobs = ['555716', '556491']
-        parsed_running_jobs = [j.job_id for j in job_list if j.job_state \
+        parsed_running_jobs = [j.job_id for j in job_list if j.job_state
                                and j.job_state == job_states.RUNNING]
         self.assertEquals(set(running_jobs), set(parsed_running_jobs))
 
@@ -864,7 +864,9 @@ class TestParserQstat(unittest.TestCase):
                 self.assertTrue(j.num_cpus == num_cpus)
                 # TODO : parse the env_vars
 
+
 class TestSubmitScript(unittest.TestCase):
+
     def test_submit_script(self):
         """
         Test to verify if scripts works fine with default options
@@ -890,7 +892,7 @@ class TestSubmitScript(unittest.TestCase):
         self.assertTrue(submit_script_text.startswith('#!/bin/bash'))
         self.assertTrue('#PBS -l nodes=1:ppn=1,walltime=24:00:00'
                         in submit_script_text)
-        self.assertTrue("'mpirun' '-np' '23' 'pw.x' '-npool' '1'" + \
+        self.assertTrue("'mpirun' '-np' '23' 'pw.x' '-npool' '1'" +
                         " < 'aiida.in'" in submit_script_text)
 
     def test_submit_script_with_num_cores_per_machine(self):
@@ -929,7 +931,6 @@ class TestSubmitScript(unittest.TestCase):
         self.assertTrue("'mpirun' '-np' '23' 'pw.x' '-npool' '1'" +
                         " < 'aiida.in'" in submit_script_text)
 
-
     def test_submit_script_with_num_cores_per_mpiproc(self):
         """
         Test to verify if scripts works fine if we pass only 
@@ -965,7 +966,6 @@ class TestSubmitScript(unittest.TestCase):
                         in submit_script_text)
         self.assertTrue("'mpirun' '-np' '23' 'pw.x' '-npool' '1'" +
                         " < 'aiida.in'" in submit_script_text)
-
 
     def test_submit_script_with_num_cores_per_machine_and_mpiproc1(self):
         """
@@ -1005,7 +1005,6 @@ class TestSubmitScript(unittest.TestCase):
                         in submit_script_text)
         self.assertTrue("'mpirun' '-np' '23' 'pw.x' '-npool' '1'" +
                         " < 'aiida.in'" in submit_script_text)
-
 
     def test_submit_script_with_num_cores_per_machine_and_mpiproc2(self):
         """

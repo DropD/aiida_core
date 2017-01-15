@@ -69,12 +69,12 @@ class AbstractNode(object):
                 if newcls._plugin_type_string == 'node.Node.':
                     newcls._plugin_type_string = ''
                 newcls._query_type_string = get_query_type_string(
-                        newcls._plugin_type_string
-                    )
+                    newcls._plugin_type_string
+                )
             else:
                 raise InternalError("Class {} is not in a module under "
                                     "aiida.orm. (module is {})".format(
-                    name, attrs['__module__']))
+                                        name, attrs['__module__']))
 
             return newcls
 
@@ -179,13 +179,13 @@ class AbstractNode(object):
         return not self._to_be_stored
 
     def __repr__(self):
-         return '<{}: {}>'.format(self.__class__.__name__, str(self))
+        return '<{}: {}>'.format(self.__class__.__name__, str(self))
 
     def __str__(self):
-         if not self.is_stored:
-             return "uuid: {} (unstored)".format(self.uuid)
-         else:
-             return "uuid: {} (pk: {})".format(self.uuid, self.pk)
+        if not self.is_stored:
+            return "uuid: {} (unstored)".format(self.uuid)
+        else:
+            return "uuid: {} (pk: {})".format(self.uuid, self.pk)
 
     def _init_internal_params(self):
         """
@@ -279,7 +279,7 @@ class AbstractNode(object):
                     raise ValueError("Cannot set {} directly when creating "
                                      "the node or using the .set() method; "
                                      "use the specific method instead.".format(
-                        incomp[0]))
+                                         incomp[0]))
                 else:
                     raise ValueError("Cannot set {} at the same time".format(
                         " and ".join(incomp)))
@@ -739,7 +739,6 @@ class AbstractNode(object):
                 self.set_extra(key, value)
         except AttributeError:
             raise AttributeError("set_extras takes a dictionary as argument")
-
 
     @abstractmethod
     def reset_extras(self, new_extras):

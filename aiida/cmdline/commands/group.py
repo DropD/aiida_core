@@ -505,7 +505,6 @@ class Group(VerdiCommandWithSubcommands):
         groups = tuple([(str(g.pk), g.name, len(g.nodes), g.user.email.strip(),
                          g.description) for g in res])
 
-
         table = []
         if parsed_args.with_description:
             table_header = \

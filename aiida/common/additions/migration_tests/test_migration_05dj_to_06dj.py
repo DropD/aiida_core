@@ -134,7 +134,7 @@ class MigrationTest(unittest.TestCase):
         # Find all the needed directories that contain configuration files
         curr_file_dir = os.path.dirname(os.path.realpath(__file__))
         dir_with_conf_subdirs = os.path.join(curr_file_dir,
-                                           self._conf_files_rel_path)
+                                             self._conf_files_rel_path)
         subdirs_with_confs = os.listdir(dir_with_conf_subdirs)
         # For every available testing directory (with configuration files)
         for d in subdirs_with_confs:

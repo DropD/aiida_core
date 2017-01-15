@@ -158,8 +158,8 @@ class TestQEPWInputGeneration(AiidaTestCase):
             [0., 2.871, 0.],
             [0., 0., 2.871]])
 
-        ## I leave this as a reference, but I use instead the
-        ## append_atom method
+        # I leave this as a reference, but I use instead the
+        # append_atom method
         # from aiida.orm.data.structure import Kind, Site
         # s.append_kind(Kind(symbols='Ba', name='Ba1'))
         # s.append_kind(Kind(symbols='Ba', name='Ba2'))
@@ -182,7 +182,7 @@ class TestQEPWInputGeneration(AiidaTestCase):
                 'starting_magnetization': {
                     'Ba1': 0.5,
                     'Ba2': -0.5
-                    },
+                },
             },
             'ELECTRONS': {
                 'conv_thr': 1.e-10,

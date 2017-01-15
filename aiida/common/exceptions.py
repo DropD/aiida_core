@@ -9,7 +9,7 @@ __authors__ = "The AiiDA team."
 class AiidaException(Exception):
     """
     Base class for all AiiDA exceptions.
-    
+
     Each module will have its own subclass, inherited from this
     (e.g. ExecManagerException, TransportException, ...)
     """
@@ -122,11 +122,13 @@ class ConfigurationError(AiidaException):
     """
     pass
 
+
 class ProfileConfigurationError(ConfigurationError):
     """
     Configuration error raised when a wrong/inexistent profile is requested.
     """
     pass
+
 
 class DbContentError(AiidaException):
     """
@@ -189,6 +191,7 @@ class LicensingException(AiidaException):
     Raised when requirements for data licensing are not met.
     """
     pass
+
 
 class TestsNotAllowedError(AiidaException):
     """

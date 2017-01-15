@@ -52,4 +52,3 @@ class FolderData(Data):
         except (OSError, IOError):
             raise NotExistent("Error reading the file '{}' inside node with "
                               "pk= {}, it probably does not exist?".format(path, self.pk))
-

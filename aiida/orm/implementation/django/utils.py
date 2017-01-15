@@ -32,7 +32,7 @@ def get_db_columns(db_class):
         'UUIDField': str,
     }
 
-    ## Retrieve the columns of the table corresponding to the present class
+    # Retrieve the columns of the table corresponding to the present class
     columns = db_class._meta.fields
 
     column_names = []
@@ -40,7 +40,7 @@ def get_db_columns(db_class):
     column_python_types = []
     foreign_keys = []
 
-    ## retrieve names, types, and convert types in python types.
+    # retrieve names, types, and convert types in python types.
     for column in columns:
 
         name = column.get_attname()
@@ -60,17 +60,16 @@ def get_db_columns(db_class):
                 raise DbContentError(' "{}" field has not a unique foreign '
                                      'relationship')
             else:
-                #Collect infos of the foreing key
+                # Collect infos of the foreing key
                 foreign_keys.append((name, relation[0][0], relation[0][1]))
-                #Change the type according to the type of the related column
+                # Change the type according to the type of the related column
                 type = relation[0][1].get_internal_type()
 
         column_types.append(type)
 
-
     column_python_types = map(lambda x: django2python_map[x], column_types)
 
-    ## Fill in the returned dictionary
+    # Fill in the returned dictionary
     schema = {}
 
     # Fill in the keys based on the column names and the types. By default we

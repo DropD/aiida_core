@@ -23,9 +23,9 @@ def get_all_custom_transports():
     """
     Autodiscover all custom transports defined in the variable
     plugin_transpors inside each test_* file in this folder.
-    
+
     Therefore, do not move this function out of this file.
-    
+
     :return: a dictionary of objects as defined in the various plugin_transport
       variables of the different files (the key is the module in which
       it was found)
@@ -353,10 +353,10 @@ class TestDirectoryManipulation(unittest.TestCase):
             # TODO : bug in paramiko. When changing the directory to very low \
             # I cannot set it back to higher permissions
 
-            ## TODO: probably here we should then check for 
-            ## the new directory modes. To see if we want a higher
-            ## level function to ask for the mode, or we just
-            ## use get_attribute
+            # TODO: probably here we should then check for
+            # the new directory modes. To see if we want a higher
+            # level function to ask for the mode, or we just
+            # use get_attribute
             t.chdir(directory)
 
             # change permissions of an empty string, non existing folder.
@@ -414,7 +414,7 @@ class TestDirectoryManipulation(unittest.TestCase):
             # TODO : the test leaves a directory even if it is successful
             #        The bug is in paramiko. After lowering the permissions,
             #        I cannot restore them to higher values
-            #t.rmdir(directory)
+            # t.rmdir(directory)
 
     @run_for_all_plugins
     def test_isfile_isdir_to_empty_string(self, custom_transport):
@@ -612,7 +612,7 @@ class TestPutGetFile(unittest.TestCase):
             retrieved_file_name = os.path.join(local_dir, directory, 'file_retrieved.txt')
 
             text = 'Viva Verdi\n'
-            with  open(local_file_name, 'w') as f:
+            with open(local_file_name, 'w') as f:
                 f.write(text)
 
             # localpath is an empty string
@@ -739,7 +739,8 @@ class TestPutGetTree(unittest.TestCase):
 
     @run_for_all_plugins
     def test_put_and_get_overwrite(self, custom_transport):
-        import os, shutil
+        import os
+        import shutil
         import random
         import string
 
@@ -793,7 +794,6 @@ class TestPutGetTree(unittest.TestCase):
             # here I am mixing inevitably the local and the remote folder
             t.chdir('..')
             t.rmtree(directory)
-
 
     @run_for_all_plugins
     def test_copy(self, custom_transport):
@@ -861,8 +861,8 @@ class TestPutGetTree(unittest.TestCase):
             self.assertTrue(t.isfile('prova'))
             t.remove('prova')
             # copy of folder into an existing folder
-            #NOTE: the command cp has a different behavior on Mac vs Ubuntu
-            #tests performed locally on a Mac may result in a failure.
+            # NOTE: the command cp has a different behavior on Mac vs Ubuntu
+            # tests performed locally on a Mac may result in a failure.
             t.mkdir('prova')
             t.copy('local', 'prova')
             self.assertEquals(set(['local']),
@@ -873,7 +873,6 @@ class TestPutGetTree(unittest.TestCase):
             # exit
             t.chdir('..')
             t.rmtree(directory)
-
 
     @run_for_all_plugins
     def test_put(self, custom_transport):
@@ -963,14 +962,14 @@ class TestPutGetTree(unittest.TestCase):
             t.chdir('..')
             t.rmtree(directory)
 
-
     @run_for_all_plugins
     def test_get(self, custom_transport):
         # exactly the same tests of copy, just with the put function
         # and therefore the local path must be absolute
         import os
         import random
-        import string, shutil
+        import string
+        import shutil
 
         local_dir = os.path.join('/', 'tmp')
         remote_dir = local_dir
@@ -1161,7 +1160,7 @@ class TestPutGetTree(unittest.TestCase):
             local_file_name = os.path.join(local_subfolder, 'file.txt')
 
             text = 'Viva Verdi\n'
-            with  open(local_file_name, 'w') as f:
+            with open(local_file_name, 'w') as f:
                 f.write(text)
 
             # localpath is an empty string
@@ -1205,7 +1204,7 @@ class TestPutGetTree(unittest.TestCase):
 class TestExecuteCommandWait(unittest.TestCase):
     """
     Test some simple command executions and stdin/stdout management.
-    
+
     It also checks for escaping of the folder names.
     """
 
@@ -1291,6 +1290,3 @@ class TestExecuteCommandWait(unittest.TestCase):
             with self.assertRaises(ValueError):
                 _ = t.exec_command_wait(
                     'cat', stdin=1)
-
-
-

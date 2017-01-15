@@ -34,10 +34,12 @@ Session = sessionmaker(expire_on_commit=expire_on_commit)
 # This inherits only from 'object' to avoid that it is picked up by the automatic discovery of tests
 # (It shouldn't, as it risks to destroy the DB if there are not the checks in place, and these are
 # implemented in the AiidaTestCase
+
+
 class SqlAlchemyTests(AiidaTestImplementation):
 
     # Specify the need to drop the table at the beginning of a test case
-    # If True, completely drops the tables and recreates the schema, 
+    # If True, completely drops the tables and recreates the schema,
     # but this is usually unnecessary and pretty slow
     # Also, if the tests are interrupted, there is the risk that the
     # DB remains dropped, so you have to do 'verdi -p test_xxx setup' again to
@@ -53,7 +55,7 @@ class SqlAlchemyTests(AiidaTestImplementation):
             if self.connection is None:
                 config = get_profile_config(AIIDADB_PROFILE)
                 engine = get_engine(config)
-                
+
                 self.test_session = get_session(engine=engine)
                 self.connection = engine.connect()
 
@@ -81,7 +83,7 @@ class SqlAlchemyTests(AiidaTestImplementation):
         """
         email = get_configured_user_email()
 
-        has_user = DbUser.query.filter(DbUser.email==email).first()
+        has_user = DbUser.query.filter(DbUser.email == email).first()
         if not has_user:
             self.user = DbUser(get_configured_user_email(), "foo", "bar",
                                "tests")
@@ -180,7 +182,7 @@ class SqlAlchemyTests(AiidaTestImplementation):
         self.test_session = None
 
         # Don't close it each time, no need
-        #self.connection.close()
+        # self.connection.close()
 
         # I clean the test repository
         shutil.rmtree(REPOSITORY_PATH, ignore_errors=True)

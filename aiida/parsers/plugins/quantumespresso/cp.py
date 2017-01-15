@@ -26,7 +26,7 @@ class CpParser(Parser):
     def __init__(self, calc):
         """
         Initialize the instance of CpParser
-        
+
         :param calculation: calculation object.
         """
         # check for valid input
@@ -41,9 +41,10 @@ class CpParser(Parser):
         Does all the logic here.
         """
         from aiida.common.exceptions import InvalidOperation
-        import os, numpy
+        import os
+        import numpy
         from distutils.version import LooseVersion
-        
+
         successful = True
 
         # check if I'm not to overwrite anything
@@ -56,10 +57,10 @@ class CpParser(Parser):
         input_structure = self._calc.inp.structure
 
         # load the input dictionary
-        # TODO: pass this input_dict to the parser. It might need it.            
+        # TODO: pass this input_dict to the parser. It might need it.
         input_dict = self._calc.inp.parameters.get_dict()
 
-        # Check that the retrieved folder is there 
+        # Check that the retrieved folder is there
         try:
             out_folder = retrieved[self._calc._get_linkname_retrieved()]
         except KeyError:
@@ -176,38 +177,38 @@ class CpParser(Parser):
                 matrix.shape[1]
             except IndexError:
                 matrix = numpy.array(numpy.matrix(matrix))
-            
+
             if LooseVersion(out_dict['creator_version']) > LooseVersion("5.1"):
                 # Between version 5.1 and 5.1.1, someone decided to change
-                # the .evp output format, without any way to know that this 
+                # the .evp output format, without any way to know that this
                 # happened... SVN commit 11158.
                 # I here use the version number to parse, plus some
                 # heuristics to check that I'm doing the right thing
-                #print "New version"
-                raw_trajectory['steps'] = numpy.array(matrix[:,0],dtype=int)
-                raw_trajectory['evp_times']                 = matrix[:,1]                    # TPS, ps
-                raw_trajectory['electronic_kinetic_energy'] = matrix[:,2] * hartree_to_ev    # EKINC, eV
-                raw_trajectory['cell_temperature']          = matrix[:,3]                    # TEMPH, K
-                raw_trajectory['ionic_temperature']         = matrix[:,4]                    # TEMPP, K
-                raw_trajectory['scf_total_energy']          = matrix[:,5] * hartree_to_ev    # ETOT, eV
-                raw_trajectory['enthalpy']                  = matrix[:,6] * hartree_to_ev    # ENTHAL, eV
-                raw_trajectory['enthalpy_plus_kinetic']     = matrix[:,7] * hartree_to_ev    # ECONS, eV
-                raw_trajectory['energy_constant_motion']    = matrix[:,8] * hartree_to_ev    # ECONT, eV
-                raw_trajectory['volume']                    = matrix[:,9] * (bohr_to_ang**3) # volume, angstrom^3
-                raw_trajectory['pressure']                  = matrix[:,10]                    # out_press, GPa
+                # print "New version"
+                raw_trajectory['steps'] = numpy.array(matrix[:, 0], dtype=int)
+                raw_trajectory['evp_times'] = matrix[:, 1]                    # TPS, ps
+                raw_trajectory['electronic_kinetic_energy'] = matrix[:, 2] * hartree_to_ev    # EKINC, eV
+                raw_trajectory['cell_temperature'] = matrix[:, 3]                    # TEMPH, K
+                raw_trajectory['ionic_temperature'] = matrix[:, 4]                    # TEMPP, K
+                raw_trajectory['scf_total_energy'] = matrix[:, 5] * hartree_to_ev    # ETOT, eV
+                raw_trajectory['enthalpy'] = matrix[:, 6] * hartree_to_ev    # ENTHAL, eV
+                raw_trajectory['enthalpy_plus_kinetic'] = matrix[:, 7] * hartree_to_ev    # ECONS, eV
+                raw_trajectory['energy_constant_motion'] = matrix[:, 8] * hartree_to_ev    # ECONT, eV
+                raw_trajectory['volume'] = matrix[:, 9] * (bohr_to_ang**3)  # volume, angstrom^3
+                raw_trajectory['pressure'] = matrix[:, 10]                    # out_press, GPa
             else:
-                #print "Old version"    
-                raw_trajectory['steps'] = numpy.array(matrix[:,0],dtype=int)
-                raw_trajectory['electronic_kinetic_energy'] = matrix[:,1] * hartree_to_ev    # EKINC, eV
-                raw_trajectory['cell_temperature']          = matrix[:,2]                    # TEMPH, K
-                raw_trajectory['ionic_temperature']         = matrix[:,3]                    # TEMPP, K
-                raw_trajectory['scf_total_energy']          = matrix[:,4] * hartree_to_ev    # ETOT, eV
-                raw_trajectory['enthalpy']                  = matrix[:,5] * hartree_to_ev    # ENTHAL, eV
-                raw_trajectory['enthalpy_plus_kinetic']     = matrix[:,6] * hartree_to_ev    # ECONS, eV
-                raw_trajectory['energy_constant_motion']    = matrix[:,7] * hartree_to_ev    # ECONT, eV
-                raw_trajectory['volume']                    = matrix[:,8] * (bohr_to_ang**3) # volume, angstrom^3
-                raw_trajectory['pressure']                  = matrix[:,9]                    # out_press, GPa
-                raw_trajectory['evp_times']                  = matrix[:,10]                    # TPS, ps
+                # print "Old version"
+                raw_trajectory['steps'] = numpy.array(matrix[:, 0], dtype=int)
+                raw_trajectory['electronic_kinetic_energy'] = matrix[:, 1] * hartree_to_ev    # EKINC, eV
+                raw_trajectory['cell_temperature'] = matrix[:, 2]                    # TEMPH, K
+                raw_trajectory['ionic_temperature'] = matrix[:, 3]                    # TEMPP, K
+                raw_trajectory['scf_total_energy'] = matrix[:, 4] * hartree_to_ev    # ETOT, eV
+                raw_trajectory['enthalpy'] = matrix[:, 5] * hartree_to_ev    # ENTHAL, eV
+                raw_trajectory['enthalpy_plus_kinetic'] = matrix[:, 6] * hartree_to_ev    # ECONS, eV
+                raw_trajectory['energy_constant_motion'] = matrix[:, 7] * hartree_to_ev    # ECONT, eV
+                raw_trajectory['volume'] = matrix[:, 8] * (bohr_to_ang**3)  # volume, angstrom^3
+                raw_trajectory['pressure'] = matrix[:, 9]                    # out_press, GPa
+                raw_trajectory['evp_times'] = matrix[:, 10]                    # TPS, ps
 
             # Huristics to understand if it's correct.
             # A better heuristics could also try to fix possible issues
@@ -216,9 +217,9 @@ class CpParser(Parser):
             # but I won't do it, as there may be also other columns swapped.
             # Better to stop and ask the user to check what's going on.
             max_time_difference = abs(
-                numpy.array(raw_trajectory['times']) - 
+                numpy.array(raw_trajectory['times']) -
                 numpy.array(raw_trajectory['evp_times'])).max()
-            if max_time_difference > 1.e-4: # It is typically ~1.e-7 due to roundoff errors
+            if max_time_difference > 1.e-4:  # It is typically ~1.e-7 due to roundoff errors
                 # If there is a large discrepancy, I set successful = False,
                 # it means there is something very weird going on...
                 out_dict['warnings'].append("Error parsing EVP file ({}). Skipping file."
@@ -235,13 +236,13 @@ class CpParser(Parser):
                         pass
             # Delete evp_times in any case, it's a duplicate of 'times'
             del raw_trajectory['evp_times']
-            
+
         except Exception as e:
             out_dict['warnings'].append("Error parsing EVP file ({}). Skipping file.".format(e.message))
         except IOError:
             out_dict['warnings'].append("Unable to open the EVP file... skipping.")
 
-        # get the symbols from the input        
+        # get the symbols from the input
         # TODO: I should have kinds in TrajectoryData
         raw_trajectory['symbols'] = numpy.array([str(i.kind_name) for i in input_structure.sites])
 
@@ -252,16 +253,16 @@ class CpParser(Parser):
                             positions=raw_trajectory['positions_ordered'],
                             times=raw_trajectory['times'],
                             velocities=raw_trajectory['velocities_ordered'],
-        )
+                            )
 
         for this_name in evp_keys:
             try:
-                traj.set_array(this_name,raw_trajectory[this_name])
+                traj.set_array(this_name, raw_trajectory[this_name])
             except KeyError:
                 # Some columns may have not been parsed, skip
                 pass
-        new_nodes_list = [(self.get_linkname_trajectory(),traj)]
-        
+        new_nodes_list = [(self.get_linkname_trajectory(), traj)]
+
         # Remove big dictionaries that would be redundant
         # For atoms and cell, there is a small possibility that nothing is parsed
         # but then probably nothing moved.
@@ -295,7 +296,7 @@ class CpParser(Parser):
             del out_dict['atoms_if_pos_list']
         except KeyError:
             pass
-        # 
+        #
         try:
             del out_dict['ions_positions_force']
         except KeyError:
@@ -347,7 +348,7 @@ class CpParser(Parser):
         # third atom) in the CP output files.
         # Example: [0,2,3,4,1]
         reordering = [_[0] for _ in new_order_tmp]
-        # I now need the inverse reordering, to put back in place 
+        # I now need the inverse reordering, to put back in place
         # from the output ordering to the input one!
         # Example: [0,4,1,2,3]
         # Because in the final list (Ba, O, O, O, Ti)

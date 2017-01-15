@@ -6,6 +6,7 @@ from aiida.common.lang import override
 
 
 class ClassLoader(plum.class_loader.ClassLoader):
+
     @staticmethod
     def is_wrapped_job_calculation(name):
         from aiida.work.legacy.job_process import JobProcess
@@ -25,6 +26,7 @@ class ClassLoader(plum.class_loader.ClassLoader):
 
 # The default class loader instance
 _CLASS_LOADER = plum.class_loader.ClassLoader(ClassLoader())
+
 
 def get_default():
     pass

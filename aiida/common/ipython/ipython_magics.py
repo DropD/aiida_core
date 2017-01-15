@@ -27,7 +27,7 @@ Usage
 """
 import json
 import IPython
-from IPython.core.magic import (magics_class, line_magic, Magics, 
+from IPython.core.magic import (magics_class, line_magic, Magics,
                                 needs_local_scope)
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. All rights reserved."
@@ -35,14 +35,15 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 def add_to_ns(local_ns, name, obj):
     """
     Add a new variable with name ``name`` and value ``obj`` to the 
     namespace ``local_ns``, optionally showing a warning if we are 
     hiding an existing variable.
-    
+
     .. todo:: implement the warning.
-    
+
     Example::
 
         # assuming that local_ns is a dictionary, e.g. from locals()
@@ -53,7 +54,8 @@ def add_to_ns(local_ns, name, obj):
         # TODO: print warning, or raise
         pass
     local_ns[name] = obj
-    
+
+
 @magics_class
 class AiiDALoaderMagics(Magics):
 
@@ -67,13 +69,13 @@ class AiiDALoaderMagics(Magics):
         Usage::
 
             %aiida [optional parameters]
-        
+
         .. todo:: implement parameters, e.g. for the profile to load.
         """
         import aiida
-        
+
         from aiida import is_dbenv_loaded, load_dbenv
-                
+
         self.is_warning = False
         if is_dbenv_loaded():
             self.current_state = "Note! AiiDA DB environment already loaded! I do not reload it again."
@@ -86,7 +88,7 @@ class AiiDALoaderMagics(Magics):
         user_ns = Shell().get_start_namespace()
         for k, v in user_ns.iteritems():
             add_to_ns(local_ns, k, v)
-            
+
         return self
 
     def _repr_json_(self):
@@ -137,7 +139,7 @@ class AiiDALoaderMagics(Magics):
 
         pp.text(text)
 
-        
+
 def load_ipython_extension(ipython):
     """
     Triggers the load of all the AiiDA magic commands.

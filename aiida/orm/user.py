@@ -10,6 +10,7 @@ __version__ = "0.7.1"
 
 
 class Util(utils.BackendDelegateWithDefault):
+
     @classmethod
     def create_default(cls):
         # Fall back to Django

@@ -14,7 +14,6 @@ __version__ = "0.7.1"
 __authors__ = "The AiiDA team."
 
 
-
 class TestNwchem(AiidaTestCase):
 
     @unittest.skipIf(not has_ase(), "Unable to import ase")
@@ -56,7 +55,7 @@ class TestNwchem(AiidaTestCase):
             ]
         }
 
-        a = Atoms(['Si', 'Si', 'Si' ,'Si', 'C', 'C', 'C', 'C'],
+        a = Atoms(['Si', 'Si', 'Si', 'Si', 'C', 'C', 'C', 'C'],
                   cell=[8.277, 8.277, 8.277])
         a.set_scaled_positions([
             (-0.5, -0.5, -0.5),
@@ -64,13 +63,13 @@ class TestNwchem(AiidaTestCase):
             (0.0, -0.5, 0.0),
             (-0.5, 0.0, 0.0),
             (-0.25, -0.25, -0.25),
-            (0.25 ,0.25 ,-0.25),
+            (0.25, 0.25, -0.25),
             (0.25, -0.25, 0.25),
-            (-0.25 ,0.25 ,0.25),
+            (-0.25, 0.25, 0.25),
         ])
         s = StructureData(ase=a)
 
-        ## Test 1
+        # Test 1
         # Input file string prodiced by pymatgen
         app = _prepare_pymatgen_dict(par, s)
         # Target input file
@@ -105,7 +104,7 @@ task pspw optimize
 '''
         self.assertEquals(app, target_string)
 
-        ## Test 2
+        # Test 2
         par['add_cell'] = True
 
         # Input file string prodiced by pymatgen

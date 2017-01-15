@@ -16,6 +16,7 @@ __version__ = "0.7.1"
 
 
 class Code(AbstractCode):
+
     @classmethod
     def get_from_string(cls, code_string):
         """
@@ -64,8 +65,8 @@ class Code(AbstractCode):
                                   "ID or label.".format(code_string))
             elif len(codes) > 1:
                 retstr = (
-                "There are multiple codes with label '{}', having IDs: "
-                "".format(code_string))
+                    "There are multiple codes with label '{}', having IDs: "
+                    "".format(code_string))
                 retstr += ", ".join(sorted([str(c.pk) for c in codes])) + ".\n"
                 retstr += ("Relabel them (using their ID), or refer to them "
                            "with their ID.")
@@ -107,7 +108,7 @@ class Code(AbstractCode):
         """
         from aiida.backends.djsite.db.models import DbComputer
         if (not isinstance(remote_computer_exec, (list, tuple))
-            or len(remote_computer_exec) != 2):
+                or len(remote_computer_exec) != 2):
             raise ValueError("remote_computer_exec must be a list or tuple "
                              "of length 2, with machine and executable "
                              "name")
@@ -190,7 +191,7 @@ def delete_code(code):
     if len(existing_outputs) != 0:
         raise InvalidOperation("Unable to delete the requested code because it "
                                "has {} output links".format(
-            len(existing_outputs)))
+                                   len(existing_outputs)))
     else:
         repo_folder = code._repository_folder
         with transaction.commit_on_success():

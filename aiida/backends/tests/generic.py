@@ -388,4 +388,3 @@ class TestDbExtras(AiidaTestCase):
 
     def test_replacement(self):
         pass
-

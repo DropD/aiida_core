@@ -1,6 +1,7 @@
 from aiida.restapi.translator.base import BaseTranslator
 from aiida.restapi.common.config import custom_schema
 
+
 class ComputerTranslator(BaseTranslator):
     """
     It prepares the query_help from user inputs which later will be

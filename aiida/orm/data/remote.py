@@ -11,7 +11,7 @@ __authors__ = "The AiiDA team."
 class RemoteData(Data):
     """
     Store a link to a file or folder on a remote machine.
-    
+
     Remember to pass a computer!
     """
 
@@ -85,4 +85,3 @@ class RemoteData(Data):
         computer = self.get_computer()
         if computer is None:
             raise ValidationError("Remote computer not set.")
-    

@@ -10,6 +10,7 @@ __authors__ = "The AiiDA team."
 
 logger = aiidalogger.getChild('workflowmanager')
 
+
 def execute_steps():
     """
     This method loops on the RUNNING workflows and handled the execution of the
@@ -32,11 +33,11 @@ def execute_steps():
 
     from aiida.orm import JobCalculation
     from aiida.orm.implementation import get_all_running_steps
- 
+
     logger.info("Querying the worflow DB")
-    
+
     running_steps = get_all_running_steps()
-    
+
     for s in running_steps:
         w = s.parent.get_aiida_class()
 
@@ -55,12 +56,12 @@ def execute_steps():
         s_sub_wf_num = len(s.get_sub_workflows())
 
         if (s_calcs_num == (len(s_calcs_finished) + len(s_calcs_failed)) and
-            s_sub_wf_num == (len(s_sub_wf_finished) + len(s_sub_wf_failed))):
+                s_sub_wf_num == (len(s_sub_wf_finished) + len(s_sub_wf_failed))):
 
             logger.info("[{0}] Step: {1} ready to move".format(w.pk, s.name))
 
             s.set_state(wf_states.FINISHED)
-            
+
             advance_workflow(w, s)
 
         elif len(s_calcs_new) > 0:
@@ -73,7 +74,6 @@ def execute_steps():
                     logger.info("[{0}] Step: {1} launched calculation {2}".format(w.pk, s.name, pk))
                 except:
                     logger.error("[{0}] Step: {1} cannot launch calculation {2}".format(w.pk, s.name, pk))
-
 
 
 def advance_workflow(w, step):
@@ -120,8 +120,8 @@ def advance_workflow(w, step):
         logger.info("[{0}] Step: {1} is not finished and has no next call, waiting "
                     "for other methods to kick.".format(w.pk, step.name))
         w.append_to_report("Step: {0} is not finished and has no "
-                                      "next call, waiting for other methods "
-                                      "to kick.".format(step.name))
+                           "next call, waiting for other methods "
+                           "to kick.".format(step.name))
         return True
 
     elif not step.nextcall == None:
@@ -154,5 +154,3 @@ def advance_workflow(w, step):
         w.set_state(wf_states.ERROR)
 
         return False
-
-

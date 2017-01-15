@@ -135,8 +135,8 @@ class DirectScheduler(aiida.scheduler.Scheduler):
 
         lines.append(empty_line)
 
-        ## The following code is not working as there's an empty line
-        ## inserted between the header and the actual command.
+        # The following code is not working as there's an empty line
+        # inserted between the header and the actual command.
         # if job_tmpl.max_wallclock_seconds is not None:
         #     try:
         #         tot_secs = int(job_tmpl.max_wallclock_seconds)
@@ -330,12 +330,12 @@ class DirectScheduler(aiida.scheduler.Scheduler):
                               "stdout={}; stderr={}".format(retval, stdout, stderr))
             raise SchedulerError("Error during submission, retval={}\n"
                                  "stdout={}\nstderr={}".format(
-                retval, stdout, stderr))
+                                     retval, stdout, stderr))
 
         if stderr.strip():
             self.logger.warning("in _parse_submit_output for {}: "
                                 "there was some text in stderr: {}".format(
-                str(self.transport), stderr))
+                                    str(self.transport), stderr))
 
         if not stdout.strip():
             self.logger.debug("Unable to get the PID: retval={}; "
@@ -371,11 +371,11 @@ class DirectScheduler(aiida.scheduler.Scheduler):
         if stderr.strip():
             self.logger.warning("in _parse_kill_output for {}: "
                                 "there was some text in stderr: {}".format(
-                str(self.transport), stderr))
+                                    str(self.transport), stderr))
 
         if stdout.strip():
             self.logger.warning("in _parse_kill_output for {}: "
                                 "there was some text in stdout: {}".format(
-                str(self.transport), stdout))
+                                    str(self.transport), stdout))
 
         return True

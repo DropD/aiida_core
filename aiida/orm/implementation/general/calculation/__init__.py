@@ -45,14 +45,14 @@ def _parse_single_arg(function_name, additional_parameter,
                 if kwargs_copy:
                     raise TypeError("{}() got an unexpected keyword "
                                     "argument '{}'".format(
-                        function_name, kwargs_copy.keys()[0]))
+                                        function_name, kwargs_copy.keys()[0]))
                 else:
                     raise TypeError("{}() requires more "
                                     "arguments".format(function_name))
             if kwargs_copy:
                 raise TypeError("{}() got an unexpected keyword "
                                 "argument '{}'".format(
-                    function_name, kwargs_copy.keys()[0]))
+                                    function_name, kwargs_copy.keys()[0]))
         else:
             raise TypeError("{}() received too many args".format(
                 function_name))
@@ -61,7 +61,7 @@ def _parse_single_arg(function_name, additional_parameter,
         if kwargs:
             raise TypeError("{}() got an unexpected keyword "
                             "argument '{}'".format(
-                function_name, kwargs.keys()[0]))
+                                function_name, kwargs.keys()[0]))
         if len(args) != 0:
             raise TypeError("{}() received too many args".format(
                 function_name))
@@ -185,8 +185,8 @@ class AbstractCalculation(SealableWithUpdatableAttributes):
                     raise TypeError("The given node is not of the valid type "
                                     "for use_{}. Valid types are: {}, while "
                                     "you provided {}".format(
-                        self.actual_name, valid_types_string,
-                        parent_node.__class__.__name__))
+                                        self.actual_name, valid_types_string,
+                                        parent_node.__class__.__name__))
 
                 # Get actual link name
                 actual_linkname = self.node.get_linkname(actual_name, *args,

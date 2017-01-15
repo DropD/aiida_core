@@ -97,7 +97,7 @@ class VerdiCommandRouter(VerdiCommand):
         if self.routed_subcommands:
             print >> sys.stderr, ("You have to pass a valid subcommand to "
                                   "{}.\nValid subcommands are:".format(
-                self.get_full_command_name()))
+                                      self.get_full_command_name()))
             print >> sys.stderr, "\n".join("  {}".format(sc)
                                            for sc in self.routed_subcommands)
         else:
@@ -111,7 +111,7 @@ class VerdiCommandRouter(VerdiCommand):
         if self.routed_subcommands:
             print >> sys.stderr, ("You passed an invalid subcommand to '{}'.\n"
                                   "Valid subcommands are:".format(
-                self.get_full_command_name()))
+                                      self.get_full_command_name()))
             print >> sys.stderr, "\n".join("  {}".format(sc)
                                            for sc in self.routed_subcommands)
         else:
@@ -138,7 +138,7 @@ class VerdiCommandRouter(VerdiCommand):
         elif subargs_idx >= 1:
             try:
                 first_subarg = subargs[0]
-            except  IndexError:
+            except IndexError:
                 first_subarg = ''
 
             try:
@@ -214,7 +214,7 @@ class VerdiCommandWithSubcommands(VerdiCommand):
         if self.valid_subcommands:
             print >> sys.stderr, ("You have to pass a valid subcommand to "
                                   "'{}'.\nValid subcommands are:".format(
-                self.get_full_command_name()))
+                                      self.get_full_command_name()))
             print >> sys.stderr, "\n".join("  {}".format(sc)
                                            for sc in self.valid_subcommands)
         else:
@@ -228,7 +228,7 @@ class VerdiCommandWithSubcommands(VerdiCommand):
         if self.valid_subcommands:
             print >> sys.stderr, ("You passed an invalid subcommand to '{}'.\n"
                                   "Valid subcommands are:".format(
-                self.get_full_command_name()))
+                                      self.get_full_command_name()))
             print >> sys.stderr, "\n".join("  {}".format(sc)
                                            for sc in self.valid_subcommands)
         else:

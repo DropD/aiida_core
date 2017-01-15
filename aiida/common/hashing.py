@@ -25,7 +25,7 @@ UNUSABLE_PASSWORD_PREFIX = '!'
 # Number of random chars to add after UNUSABLE_PASSWORD_PREFIX
 UNUSABLE_PASSWORD_SUFFIX_LENGTH = 40
 
-HASHING_KEY="HashingKey"
+HASHING_KEY = "HashingKey"
 
 pwd_context = CryptContext(
     # The list of hashes that we support
@@ -38,7 +38,7 @@ pwd_context = CryptContext(
 
     # We set the number of rounds that should be used...
     pbkdf2_sha256__default_rounds=8000,
-    )
+)
 
 
 def create_unusable_pass():
@@ -103,7 +103,6 @@ def get_random_string(length=12,
     return ''.join(random.choice(allowed_chars) for i in range(length))
 
 
-
 def make_hash_with_type(type_chr, string_to_hash):
     """
     Convention: type_chr should be a single char, lower case
@@ -111,6 +110,7 @@ def make_hash_with_type(type_chr, string_to_hash):
       We don't check anything for speed efficiency
     """
     return hashlib.sha224("{}{}".format(type_chr, string_to_hash)).hexdigest()
+
 
 def make_hash(object_to_hash, float_precision=12):
     """
@@ -183,40 +183,40 @@ def make_hash(object_to_hash, float_precision=12):
     """
     if isinstance(object_to_hash, (tuple, list)):
         hashes = tuple([
-                make_hash(_, float_precision=float_precision)
-                for _
-                in object_to_hash
-            ])
+            make_hash(_, float_precision=float_precision)
+            for _
+            in object_to_hash
+        ])
         # We treat lists and tuples as if they are the same thing,
         # but I think this is OK
         return make_hash_with_type('L', "".join(hashes))
 
     elif isinstance(object_to_hash, set):
         hashes = tuple([
-                make_hash(_, float_precision=float_precision)
-                for _
-                in sorted(object_to_hash)
-            ])
+            make_hash(_, float_precision=float_precision)
+            for _
+            in sorted(object_to_hash)
+        ])
         return make_hash_with_type('S', "".join(hashes))
 
     elif isinstance(object_to_hash, dict):
         hashed_dictionary = {
             k: make_hash(v, float_precision=float_precision)
-            for k,v
+            for k, v
             in object_to_hash.items()
         }
         return make_hash_with_type(
             'D', make_hash(sorted(
-                    hashed_dictionary.items()), float_precision=float_precision
-                )
+                hashed_dictionary.items()), float_precision=float_precision
             )
+        )
 
     elif isinstance(object_to_hash, float):
         return make_hash_with_type(
-                'f','{:.{precision}f}'.format(
-                        object_to_hash, precision=float_precision
-                )
+            'f', '{:.{precision}f}'.format(
+                object_to_hash, precision=float_precision
             )
+        )
     # If is numpy:
     elif type(object_to_hash).__module__ == np.__name__:
         return make_hash_with_type('N', str(object_to_hash))
@@ -224,7 +224,7 @@ def make_hash(object_to_hash, float_precision=12):
     elif isinstance(object_to_hash, basestring):
         return make_hash_with_type('s', object_to_hash)
 
-    elif isinstance(object_to_hash, bool): # bool must come before int
+    elif isinstance(object_to_hash, bool):  # bool must come before int
         # I prefer to be sure of what I hash instead of using 'str'
         return make_hash_with_type('b', "True" if object_to_hash else "False")
 
@@ -241,4 +241,4 @@ def make_hash(object_to_hash, float_precision=12):
     # Possibly add more types here, as needed
     else:
         raise ValueError("Value of type {} cannot be hashed".format(
-                type(object_to_hash)))
+            type(object_to_hash)))

@@ -61,7 +61,7 @@ class IcsdDbImporter(DbImporter):
 
         or (if e.g. you get an URLError with Errno 111 (Connection refused)
         upon querying)::
-        
+
             ssh -L 3306:localhost:3306 -L 8010:localhost:80 username@hostname.com
 
     :param user: mysql database username (default: dba)
@@ -88,7 +88,7 @@ class IcsdDbImporter(DbImporter):
                               "passwd": "sql",
                               "db": "icsd",
                               "port": "3306",
-        }
+                              }
         self.setup_db(**kwargs)
 
     # for mysql db query
@@ -102,7 +102,7 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, (int, long)) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
         return key + " IN (" + ", ".join(map(lambda i: str(int(i)),
                                              values)) + ")"
@@ -113,11 +113,11 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, (int, long)) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
         return key + \
-               " IN (" + ", ".join(map(lambda f: "'" + str(f) + "'", \
-                                       values)) + ")"
+            " IN (" + ", ".join(map(lambda f: "'" + str(f) + "'",
+                                    values)) + ")"
 
     def _formula_clause(self, key, alias, values):
         """
@@ -125,11 +125,11 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only strings are accepted")
-        return self.str_exact_clause(key, \
-                                     alias, \
-                                     map(lambda f: "- " + str(f) + " -", \
+        return self.str_exact_clause(key,
+                                     alias,
+                                     map(lambda f: "- " + str(f) + " -",
                                          values))
 
     def _str_fuzzy_clause(self, key, alias, values):
@@ -138,10 +138,10 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, (int, long)) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
-        return " OR ".join(map(lambda s: key + \
-                                         " LIKE '%" + str(s) + "%'", values))
+        return " OR ".join(map(lambda s: key +
+                               " LIKE '%" + str(s) + "%'", values))
 
     def _composition_clause(self, key, alias, values):
         """
@@ -149,10 +149,10 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only strings are accepted")
-        return " AND ".join(map(lambda e: "STRUCT_FORM REGEXP ' " + \
-                                          e + "[0-9 ]'", \
+        return " AND ".join(map(lambda e: "STRUCT_FORM REGEXP ' " +
+                                          e + "[0-9 ]'",
                                 values))
 
     def _double_clause(self, key, alias, values, precision):
@@ -161,14 +161,13 @@ class IcsdDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, (int, long)) and not isinstance(e, float):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and floats are accepted")
-        return " OR ".join(map(lambda d: key + \
-                                         " BETWEEN " + \
-                                         str(d - precision) + " AND " + \
-                                         str(d + precision), \
+        return " OR ".join(map(lambda d: key +
+                               " BETWEEN " +
+                               str(d - precision) + " AND " +
+                               str(d + precision),
                                values))
-
 
     def _crystal_system_clause(self, key, alias, values):
         """
@@ -186,11 +185,11 @@ class IcsdDbImporter(DbImporter):
 
         for e in values:
             if not isinstance(e, (int, long)) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only strings are accepted")
         return key + \
-               " IN (" + ", ".join(map(lambda f: "'" + valid_systems[f.lower()] + "'", \
-                                       values)) + ")"
+            " IN (" + ", ".join(map(lambda f: "'" + valid_systems[f.lower()] + "'",
+                                    values)) + ")"
 
     def _length_clause(self, key, alias, values):
         """
@@ -336,7 +335,7 @@ class IcsdDbImporter(DbImporter):
                    'title': ['AU_TITLE', _str_fuzzy_clause],
                    'year': ['MPY', _int_clause],
                    'crystal_system': ['CRYST_SYS_CODE', _crystal_system_clause],
-    }
+                   }
     # keywords accepted for the web page query
     keywords = {"id": ("authors", _parse_all),
                 "authors": ("authors", _parse_all),
@@ -357,8 +356,8 @@ class IcsdDbImporter(DbImporter):
                 "title": ("title", _parse_all),
                 "year": ("year", _parse_all),
                 "crystal_system": ("system", _parse_system),
-    }
-    
+                }
+
     def query(self, **kwargs):
         """
         Depending on the db_parameters, the mysql database or the web page are queried.
@@ -385,9 +384,9 @@ class IcsdDbImporter(DbImporter):
         for k, v in kwargs.iteritems():
             if not isinstance(v, list):
                 v = [v]
-            sql_where_query.append("({})".format(self.keywords_db[k][1](self, 
-                                                        self.keywords_db[k][0], 
-                                                        k, v)))
+            sql_where_query.append("({})".format(self.keywords_db[k][1](self,
+                                                                        self.keywords_db[k][0],
+                                                                        k, v)))
         if "crystal_system" in kwargs.keys():  # to query another table than the main one, add LEFT JOIN in front of WHERE
             sql_query = "LEFT JOIN space_group ON space_group.sgr=icsd.sgr LEFT "\
                         "JOIN space_group_number ON "\
@@ -397,7 +396,6 @@ class IcsdDbImporter(DbImporter):
             sql_query = "WHERE" + " AND ".join(sql_where_query)
 
         return IcsdSearchResults(query=sql_query, db_parameters=self.db_parameters)
-
 
     def _queryweb(self, **kwargs):
         """
@@ -483,7 +481,7 @@ class IcsdSearchResults(DbSearchResults):
         self.db_version = None
         self.sql_select_query = "SELECT SQL_CALC_FOUND_ROWS icsd.IDNUM, icsd.COLL_CODE, icsd.STRUCT_FORM "
         self.sql_from_query = "FROM icsd "
-        
+
         if self.db_parameters["querydb"]:
             self.query_db_version()
         self.query_page()
@@ -512,19 +510,18 @@ class IcsdSearchResults(DbSearchResults):
 
         if position not in self.entries:
             if self.db_parameters["querydb"]:
-                self.entries[position] = IcsdEntry(self.db_parameters["server"] + 
-                        self.db_parameters["dl_db"] + self.cif_url.format(
-                        self.results[position]),
-                    db_name=self.db_name, id=self.cif_numbers[position], 
-                    version = self.db_version, 
+                self.entries[position] = IcsdEntry(self.db_parameters["server"] +
+                                                   self.db_parameters["dl_db"] + self.cif_url.format(
+                    self.results[position]),
+                    db_name=self.db_name, id=self.cif_numbers[position],
+                    version=self.db_version,
                     extras={'idnum': self.results[position]})
             else:
-                self.entries[position] = IcsdEntry(self.db_parameters["server"] + 
-                        self.db_parameters["dl_db"] + self.cif_url.format(
-                        self.results[position]),
+                self.entries[position] = IcsdEntry(self.db_parameters["server"] +
+                                                   self.db_parameters["dl_db"] + self.cif_url.format(
+                    self.results[position]),
                     db_name=self.db_name, extras={'idnum': self.results[position]})
         return self.entries[position]
-
 
     def query_db_version(self):
         """
@@ -553,7 +550,7 @@ class IcsdSearchResults(DbSearchResults):
         else:
             raise NotImplementedError("Cannot query the database version with "
                                       "a web query.")
-        
+
     def query_page(self):
         """
         Query the mysql or web page database, depending on the db_parameters.
@@ -568,7 +565,7 @@ class IcsdSearchResults(DbSearchResults):
             query_statement = "{}{}{} LIMIT {}, 100".format(self.sql_select_query,
                                                             self.sql_from_query,
                                                             self.query,
-                                                            (self.page-1)*100)
+                                                            (self.page - 1) * 100)
             self.cursor.execute(query_statement)
             self.db.commit()
 
@@ -582,14 +579,13 @@ class IcsdSearchResults(DbSearchResults):
 
             self._disconnect_db()
 
-
         else:
             import urllib2
             from bs4 import BeautifulSoup
             import re
 
-            self.html = urllib2.urlopen(self.db_parameters["server"] + 
-                                        self.db_parameters["db"] + "/" + 
+            self.html = urllib2.urlopen(self.db_parameters["server"] +
+                                        self.db_parameters["db"] + "/" +
                                         self.query.format(str(self.page))).read()
 
             self.soup = BeautifulSoup(self.html)
@@ -598,7 +594,7 @@ class IcsdSearchResults(DbSearchResults):
 
                 if self.number_of_results is None:
                     self.number_of_results = int(re.findall(r'\d+',
-                                                    str(self.soup.find_all("i")[-1]))[0])
+                                                            str(self.soup.find_all("i")[-1]))[0])
             except IndexError:
                 raise NoResultsWebExp
 
@@ -619,7 +615,7 @@ class IcsdSearchResults(DbSearchResults):
                                   passwd=self.db_parameters['passwd'],
                                   db=self.db_parameters['db'],
                                   port=int(self.db_parameters['port'])
-        )
+                                  )
         self.cursor = self.db.cursor()
 
     def _disconnect_db(self):
@@ -632,7 +628,7 @@ class IcsdSearchResults(DbSearchResults):
 class IcsdEntry(CifEntry):
     """
     Represent an entry from Icsd.
-    
+
     :note:
       - Before July 2nd 2015, source['id'] contained icsd.IDNUM (internal
         icsd id number) and source['extras']['cif_nr'] the cif number 
@@ -648,12 +644,12 @@ class IcsdEntry(CifEntry):
         """
         super(IcsdEntry, self).__init__(**kwargs)
         self.source = {
-            'db_name': kwargs.get('db_name','Icsd'),
+            'db_name': kwargs.get('db_name', 'Icsd'),
             'db_uri': None,  # Server ?
-            'id': kwargs.get('id',None),
-            'version': kwargs.get('version',None),
+            'id': kwargs.get('id', None),
+            'version': kwargs.get('version', None),
             'uri': uri,
-            'extras': {'idnum': kwargs.get('extras',{}).get('idnum',None)},
+            'extras': {'idnum': kwargs.get('extras', {}).get('idnum', None)},
             'license': self._license,
         }
         self._cif = None
@@ -701,7 +697,6 @@ class IcsdEntry(CifEntry):
 
         return CifData.read_cif(StringIO.StringIO(self.get_corrected_cif()))
 
-
     def get_aiida_structure(self):
         """
         :return: AiiDA structure corresponding to the CIF file.
@@ -723,7 +718,7 @@ def correct_cif(cif):
     :param cif: A string containing the content of the CIF file.
     :return: a string containing the corrected CIF file.
     """
-    # Do more checks to be sure it's working in everycase 
+    # Do more checks to be sure it's working in everycase
     # -> no _publ_author_name, several lines, correct input
     lines = cif.split('\n')
 
@@ -735,8 +730,8 @@ def correct_cif(cif):
         inc = 1
         while True:
             words = lines[author_index + inc].split()
-            #in case loop is finished -> return cif lines.
-            #use regular expressions ?
+            # in case loop is finished -> return cif lines.
+            # use regular expressions ?
             if len(words) == 0 or words[0] == "loop_" or words[0][0] == '_':
                 return '\n'.join(lines)
             elif ((words[0][0] == "'" and words[-1][-1] == "'")
@@ -746,4 +741,3 @@ def correct_cif(cif):
             else:
                 lines[author_index + inc] = "'" + lines[author_index + inc] + "'"
                 inc = inc + 1
-

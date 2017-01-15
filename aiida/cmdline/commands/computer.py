@@ -12,7 +12,8 @@ __authors__ = "The AiiDA team."
 
 
 def prompt_for_computer_configuration(computer):
-    import inspect, readline
+    import inspect
+    import readline
     from aiida.orm.computer import Computer as Computer
     from aiida.common.exceptions import ValidationError
 
@@ -605,7 +606,7 @@ class Computer(VerdiCommandWithSubcommands):
                     except KeyError:
                         print >> sys.stderr, ("Internal error! "
                                               "No {} defined in Transport {}".format(
-                            converter_name, computer.get_transport_type()))
+                                                  converter_name, computer.get_transport_type()))
                         sys.exit(1)
 
                     if k in default_authparams:
@@ -739,7 +740,7 @@ class Computer(VerdiCommandWithSubcommands):
         except NotExistent:
             print >> sys.stderr, ("User with email '{}' is not yet configured "
                                   "for computer '{}' yet.".format(
-                user.email, computername))
+                                      user.email, computername))
             sys.exit(1)
 
         warning_string = None
@@ -757,7 +758,7 @@ class Computer(VerdiCommandWithSubcommands):
         s = OrmComputer(dbcomputer=dbauthinfo.dbcomputer).get_scheduler()
         t = dbauthinfo.get_transport()
 
-        ## STARTING TESTS HERE
+        # STARTING TESTS HERE
         num_failures = 0
         num_tests = 0
 
@@ -967,7 +968,7 @@ class Computer(VerdiCommandWithSubcommands):
             except NotExistent:
                 print >> sys.stderr, ("User with email '{}' is not configured "
                                       "for computer '{}' yet.".format(
-                    user_email, computername))
+                                          user_email, computername))
                 sys.exit(1)
 
     def computer_disable(self, *args):
@@ -1037,7 +1038,7 @@ class Computer(VerdiCommandWithSubcommands):
             except NotExistent:
                 print >> sys.stderr, ("User with email '{}' is not configured "
                                       "for computer '{}' yet.".format(
-                    user_email, computername))
+                                          user_email, computername))
 
     def get_computer_names(self):
         """

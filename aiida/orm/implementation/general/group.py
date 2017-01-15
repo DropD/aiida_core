@@ -286,7 +286,7 @@ class AbstractGroup(object):
             except KeyError:
                 msg = ("Invalid group type '{}'. Valid group types are: "
                        "{}".format(typestr, ",".join(sorted(
-                    get_group_type_mapping().keys()))))
+                           get_group_type_mapping().keys()))))
                 raise ValueError(msg)
         else:
             internal_type_string = ""

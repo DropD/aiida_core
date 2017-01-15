@@ -88,11 +88,11 @@ class CalcInfo(DefaultFieldsAttributeDict):
         'uuid',
         'prepend_text',
         'append_text',
-#        'cmdline_params',  # as a list of strings. These 5 variables are now in CalcInfo
-#        'stdin_name',
-#        'stdout_name',
-#        'stderr_name',
-#        'join_files',
+        #        'cmdline_params',  # as a list of strings. These 5 variables are now in CalcInfo
+        #        'stdin_name',
+        #        'stdout_name',
+        #        'stderr_name',
+        #        'join_files',
         # 'queue_name', This is not used in CalcInfo, it is automatically set from
         # calculation attributes to JobInfo
         'num_machines',
@@ -121,7 +121,7 @@ class CalcInfo(DefaultFieldsAttributeDict):
         # ["linkname_from calc to singlefile","subclass of singlefile","filename"]
         # filename remote = filename local
         'codes_info',  # a list of dictionaries used to pass the info of the execution of a code.
-        'codes_run_mode', # a string used to specify the order in which multi codes can be executed
+        'codes_run_mode',  # a string used to specify the order in which multi codes can be executed
     )
 
 

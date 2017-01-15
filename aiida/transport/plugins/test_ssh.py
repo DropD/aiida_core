@@ -17,32 +17,32 @@ __version__ = "0.7.1"
 __authors__ = "The AiiDA team."
 
 plugin_transport = SshTransport(
-    machine='localhost', timeout=30, 
+    machine='localhost', timeout=30,
     load_system_host_keys=True,
-    key_policy = 'AutoAddPolicy')
+    key_policy='AutoAddPolicy')
+
 
 class TestBasicConnection(unittest.TestCase):
     """
     Test basic connections.
     """
-    
+
     def test_closed_connection_ssh(self):
         with self.assertRaises(aiida.transport.TransportInternalError):
             t = SshTransport(machine='localhost')
             t._exec_command_internal('ls')
-            
+
     def test_closed_connection_sftp(self):
         with self.assertRaises(aiida.transport.TransportInternalError):
             t = SshTransport(machine='localhost')
             t.listdir()
-            
+
     def test_invalid_param(self):
         with self.assertRaises(ValueError):
             SshTransport(machine='localhost', invalid_param=True)
-                             
 
     def test_auto_add_policy(self):
-        with SshTransport(machine='localhost', timeout=30, 
+        with SshTransport(machine='localhost', timeout=30,
                           load_system_host_keys=True,
                           key_policy='AutoAddPolicy'):
             pass
@@ -52,13 +52,13 @@ class TestBasicConnection(unittest.TestCase):
         logging.disable(logging.ERROR)
 
         with self.assertRaises(paramiko.SSHException):
-            with SshTransport(machine='localhost', timeout=30, 
-                              load_system_host_keys = False):
+            with SshTransport(machine='localhost', timeout=30,
+                              load_system_host_keys=False):
                 pass
 
         # Reset logging level
         logging.disable(logging.NOTSET)
 
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     unittest.main()

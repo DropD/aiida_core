@@ -17,7 +17,7 @@ KpointsData = DataFactory('array.kpoints')
 class RESTApiTestCase(AiidaTestCase):
     """
     Setup of the tests for the AiiDA RESTful-api
-	"""
+        """
 
     _url_prefix = "/api/v2"
     _dummy_data = {}
@@ -95,7 +95,6 @@ class RESTApiTestCase(AiidaTestCase):
 
         # Prepare typical REST responses
         cls.process_dummy_data()
-
 
     def get_dummy_data(self):
         return self._dummy_data
@@ -226,7 +225,7 @@ class RESTApiTestCase(AiidaTestCase):
                                      for i in expected_list_ids]
                 elif expected_range != []:
                     expected_data = self._dummy_data[result_node_type][
-                                    expected_range[0]:expected_range[1]]
+                        expected_range[0]:expected_range[1]]
                 else:
                     from aiida.common.exceptions import InputValidationError
                     raise InputValidationError(
@@ -394,7 +393,7 @@ class RESTApiTestSuite(RESTApiTestCase):
         node_pk = self.get_dummy_data()["computers"][1]["id"]
         RESTApiTestCase.process_test(self, "computers", "/computers?id>" + str(
             node_pk) + "&orderby=+id",
-                                     expected_range=[2, None])
+            expected_range=[2, None])
 
     def test_computers_filter_pk(self):
         """
@@ -645,7 +644,7 @@ class RESTApiTestSuite(RESTApiTestCase):
     ############### full list with limit, offset, page, perpage #############
     def test_calculations_list(self):
         """ 
-		Get the full list of calculations from database
+                Get the full list of calculations from database
         """
         RESTApiTestCase.process_test(self, "calculations",
                                      "/calculations?orderby=-id",
@@ -670,9 +669,9 @@ class RESTApiTestSuite(RESTApiTestCase):
         node_pk = self.get_dummy_data()["calculations"][1]["id"]
         self.process_test("calculations", "/calculations/" + str(
             node_pk) + "/io/inputs?orderby=id",
-                          expected_list_ids=[3, 2], pk=node_pk,
-                          result_node_type="data",
-                          result_name="inputs")
+            expected_list_ids=[3, 2], pk=node_pk,
+            result_node_type="data",
+            result_name="inputs")
 
     def test_calculation_input_filters(self):
         """
@@ -681,9 +680,9 @@ class RESTApiTestSuite(RESTApiTestCase):
         node_pk = self.get_dummy_data()["calculations"][1]["id"]
         self.process_test("calculations", '/calculations/' + str(
             node_pk) + '/io/inputs?type="data.parameter.ParameterData."',
-                          expected_list_ids=[2], pk=node_pk,
-                          result_node_type="data",
-                          result_name="inputs")
+            expected_list_ids=[2], pk=node_pk,
+            result_node_type="data",
+            result_name="inputs")
 
     ############### calculation attributes #############
     def test_calculation_attributes(self):

@@ -43,6 +43,7 @@ def convert_qe2aiida_structure(output_dict, input_structure=None):
 
     return s
 
+
 def parse_raw_out_basic(out_file, calc_name):
     """
     A very simple parser for the standard out, usually aiida.out. Currently
@@ -56,15 +57,15 @@ def parse_raw_out_basic(out_file, calc_name):
     parsed_data = {}
     parsed_data['warnings'] = []
     # critical warnings: if any is found, the calculation status is FAILED
-    critical_warnings = {'Maximum CPU time exceeded':'Maximum CPU time exceeded',
-                         '%%%%%%%%%%%%%%':None,
+    critical_warnings = {'Maximum CPU time exceeded': 'Maximum CPU time exceeded',
+                         '%%%%%%%%%%%%%%': None,
                          }
 
-    minor_warnings = {'Warning:':None,
-                      'DEPRECATED:':None,
+    minor_warnings = {'Warning:': None,
+                      'DEPRECATED:': None,
                       }
     all_warnings = dict(critical_warnings.items() + minor_warnings.items())
-    for count in range (len(out_file)):
+    for count in range(len(out_file)):
         line = out_file[count]
         # parse the global file, for informations that are written only once
         if calc_name in line and 'WALL' in line:
@@ -78,13 +79,13 @@ def parse_raw_out_basic(out_file, calc_name):
             except ValueError:
                 raise QEOutputParsingError("Unable to convert wall_time in seconds.")
             # Parsing of errors
-        elif any( i in line for i in all_warnings):
-            message = [ all_warnings[i] for i in all_warnings.keys() if i in line][0]
+        elif any(i in line for i in all_warnings):
+            message = [all_warnings[i] for i in all_warnings.keys() if i in line][0]
             if message is None:
                 message = line
             if '%%%%%%%%%%%%%%' in line:
-                message  = None
-                messages = parse_QE_errors(out_file,count,parsed_data['warnings'])
+                message = None
+                messages = parse_QE_errors(out_file, count, parsed_data['warnings'])
 
             # if it found something, add to log
             try:
@@ -95,6 +96,7 @@ def parse_raw_out_basic(out_file, calc_name):
                 parsed_data['warnings'].append(message)
 
     return parsed_data
+
 
 def convert_qe_time_to_sec(timestr):
     """
@@ -133,7 +135,8 @@ def convert_qe_time_to_sec(timestr):
 
     return num_seconds
 
-def ldlparse_QE_errors(lines,count,warnings):
+
+def ldlparse_QE_errors(lines, count, warnings):
     """
     Parse QE errors messages (those appearing between some lines with
     ``'%%%%%%%%'``)
@@ -148,7 +151,7 @@ def ldlparse_QE_errors(lines,count,warnings):
     # find the indices of the lines with problems
     found_endpoint = False
     init_problem = count
-    for count2,line2 in enumerate(lines[count+1:]):
+    for count2, line2 in enumerate(lines[count + 1:]):
         end_problem = count + count2 + 1
         if "%%%%%%%%%%%%" in line2:
             found_endpoint = True
@@ -156,16 +159,16 @@ def ldlparse_QE_errors(lines,count,warnings):
     messages = []
     if found_endpoint:
         # build a dictionary with the lines
-        prob_list = lines[init_problem:end_problem+1]
+        prob_list = lines[init_problem:end_problem + 1]
         irred_list = list(set(prob_list))
         for v in prob_list:
-            if ( len(v)>0 and (v in irred_list and v not in warnings) ):
+            if (len(v) > 0 and (v in irred_list and v not in warnings)):
                 messages.append(irred_list.pop(irred_list.index(v)))
 
     return messages
 
 
-def parse_QE_errors(lines,count,warnings):
+def parse_QE_errors(lines, count, warnings):
     """
     Parse QE errors messages (those appearing between some lines with
     ``'%%%%%%%%'``)
@@ -179,7 +182,7 @@ def parse_QE_errors(lines,count,warnings):
     # find the indices of the lines with problems
     found_endpoint = False
     init_problem = count
-    for count2,line2 in enumerate(lines[count+1:]):
+    for count2, line2 in enumerate(lines[count + 1:]):
         end_problem = count + count2 + 1
         if "%%%%%%%%%%%%" in line2:
             found_endpoint = True
@@ -187,10 +190,10 @@ def parse_QE_errors(lines,count,warnings):
     messages = []
     if found_endpoint:
         # build a dictionary with the lines
-        prob_list = lines[init_problem:end_problem+1]
+        prob_list = lines[init_problem:end_problem + 1]
         irred_list = list(set(prob_list))
         for v in prob_list:
-            if ( len(v)>0 and (v in irred_list and v not in warnings) ):
+            if (len(v) > 0 and (v in irred_list and v not in warnings)):
                 messages.append(irred_list.pop(irred_list.index(v)))
 
     return messages

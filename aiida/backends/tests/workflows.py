@@ -91,7 +91,7 @@ class TestWorkflowBasic(AiidaTestCase):
         # We change the state of the workflow to INITIALIZED.
         a.set_state(wf_states.INITIALIZED)
 
-                # We ask all the running workflows. We should get one workflow.
+        # We ask all the running workflows. We should get one workflow.
         wfqs = get_workflow_list(all_states=True, user=dbuser)
         self.assertTrue(len(wfqs) == 1, "We expect one workflow")
         a_prime = wfqs[0].get_aiida_class()

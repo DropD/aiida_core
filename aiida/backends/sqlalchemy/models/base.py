@@ -34,6 +34,7 @@ class _QueryProperty(object):
 
 
 class _SessionProperty(object):
+
     def __get__(self, obj, _type):
         if not aiida.backends.sqlalchemy.session:
             raise InvalidOperation("You need to call load_dbenv before "
@@ -44,7 +45,7 @@ class _SessionProperty(object):
 class _AiidaQuery(orm.Query):
 
     def __init__(self, *args, **kwargs):
-            super(_AiidaQuery, self).__init__(*args, **kwargs)
+        super(_AiidaQuery, self).__init__(*args, **kwargs)
 
     def __iter__(self):
         iterator = super(_AiidaQuery, self).__iter__()

@@ -30,6 +30,7 @@ default_modules_list = [
     # ("aiida.backends.sqlalchemy", "models", "models"),
 ]
 
+
 class Shell(VerdiCommand):
     """
     Run the interactive shell with the AiiDA environment loaded.
@@ -105,7 +106,7 @@ class Shell(VerdiCommand):
     def ipython(self):
         """Start any version of IPython"""
         for ip in (
-        self._ipython, self._ipython_pre_100, self._ipython_pre_011):
+                self._ipython, self._ipython_pre_100, self._ipython_pre_011):
             try:
                 ip()
             except ImportError as ie:

@@ -191,7 +191,7 @@ class TrajectoryData(ArrayData):
         except Exception as e:
             raise ValidationError("The TrajectoryData did not validate. "
                                   "Error: {} with message {}".format(
-                type(e).__name__, e.message))
+                                      type(e).__name__, e.message))
 
     @property
     def numsteps(self):
@@ -353,7 +353,6 @@ class TrajectoryData(ArrayData):
         return (self.get_stepids()[index], time, self.get_cells()[index, :, :],
                 self.get_symbols(), self.get_positions()[index, :, :], vel)
 
-
     def step_to_structure(self, index, custom_kinds=None):
         """
         .. deprecated:: 0.7
@@ -408,7 +407,7 @@ class TrajectoryData(ArrayData):
                                  "pass one Kind object for each symbol "
                                  "that is present in the trajectory. You "
                                  "passed {}, but the symbols are {}".format(
-                    sorted(kind_names), sorted(symbols)))
+                                     sorted(kind_names), sorted(symbols)))
 
         struc = StructureData(cell=cell)
         if custom_kinds is not None:
@@ -423,7 +422,7 @@ class TrajectoryData(ArrayData):
 
         return struc
 
-    def _prepare_xsf(self,index=None):
+    def _prepare_xsf(self, index=None):
         """
         Write the given trajectory to a string of format XSF (for XCrySDen).
         """
@@ -446,20 +445,20 @@ class TrajectoryData(ArrayData):
         nat = len(symbols)
 
         for idx in indices:
-            return_string += "PRIMVEC {}\n".format(idx+1)
+            return_string += "PRIMVEC {}\n".format(idx + 1)
             #~ structure = self.get_step_structure(index=idx)
             #~ sites = structure.sites
             #~ if structure.is_alloy() or structure.has_vacancies():
-                #~ raise NotImplementedError("XSF for alloys or systems with "
-                                          #~ "vacancies not implemented.")
+            #~ raise NotImplementedError("XSF for alloys or systems with "
+            #~ "vacancies not implemented.")
             for cell_vector in cells[idx]:
                 return_string += " ".join(["{:18.5f}".format(i) for i in cell_vector])
                 return_string += "\n"
-            return_string += "PRIMCOORD {}\n".format(idx+1)
+            return_string += "PRIMCOORD {}\n".format(idx + 1)
             return_string += "{} 1\n" .format(nat)
             for atn, pos in zip(atomic_numbers_list, positions[idx]):
                 try:
-                    return_string += "{} {:18.10f} {:18.10f} {:18.10f}\n".format(atn, pos[0], pos[1], pos[2] )
+                    return_string += "{} {:18.10f} {:18.10f} {:18.10f}\n".format(atn, pos[0], pos[1], pos[2])
                 except:
                     print sym, pos
                     raise
@@ -489,7 +488,7 @@ class TrajectoryData(ArrayData):
         Write the given trajectory to a string of format TCOD CIF.
         """
         from aiida.tools.dbexporters.tcod import export_cif
-        return export_cif(self,**kwargs)
+        return export_cif(self, **kwargs)
 
     def _get_aiida_structure(self, store=False, **kwargs):
         """
@@ -553,7 +552,7 @@ class TrajectoryData(ArrayData):
 
         positions = array([
             [list(position) for _, position in atoms]
-                    for _, _, atoms in xyz_parser_iterator(inputstring)])
+            for _, _, atoms in xyz_parser_iterator(inputstring)])
 
         if positions.shape != (numsteps, numsites, 3):
             raise ValueError("TrajectoryData.positions must have shape (s,n,3), "
@@ -585,7 +584,7 @@ class TrajectoryData(ArrayData):
 
         velocities = array([
             [list(velocity) for _, velocity in atoms]
-                    for _, _, atoms in xyz_parser_iterator(inputstring)])
+            for _, _, atoms in xyz_parser_iterator(inputstring)])
 
         if velocities.shape != (numsteps, numsites, 3):
             raise ValueError("TrajectoryData.positions must have shape (s,n,3), "
@@ -593,7 +592,6 @@ class TrajectoryData(ArrayData):
                              "n=number of symbols={}".format(numsteps, numsites))
 
         self.set_array('velocities', velocities)
-
 
     def show_mpl_pos(self, **kwargs):
         """
@@ -616,7 +614,6 @@ class TrajectoryData(ArrayData):
         from ase.data import atomic_numbers
         from aiida.common.exceptions import InputValidationError
 
-
         # Reading the arrays I need:
         positions = self.get_positions()
         times = self.get_times()
@@ -634,8 +631,8 @@ class TrajectoryData(ArrayData):
 
         # Getting the keyword input
         stepsize = kwargs.pop('stepsize', 1)
-        maxtime  = kwargs.pop('maxtime', times[-1])
-        mintime  = kwargs.pop('mintime', times[0])
+        maxtime = kwargs.pop('maxtime', times[-1])
+        mintime = kwargs.pop('mintime', times[0])
         element_list = kwargs.pop('elements', None)
         index_list = kwargs.pop('indices', None)
         dont_block = kwargs.pop('dont_block', False)
@@ -651,7 +648,7 @@ class TrajectoryData(ArrayData):
             raise InputValidationError("Unknown color spec {}".format(colors))
         if kwargs:
             raise InputValidationError(
-                    "Unrecognized keyword {}".format(kwargs.keys())
+                "Unrecognized keyword {}".format(kwargs.keys())
             )
 
         if element_list is None:
@@ -661,7 +658,7 @@ class TrajectoryData(ArrayData):
             # A subset of elements are allowed
             # TODO: maybe a check
             allowed_elements = set(element_list)
-        color_dict = {s:colors[atomic_numbers[s]] for s in set(symbols)}
+        color_dict = {s: colors[atomic_numbers[s]] for s in set(symbols)}
         # Here I am trying to find out the atoms to show
         if index_list is None:
             # If not index_list was provided, I will see if an element_list
@@ -670,7 +667,6 @@ class TrajectoryData(ArrayData):
         else:
             indices_to_show = index_list
             # I refrain from checking if indices are ok, will crash if not...
-
 
         # The color_list is a list of colors (RGB) that I will
         # pass, so the different species give different colors in the plot
@@ -687,7 +683,6 @@ class TrajectoryData(ArrayData):
             positions_unit, times_unit,
             dont_block, mintime, maxtime,
         )
-
 
     def show_mpl_heatmap(self, **kwargs):
         import numpy as np
@@ -706,11 +701,10 @@ class TrajectoryData(ArrayData):
             the point back"""
             invcell = np.matrix(cell).T.I
             # point in crystal coordinates
-            points_in_crystal = np.dot(invcell,point).tolist()[0]
-            #point collapsed into unit cell
-            points_in_unit_cell = [i%1 for i in points_in_crystal]
+            points_in_crystal = np.dot(invcell, point).tolist()[0]
+            # point collapsed into unit cell
+            points_in_unit_cell = [i % 1 for i in points_in_crystal]
             return np.dot(cell.T, points_in_unit_cell).tolist()
-
 
         elements = kwargs.pop('elements', None)
         mintime = kwargs.pop('mintime', None)
@@ -719,18 +713,16 @@ class TrajectoryData(ArrayData):
         contours = np.array(kwargs.pop('contours', None) or (0.1, 0.5))
         sampling_stepsize = int(kwargs.pop('sampling_stepsize', None) or 0)
 
-
         times = self.get_times()
         if mintime is None:
             minindex = 0
         else:
-            minindex =  np.argmax(times>mintime)
+            minindex = np.argmax(times > mintime)
         if maxtime is None:
             maxindex = len(times)
         else:
             maxindex = np.argmin(times < maxtime)
         positions = self.get_positions()[minindex:maxindex:stepsize]
-
 
         try:
             if self.get_attr('units|positions') in ('bohr', 'atomic'):
@@ -744,19 +736,19 @@ class TrajectoryData(ArrayData):
             elements = set(symbols)
 
         cell = np.array(self.get_cells()[0])
-        storage_dict = {s:{} for s in elements}
+        storage_dict = {s: {} for s in elements}
         for ele in elements:
-                storage_dict[ele] = [np.array([]),np.array([]),np.array([])]
+            storage_dict[ele] = [np.array([]), np.array([]), np.array([])]
         for iat, ele in enumerate(symbols):
             if ele in elements:
                 for idim in range(3):
-                    storage_dict[ele][idim] = np.concatenate((storage_dict[ele][idim], positions[:,iat,idim].flatten()))
+                    storage_dict[ele][idim] = np.concatenate((storage_dict[ele][idim], positions[:, iat, idim].flatten()))
 
         for ele in elements:
             storage_dict[ele] = np.array(storage_dict[ele]).T
             storage_dict[ele] = np.array([collapse_into_unit_cell(pos, cell) for pos in storage_dict[ele]]).T
 
-        white = (1,1,1)
+        white = (1, 1, 1)
         mlab.figure(bgcolor=white, size=(1080, 720))
 
         for i1, a in enumerate(cell):
@@ -767,19 +759,18 @@ class TrajectoryData(ArrayData):
                     p1 = b + c
                     p2 = p1 + a
                     mlab.plot3d(
-                            [p1[0], p2[0]],
-                            [p1[1], p2[1]],
-                            [p1[2], p2[2]],
-                            tube_radius=0.1
-                        )
-
+                        [p1[0], p2[0]],
+                        [p1[1], p2[1]],
+                        [p1[2], p2[2]],
+                        tube_radius=0.1
+                    )
 
         for ele, data in storage_dict.items():
             kde = stats.gaussian_kde(data, bw_method=0.15)
 
-            x = data[0,:]
-            y = data[1,:]
-            z = data[2,:]
+            x = data[0, :]
+            y = data[1, :]
+            z = data[2, :]
             xmin, ymin, zmin = x.min(), y.min(), z.min()
             xmax, ymax, zmax = x.max(), y.max(), z.max()
 
@@ -793,7 +784,7 @@ class TrajectoryData(ArrayData):
             #~ min = density.min()
             maxdens = density.max()
             #~ mlab.pipeline.volume(grid, vmin=min, vmax=min + .5*(max-min))
-            surf = mlab.pipeline.iso_surface(grid, opacity=0.5, colormap='cool', contours=(maxdens*contours).tolist())
+            surf = mlab.pipeline.iso_surface(grid, opacity=0.5, colormap='cool', contours=(maxdens * contours).tolist())
             lut = surf.module_manager.scalar_lut_manager.lut.table.to_array()
 
             # The lut is a 255x4 array, with the columns representing RGBA
@@ -801,78 +792,77 @@ class TrajectoryData(ArrayData):
 
             # We modify the alpha channel to add a transparency gradient
             lut[:, -1] = np.linspace(100, 255, 256)
-            lut[:,0:3] = 255*jmol_colors[atomic_numbers[ele]]
+            lut[:, 0:3] = 255 * jmol_colors[atomic_numbers[ele]]
             # and finally we put this LUT back in the surface object. We could have
             # added any 255*4 array rather than modifying an existing LUT.
             surf.module_manager.scalar_lut_manager.lut.table = lut
 
             if sampling_stepsize > 0:
                 mlab.points3d(
-                        x[::sampling_stepsize], y[::sampling_stepsize], z[::sampling_stepsize],
-                        color=tuple(jmol_colors[atomic_numbers[ele]].tolist()),
-                        scale_mode='none', scale_factor=0.3, opacity=0.3
-                    )
-
+                    x[::sampling_stepsize], y[::sampling_stepsize], z[::sampling_stepsize],
+                    color=tuple(jmol_colors[atomic_numbers[ele]].tolist()),
+                    scale_mode='none', scale_factor=0.3, opacity=0.3
+                )
 
         mlab.view(azimuth=155, elevation=70, distance='auto')
         mlab.show()
 
 
 def plot_positions_XYZ(
-            times, positions, indices_to_show, color_list, label,
-            positions_unit='A', times_unit='ps', dont_block=False,
-            mintime=None, maxtime=None, label_sparsity=10):
+        times, positions, indices_to_show, color_list, label,
+        positions_unit='A', times_unit='ps', dont_block=False,
+        mintime=None, maxtime=None, label_sparsity=10):
 
-        from matplotlib import pyplot as plt
-        from matplotlib.gridspec import GridSpec
-        import numpy as np
-        from random import choice
+    from matplotlib import pyplot as plt
+    from matplotlib.gridspec import GridSpec
+    import numpy as np
+    from random import choice
 
-        tlim = [times[0], times[-1]]
-        index_range = [0, len(times)]
-        if mintime is not None:
-            tlim[0] = mintime
-            index_range[0] = np.argmax(times>mintime)
-        if maxtime is not None:
-            tlim[1] = maxtime
-            index_range[1] = np.argmin(times<maxtime)
+    tlim = [times[0], times[-1]]
+    index_range = [0, len(times)]
+    if mintime is not None:
+        tlim[0] = mintime
+        index_range[0] = np.argmax(times > mintime)
+    if maxtime is not None:
+        tlim[1] = maxtime
+        index_range[1] = np.argmin(times < maxtime)
 
-        trajectories = zip(*positions.tolist())
-        cmap =  plt.get_cmap('jet_r')
-        fig = plt.figure(figsize = (12,7))
+    trajectories = zip(*positions.tolist())
+    cmap = plt.get_cmap('jet_r')
+    fig = plt.figure(figsize=(12, 7))
 
-        plt.suptitle(r'Trajectory of %s' % label, fontsize=16)
-        nr_of_axes = 3
-        gs = GridSpec(nr_of_axes,1, hspace = 0.0)
+    plt.suptitle(r'Trajectory of %s' % label, fontsize=16)
+    nr_of_axes = 3
+    gs = GridSpec(nr_of_axes, 1, hspace=0.0)
 
-        ax1 = fig.add_subplot(gs[0])
-        plt.ylabel(r'X Position $\left[{}\right]$'.format(positions_unit))
-        plt.xticks([])
-        plt.xlim(*tlim)
-        ax2 = fig.add_subplot(gs[1])
-        plt.ylabel(r'Y Position $\left[{}\right]$'.format(positions_unit))
-        plt.xticks([])
-        plt.xlim(*tlim)
-        ax3 = fig.add_subplot(gs[2])
-        plt.ylabel(r'Z Position $\left[{}\right]$'.format(positions_unit))
-        plt.xlabel('Time [{}]'.format(times_unit))
-        plt.xlim(*tlim)
-        sparse_indices = np.linspace(*index_range, num=label_sparsity, dtype=int)
+    ax1 = fig.add_subplot(gs[0])
+    plt.ylabel(r'X Position $\left[{}\right]$'.format(positions_unit))
+    plt.xticks([])
+    plt.xlim(*tlim)
+    ax2 = fig.add_subplot(gs[1])
+    plt.ylabel(r'Y Position $\left[{}\right]$'.format(positions_unit))
+    plt.xticks([])
+    plt.xlim(*tlim)
+    ax3 = fig.add_subplot(gs[2])
+    plt.ylabel(r'Z Position $\left[{}\right]$'.format(positions_unit))
+    plt.xlabel('Time [{}]'.format(times_unit))
+    plt.xlim(*tlim)
+    sparse_indices = np.linspace(*index_range, num=label_sparsity, dtype=int)
 
-        for index, traj in enumerate(trajectories):
-            if index not in indices_to_show:
-                continue
-            color =  color_list[index]
-            X,Y,Z = zip(*traj)
-            ax1.plot(times, X, color=color)
-            ax2.plot(times, Y, color=color)
-            ax3.plot(times, Z, color=color)
-            for i in sparse_indices:
-                ax1.text(times[i], X[i], str(index), color=color, fontsize=5)
-                ax2.text(times[i], Y[i], str(index), color=color, fontsize=5)
-                ax3.text(times[i], Z[i], str(index), color=color, fontsize=5)
-        for ax in ax1, ax2, ax3:
-            yticks = ax.yaxis.get_major_ticks()
-            yticks[0].label1.set_visible(False)
+    for index, traj in enumerate(trajectories):
+        if index not in indices_to_show:
+            continue
+        color = color_list[index]
+        X, Y, Z = zip(*traj)
+        ax1.plot(times, X, color=color)
+        ax2.plot(times, Y, color=color)
+        ax3.plot(times, Z, color=color)
+        for i in sparse_indices:
+            ax1.text(times[i], X[i], str(index), color=color, fontsize=5)
+            ax2.text(times[i], Y[i], str(index), color=color, fontsize=5)
+            ax3.text(times[i], Z[i], str(index), color=color, fontsize=5)
+    for ax in ax1, ax2, ax3:
+        yticks = ax.yaxis.get_major_ticks()
+        yticks[0].label1.set_visible(False)
 
-        plt.show(block=not(dont_block))
+    plt.show(block=not(dont_block))

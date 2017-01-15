@@ -26,6 +26,7 @@ def from_type_to_pluginclassname(typestr):
             typestr))
     return typestr[:-1]  # Strip final dot
 
+
 def get_query_type_string(plugin_type_string):
     """
     Receives a plugin_type_string, an attribute of subclasses of Node.
@@ -44,12 +45,12 @@ def get_query_type_string(plugin_type_string):
     # First case, an empty string for Node:
     if plugin_type_string == '':
         query_type_string = ''
-    # Anything else should have baseclass.Class., so at least 2 dots 
+    # Anything else should have baseclass.Class., so at least 2 dots
     # and end with a dot:
     elif not(plugin_type_string.endswith('.')) or plugin_type_string.count('.') == 1:
         raise DbContentError(
-                "The type name '{}' is not valid!".format(plugin_type_string)
-            )
+            "The type name '{}' is not valid!".format(plugin_type_string)
+        )
     else:
         query_type_string = '{}.'.format('.'.join(plugin_type_string.split('.')[:-2]))
     return query_type_string
@@ -149,14 +150,14 @@ def _find_module(base_class, pkgname, this_basename, suffix=None):
     retlist = []
 
     # print ' '*(5-max_depth), '>', pkgname
-    #print ' '*(5-max_depth), ' ', this_basename
+    # print ' '*(5-max_depth), ' ', this_basename
 
     pkg = importlib.import_module(pkgname)
     for k, v in pkg.__dict__.iteritems():
         if (inspect.isclass(v) and  # A class
-                    v != base_class and  # Not the class itself
+            v != base_class and  # Not the class itself
                 issubclass(v, base_class) and  # a proper subclass
-                    pkgname == v.__module__):  # We are importing it from its
+                pkgname == v.__module__):  # We are importing it from its
             # module: avoid to import it
             # from another module, if it
             # was simply imported there
@@ -176,7 +177,7 @@ def _find_module(base_class, pkgname, this_basename, suffix=None):
                 retlist.append(
                     ("{}.{}".format(this_basename, k) if this_basename
                      else k))
-                #print ' '*(5-max_depth), ' ->', "{}.{}".format(this_basename, k)
+                # print ' '*(5-max_depth), ' ->', "{}.{}".format(this_basename, k)
     return retlist
 
 
@@ -246,7 +247,6 @@ def load_plugin(base_class, plugins_module, plugin_type):
 
     module_name = ".".join([plugins_module, plugin_type])
     real_plugin_module, plugin_name = module_name.rsplit('.', 1)
-
 
     try:
         pluginmod = importlib.import_module(real_plugin_module)
@@ -320,4 +320,3 @@ def BaseFactory(module, base_class, base_modname, suffix=None):
                        "Error messages were: '{}', '{}'").format(
                 module, new_module, base_modname, e1, e2)
             raise MissingPluginError(err_msg)
-

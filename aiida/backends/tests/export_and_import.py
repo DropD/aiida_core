@@ -13,6 +13,7 @@ __authors__ = "The AiiDA team."
 
 
 class TestSpecificImport(AiidaTestCase):
+
     def test_import(self):
         from aiida.orm.querybuilder import QueryBuilder
         from aiida.orm.node import Node
@@ -60,11 +61,10 @@ class TestSpecificImport(AiidaTestCase):
         qb = QueryBuilder()
         qb.append(StructureData, project=["*"])
         self.assertEquals(qb.count(), 7, "The number of StructureData is not "
-                                          "the expected one.")
+                          "the expected one.")
         for [struct] in qb.all():
             self.assertEquals(struct.label, "3D_with_2D_substructure",
                               "A label is not correct")
-
 
         # TO BE SEEN WITH MOUNET
         # print "<================= ParameterData attributes.energy ====================>"
@@ -94,7 +94,7 @@ class TestSpecificImport(AiidaTestCase):
         qb.append(StructureData, project=["attributes.cell"], filters={
             'uuid': {"==": "45670237-dc1e-4300-8e0b-4d3639dc77cf"}})
         for [cell] in qb.all():
-            #print cell
+            # print cell
             self.assertEquals(cell,
                               [[8.34, 0.0, 0.0], [0.298041701839357,
                                                   8.53479766274308, 0.0],
@@ -150,7 +150,7 @@ class TestSpecificImport(AiidaTestCase):
         qb = QueryBuilder()
         qb.append(Node, filters={
             'uuid': {"==": "45670237-dc1e-4300-8e0b-4d3639dc77cf"}},
-                  project=["*"], tag="res")
+            project=["*"], tag="res")
         self.assertGreater(len(qb.all()), 0, "There should be results for the"
                                              "query.")
 
@@ -377,6 +377,7 @@ class TestSimple(AiidaTestCase):
 
 
 class TestComplex(AiidaTestCase):
+
     def test_complex_graph_import_export(self):
         """
         This test checks that a small and bit complex graph can be correctly
@@ -469,8 +470,8 @@ class TestComplex(AiidaTestCase):
         qb = QueryBuilder()
         qb.append(Node, filters={
             'uuid': {"==": "99d516d5-fafe-40d3-979f-12726e626648"}},
-                  project=["*"], tag="res")
-        #for [node] in qb.all():
+            project=["*"], tag="res")
+        # for [node] in qb.all():
         #    print node.get_attrs()
         #    print node.uuid
         #    print node.id
@@ -478,4 +479,3 @@ class TestComplex(AiidaTestCase):
 
         g = Graph()
         g.graph_generate((str(node.id)))
-

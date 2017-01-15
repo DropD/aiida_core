@@ -17,7 +17,6 @@ __version__ = "0.7.1"
 SCHEMA_VERSION = 0.1
 
 
-
 # This is convenience so that one can import all ORM classes from one module
 # from aiida.backends.sqlalchemy.models import *
 # Also, only by import

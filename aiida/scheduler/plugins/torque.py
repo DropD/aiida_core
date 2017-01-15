@@ -7,22 +7,23 @@ from __future__ import division
 import aiida.scheduler
 from .pbsbaseclasses import PbsBaseClass
 
-## These are instead the states from PBS/Torque v.2.4.16 (from Ubuntu)
-#C -  Job is completed after having run [different from above, but not clashing]
-#E -  Job is exiting after having run. [same as above]
-#H -  Job is held. [same as above]
-#Q -  job is queued, eligible to run or routed. [same as above]
-#R -  job is running. [same as above]
-#T -  job is being moved to new location. [same as above]
-#W -  job is waiting for its execution time
+# These are instead the states from PBS/Torque v.2.4.16 (from Ubuntu)
+# C -  Job is completed after having run [different from above, but not clashing]
+# E -  Job is exiting after having run. [same as above]
+# H -  Job is held. [same as above]
+# Q -  job is queued, eligible to run or routed. [same as above]
+# R -  job is running. [same as above]
+# T -  job is being moved to new location. [same as above]
+# W -  job is waiting for its execution time
 #     (-a option) to be reached. [similar to above]
-#S -  (Unicos only) job is suspend. [as above]
+# S -  (Unicos only) job is suspend. [as above]
 
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. All rights reserved."
 __license__ = "MIT license, see LICENSE.txt file."
 __version__ = "0.7.1"
 __authors__ = "The AiiDA team."
+
 
 class TorqueScheduler(PbsBaseClass):
     """
@@ -32,11 +33,11 @@ class TorqueScheduler(PbsBaseClass):
     """
     _logger = aiida.scheduler.Scheduler._logger.getChild('torque')
 
-    ## I don't need to change this from the base class
+    # I don't need to change this from the base class
     #_job_resource_class = PbsJobResource
 
-    ## For the time being I use a common dictionary, should be sufficient
-    ## for the time being, but I can redefine it if needed.
+    # For the time being I use a common dictionary, should be sufficient
+    # for the time being, but I can redefine it if needed.
     #_map_status = _map_status_pbs_common
 
     def _get_resource_lines(self, num_machines, num_mpiprocs_per_machine,
@@ -52,10 +53,9 @@ class TorqueScheduler(PbsBaseClass):
         if num_cores_per_machine:
             select_string += ":ppn={}".format(num_cores_per_machine)
         elif num_mpiprocs_per_machine:
-            # if num_cores_per_machine is not defined then use 
+            # if num_cores_per_machine is not defined then use
             # num_mpiprocs_per_machine
             select_string += ":ppn={}".format(num_mpiprocs_per_machine)
-            
 
         if max_wallclock_seconds is not None:
             try:
@@ -92,4 +92,3 @@ class TorqueScheduler(PbsBaseClass):
 
         return_lines.append("#PBS -l {}".format(select_string))
         return return_lines
-

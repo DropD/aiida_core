@@ -16,9 +16,10 @@ class TestTransitiveClosureDeletionSQLA(AiidaTestCase):
     """
     Test the creation of the transitive closure table
     """
+
     def test_creation_and_deletion(self):
         from aiida.backends.sqlalchemy.models.node import DbLink  # Direct links
-        from aiida.backends.sqlalchemy.models.node import DbPath # The transitive closure table
+        from aiida.backends.sqlalchemy.models.node import DbPath  # The transitive closure table
         from aiida.orm.node import Node
 
         n1 = Node().store()
@@ -70,7 +71,7 @@ class TestTransitiveClosureDeletionSQLA(AiidaTestCase):
                                 DbPath.child == n8.dbnode).distinct().count(),
             4)
 
-        ### I start deleting now
+        # I start deleting now
 
         # I cut one branch below: I should loose 2 links
         DbLink.query.filter(DbLink.input == n6.dbnode,
@@ -122,6 +123,7 @@ class TestNodeBasicSQLA(AiidaTestCase):
     These tests check the basic features of nodes
     (setting of attributes, copying of files, ...)
     """
+
     def test_settings(self):
         """
         Test the settings table (similar to Attributes, but without the key.

@@ -10,4 +10,4 @@ __authors__ = "The AiiDA team."
 aiidalogger = logging.getLogger("aiida")
 # aiidalogger.addHandler(logging.StreamHandler(sys.stderr))
 #FORMAT = '[%(name)s@%(levelname)s] %(message)s'
-#logging.basicConfig(format=FORMAT)
+# logging.basicConfig(format=FORMAT)

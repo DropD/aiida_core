@@ -33,17 +33,20 @@ SCHEMA_VERSION = migrations.current_schema_version()
 
 
 class AiidaQuerySet(QuerySet):
+
     def iterator(self):
         for obj in super(AiidaQuerySet, self).iterator():
             yield obj.get_aiida_class()
 
 
 class AiidaObjectManager(m.Manager):
+
     def get_query_set(self):
         return AiidaQuerySet(self.model, using=self._db)
 
 
 class DbUserManager(BaseUserManager):
+
     def create_user(self, email, password=None, **extra_fields):
         """
         Creates and saves a User with the given email (that is the
@@ -110,6 +113,7 @@ class DbUser(AbstractBaseUser, PermissionsMixin):
     def get_aiida_class(self):
         from aiida.orm.user import User
         return User(dbuser=self)
+
 
 @python_2_unicode_compatible
 class DbNode(m.Model):
@@ -466,12 +470,12 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             raise DeserializationException("Wrong list elements stored in {} for "
                                            "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], expected_set, received_set))
+                                               sourcestr,
+                                               subspecifier_string,
+                                               mainitem['key'], expected_set, received_set))
         if expected_set != received_set:
             if (original_class is not None and
-                        original_class._subspecifier_field_name is not None):
+                    original_class._subspecifier_field_name is not None):
                 subspecifier_string = "{}={} and ".format(
                     original_class._subspecifier_field_name,
                     original_pk)
@@ -484,9 +488,9 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             msg = ("Wrong list elements stored in {} for "
                    "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], expected_set, received_set))
+                       sourcestr,
+                       subspecifier_string,
+                       mainitem['key'], expected_set, received_set))
             if lesserrors:
                 aiidalogger.error(msg)
             else:
@@ -515,7 +519,7 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
         if len(firstlevelsubdict) != mainitem['ival']:
             if (original_class is not None and
-                        original_class._subspecifier_field_name is not None):
+                    original_class._subspecifier_field_name is not None):
                 subspecifier_string = "{}={} and ".format(
                     original_class._subspecifier_field_name,
                     original_pk)
@@ -528,10 +532,10 @@ def _deserialize_attribute(mainitem, subitems, sep, original_class=None,
 
             msg = ("Wrong dict length stored in {} for "
                    "{}key='{}' ({} vs {})".format(
-                sourcestr,
-                subspecifier_string,
-                mainitem['key'], len(firstlevelsubdict),
-                mainitem['ival']))
+                       sourcestr,
+                       subspecifier_string,
+                       mainitem['key'], len(firstlevelsubdict),
+                       mainitem['ival']))
             if lesserrors:
                 aiidalogger.error(msg)
             else:
@@ -662,7 +666,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
             return {}
         else:
             return {self._subspecifier_field_name:
-                        getattr(self, self._subspecifier_field_name)}
+                    getattr(self, self._subspecifier_field_name)}
 
     @property
     def subspecifier_pk(self):
@@ -693,7 +697,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
         if cls._sep in key:
             raise ValidationError("The separator symbol '{}' cannot be present "
                                   "in the key of a {}.".format(
-                cls._sep, cls.__name__))
+                                      cls._sep, cls.__name__))
 
     @classmethod
     def set_value(cls, key, value, with_transaction=True,
@@ -747,14 +751,14 @@ class DbMultipleValueAttributeBaseClass(m.Model):
                     # otherwise don't delete them and hope they don't
                     # exist. If they exist, I'll get an UniquenessError
 
-                    ## NOTE! Be careful in case the extra/attribute to
-                    ## store is not a simple attribute but a list or dict:
-                    ## like this, it should be ok because if we are
-                    ## overwriting an entry it will stop anyway to avoid
-                    ## to overwrite the main entry, but otherwise
-                    ## there is the risk that trailing pieces remain
-                    ## so in general it is good to recursively clean
-                    ## all sub-items.
+                    # NOTE! Be careful in case the extra/attribute to
+                    # store is not a simple attribute but a list or dict:
+                    # like this, it should be ok because if we are
+                    # overwriting an entry it will stop anyway to avoid
+                    # to overwrite the main entry, but otherwise
+                    # there is the risk that trailing pieces remain
+                    # so in general it is good to recursively clean
+                    # all sub-items.
                     cls.del_value(key,
                                   subspecifier_value=subspecifier_value)
                 cls.objects.bulk_create(to_store)
@@ -774,7 +778,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
                                       "another entry already exists and the creation would "
                                       "violate an uniqueness constraint.\nFurther details: "
                                       "{}".format(
-                    cls.__name__, e.message))
+                                          cls.__name__, e.message))
             raise
 
     @classmethod
@@ -820,7 +824,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
                                                                 cls._subspecifier_field_name))
             further_params = other_attribs.copy()
             further_params.update({cls._subspecifier_field_name:
-                                       subspecifier_value})
+                                   subspecifier_value})
             new_entry = cls(key=key, **further_params)
 
         list_to_return = [new_entry]
@@ -1015,7 +1019,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
                     "bval": _[5],
                     "dval": _[6],
                 } for _ in dballsubvalues
-                        }
+                }
                 # for _ in dballsubvalues}
                 # Append also the item itself
                 data["attr"] = {
@@ -1081,7 +1085,7 @@ class DbMultipleValueAttributeBaseClass(m.Model):
                                  "for class {} (the {})".format(cls.__name__,
                                                                 cls._subspecifier_field_name))
             subspecifiers_dict = {cls._subspecifier_field_name:
-                                      subspecifier_value}
+                                  subspecifier_value}
 
         query = Q(key__startswith="{parentkey}{sep}".format(
             parentkey=key, sep=cls._sep),
@@ -1180,7 +1184,7 @@ class DbAttributeBaseClass(DbMultipleValueAttributeBaseClass):
             "bval": _[5],
             "dval": _[6],
         } for _ in dballsubvalues
-                }
+        }
         try:
             return deserialize_attributes(data, sep=cls._sep,
                                           original_class=cls,

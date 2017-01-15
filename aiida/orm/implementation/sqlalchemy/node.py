@@ -39,6 +39,7 @@ __version__ = "0.7.1"
 
 
 class Node(AbstractNode):
+
     def __init__(self, **kwargs):
         super(Node, self).__init__()
 
@@ -206,8 +207,8 @@ class Node(AbstractNode):
         # already in the TC table from self to src
         if link_type is LinkType.CREATE or link_type is LinkType.INPUT:
             c = session.query(literal(True)).filter(DbPath.query
-                                                .filter_by(parent_id=self.dbnode.id, child_id=src.dbnode.id)
-                                                .exists()).scalar()
+                                                    .filter_by(parent_id=self.dbnode.id, child_id=src.dbnode.id)
+                                                    .exists()).scalar()
             if c:
                 raise ValueError(
                     "The link you are attempting to create would generate a loop")
@@ -261,7 +262,7 @@ class Node(AbstractNode):
             link_filter['type'] = link_type.value
         inputs_list = [(i.label, i.input.get_aiida_class()) for i in
                        DbLink.query.filter_by(output=self.dbnode)
-                           .distinct().all()]
+                       .distinct().all()]
 
         if not only_in_db:
             # Needed for the check
@@ -463,7 +464,7 @@ class Node(AbstractNode):
             "ctime": c.ctime,
             "mtime": c.mtime,
             "content": c.content
-        } for c in comments ]
+        } for c in comments]
 
     def _get_dbcomments(self, pk=None, with_user=False):
         comments = DbComment.query.filter_by(dbnode=self._dbnode)
@@ -752,7 +753,7 @@ class Node(AbstractNode):
         #~ from aiida.backends.sqlalchemy.model.node import DbNode
         return self.dbnode.outputs_q.all()
         #~ return session.query(literal(True)).filter(
-            #~ self.dbnode.child_paths.exists()).scalar() or False
+        #~ self.dbnode.child_paths.exists()).scalar() or False
 
     @property
     def has_parents(self):

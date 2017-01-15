@@ -27,7 +27,7 @@ def make_inline(func):
         if not function_name.endswith('_inline'):
             raise ValueError("The function name that is wrapped must end "
                              "with '_inline', while its name is '{}'".format(
-                function_name))
+                                 function_name))
 
         if args:
             print args

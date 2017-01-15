@@ -45,7 +45,6 @@ class DbLog(Base):
         self.message = message
         self._metadata = metadata or {}
 
-
     def __str__(self):
         return "DbComment for [{} {}] on {}".format(
             self.dbnode.get_simple_name(),

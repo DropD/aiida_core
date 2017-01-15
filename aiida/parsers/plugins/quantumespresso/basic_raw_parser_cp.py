@@ -6,7 +6,7 @@ from aiida.parsers.plugins.quantumespresso.basic_raw_parser_pw import (read_xml_
                                                                        parse_xml_child_str, parse_xml_child_float,
                                                                        parse_xml_child_attribute_str, xml_card_cell,
                                                                        xml_card_ions,
-)
+                                                                       )
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. All rights reserved."
 __license__ = "MIT license, see LICENSE.txt file."
@@ -174,7 +174,6 @@ def parse_cp_raw_output(out_file, xml_file=None, xml_counter_file=None):
     else:
         parser_info['parser_warnings'].append('Skipping the parsing of the xml file.')
         xml_data = {}
-
 
     # analyze the counter file, which keeps info on the steps
     if xml_counter_file is not None:

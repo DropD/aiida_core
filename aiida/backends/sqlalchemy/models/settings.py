@@ -31,7 +31,7 @@ class DbSetting(Base):
 
     def __str__(self):
         return "'{}'={}".format(self.key, self.getvalue())
-    
+
     @classmethod
     def set_value(cls, key, value, with_transaction=True,
                   subspecifier_value=None, other_attribs={},

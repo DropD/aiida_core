@@ -24,6 +24,7 @@ from aiida.common.lang import override
 
 
 class ProcessStackTest(Process):
+
     @override
     def _run(self):
         pass
@@ -43,6 +44,7 @@ class ProcessStackTest(Process):
 
 
 class TestProcess(AiidaTestCase):
+
     def setUp(self):
         super(TestProcess, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)
@@ -124,6 +126,7 @@ class TestProcess(AiidaTestCase):
 
 
 class TestFunctionProcess(AiidaTestCase):
+
     def test_fixed_inputs(self):
         def wf(a, b, c):
             return {'a': a, 'b': b, 'c': c}
@@ -156,6 +159,3 @@ class TestFunctionProcess(AiidaTestCase):
         FP = FunctionProcess.build(wf_fixed_args)
         outs = FP.run(**inputs)
         self.assertEqual(outs, inputs)
-
-
-

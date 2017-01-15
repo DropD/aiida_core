@@ -33,7 +33,7 @@ def load_profile(process=None, profile=None):
         settings.CURRENT_AIIDADB_PROCESS = DEFAULT_PROCESS
     elif (process is not None and
           process != settings.CURRENT_AIIDADB_PROCESS):
-        ## The user specified a process that is different from the current one
+        # The user specified a process that is different from the current one
 
         # I re-set the process
         settings.CURRENT_AIIDADB_PROCESS = process
@@ -63,5 +63,3 @@ def is_profile_loaded():
     Return True if the profile has already been loaded
     """
     return settings.LOAD_PROFILE_CALLED
-
-

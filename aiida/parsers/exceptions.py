@@ -12,4 +12,4 @@ class OutputParsingError(ParsingError):
 
 
 class FailedJobError(ValidationError):
-    pass        
+    pass

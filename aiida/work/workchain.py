@@ -18,6 +18,7 @@ __authors__ = "The AiiDA team."
 
 
 class _WorkChainSpec(ProcessSpec):
+
     def __init__(self):
         super(_WorkChainSpec, self).__init__()
         self._outline = None
@@ -60,6 +61,7 @@ class WorkChain(Process):
         spec.dynamic_output()
 
     class Context(object):
+
         def __init__(self, value=None):
             # Have to do it this way otherwise our setattr will be called
             # causing infinite recursion.
@@ -310,6 +312,7 @@ def Outputs(pid):
 
 
 class _InterstepFactory(object):
+
     def create(self, bundle):
         class_string = bundle[Bundle.CLASS]
         if class_string == get_class_string(ToContext):
@@ -479,6 +482,7 @@ class _Conditional(object):
     while(condition):
       body
     """
+
     def __init__(self, parent, condition):
         self._parent = parent
         self._condition = condition
@@ -502,6 +506,7 @@ class _Conditional(object):
 
 
 class _If(_Instruction):
+
     class Stepper(Stepper):
         _POSITION = 'pos'
         _STEPPER_POS = 'stepper_pos'
@@ -595,6 +600,7 @@ class _If(_Instruction):
 
 
 class _While(_Conditional, _Instruction):
+
     class Stepper(Stepper):
         _STEPPER_POS = 'stepper_pos'
         _CHECK_CONDITION = 'check_condition'
@@ -698,4 +704,3 @@ def while_(condition):
     :param condition: The workchain method that will return True or False
     """
     return _While(condition)
-

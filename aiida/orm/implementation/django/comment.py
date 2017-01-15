@@ -65,7 +65,7 @@ class Comment(AbstractComment):
                     "database")
             elif ccount == 0:
                 raise NotExistent("No comments were found with the given "
-                                 "arguments")
+                                  "arguments")
 
             self.dbcomment = res[0]
 
@@ -119,4 +119,3 @@ class Comment(AbstractComment):
 
     def delete(self):
         self.dbcomment.delete()
-

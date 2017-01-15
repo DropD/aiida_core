@@ -11,30 +11,30 @@ from aiida.scheduler.datastructures import (
 
 # This maps PbsPro status letters to our own status list
 
-## List of states from the man page of qstat
+# List of states from the man page of qstat
 # B  Array job has at least one subjob running.
-#E  Job is exiting after having run.
-#F  Job is finished.
-#H  Job is held.
-#M  Job was moved to another server.
-#Q  Job is queued.
-#R  Job is running.
-#S  Job is suspended.
-#T  Job is being moved to new location.
-#U  Cycle-harvesting job is suspended due to  keyboard  activity.
-#W  Job is waiting for its submitter-assigned start time to be reached.
-#X  Subjob has completed execution or has been deleted.
+# E  Job is exiting after having run.
+# F  Job is finished.
+# H  Job is held.
+# M  Job was moved to another server.
+# Q  Job is queued.
+# R  Job is running.
+# S  Job is suspended.
+# T  Job is being moved to new location.
+# U  Cycle-harvesting job is suspended due to  keyboard  activity.
+# W  Job is waiting for its submitter-assigned start time to be reached.
+# X  Subjob has completed execution or has been deleted.
 
-## These are instead the states from PBS/Torque v.2.4.16 (from Ubuntu)
-#C -  Job is completed after having run [different from above, but not clashing]
-#E -  Job is exiting after having run. [same as above]
-#H -  Job is held. [same as above]
-#Q -  job is queued, eligible to run or routed. [same as above]
-#R -  job is running. [same as above]
-#T -  job is being moved to new location. [same as above]
-#W -  job is waiting for its execution time
+# These are instead the states from PBS/Torque v.2.4.16 (from Ubuntu)
+# C -  Job is completed after having run [different from above, but not clashing]
+# E -  Job is exiting after having run. [same as above]
+# H -  Job is held. [same as above]
+# Q -  job is queued, eligible to run or routed. [same as above]
+# R -  job is running. [same as above]
+# T -  job is being moved to new location. [same as above]
+# W -  job is waiting for its execution time
 #     (-a option) to be reached. [similar to above]
-#S -  (Unicos only) job is suspend. [as above]
+# S -  (Unicos only) job is suspend. [as above]
 
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. All rights reserved."
@@ -51,8 +51,8 @@ _map_status_pbs_common = {
     'Q': job_states.QUEUED,
     'R': job_states.RUNNING,
     'S': job_states.SUSPENDED,
-    'T': job_states.QUEUED, # We assume that from the AiiDA point of view
-                            # it is still queued
+    'T': job_states.QUEUED,  # We assume that from the AiiDA point of view
+    # it is still queued
     'U': job_states.SUSPENDED,
     'W': job_states.QUEUED,
     'X': job_states.DONE,
@@ -61,45 +61,46 @@ _map_status_pbs_common = {
 
 
 class PbsJobResource(NodeNumberJobResource):
+
     def __init__(self, *args, **kwargs):
         """
         It extends the base class init method and calculates the 
         num_cores_per_machine fields to pass to PBSlike schedulars.
-        
+
         * Ckeck: num_cores_per_machine should be a multiple of
         num_cores_per_mpiproc and/or num_mpiprocs_per_machine 
-        
+
         * Check sequence:
         1. If num_cores_per_mpiproc and num_cores_per_machine both are 
         specified check whether it satisfies the check
         2. If only num_cores_per_mpiproc is passed, calculate 
         num_cores_per_machine
         3. If only num_cores_per_machine is passed, use it
-        """  
-	super(PbsJobResource, self).__init__(*args, **kwargs)
+        """
+        super(PbsJobResource, self).__init__(*args, **kwargs)
 
-	value_error = ("num_cores_per_machine must be equal to "
-                      "num_cores_per_mpiproc * num_mpiprocs_per_machine, "
-                      "and in perticular it should be a multiple of "
-                      "num_cores_per_mpiproc and/or num_mpiprocs_per_machine")
+        value_error = ("num_cores_per_machine must be equal to "
+                       "num_cores_per_mpiproc * num_mpiprocs_per_machine, "
+                       "and in perticular it should be a multiple of "
+                       "num_cores_per_mpiproc and/or num_mpiprocs_per_machine")
 
-        if (self.num_cores_per_machine is not None and 
+        if (self.num_cores_per_machine is not None and
                 self.num_cores_per_mpiproc is not None):
-            if self.num_cores_per_machine != (self.num_cores_per_mpiproc 
-                			* self.num_mpiprocs_per_machine):
-                # If user specify both values, check if specified 
+            if self.num_cores_per_machine != (self.num_cores_per_mpiproc
+                                              * self.num_mpiprocs_per_machine):
+                # If user specify both values, check if specified
                 # values are correct
                 raise ValueError(value_error)
         elif self.num_cores_per_mpiproc is not None:
             if self.num_cores_per_mpiproc <= 0:
                 raise ValueError("num_cores_per_mpiproc must be >=1")
             # calculate num_cores_per_machine
-            # In this plugin we never used num_cores_per_mpiproc so if it 
+            # In this plugin we never used num_cores_per_mpiproc so if it
             # is not defined it is OK.
-            self.num_cores_per_machine = (self.num_cores_per_mpiproc 
-                                 * self.num_mpiprocs_per_machine)
-        
-                
+            self.num_cores_per_machine = (self.num_cores_per_mpiproc
+                                          * self.num_mpiprocs_per_machine)
+
+
 class PbsBaseClass(aiida.scheduler.Scheduler):
     """
     Base class with support for the PBSPro scheduler
@@ -239,7 +240,7 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
             # prepend a 'j' (for 'job') before the string if the string
             # is now empty or does not start with a valid charachter
             if not job_title or (
-                        job_title[0] not in string.letters + string.digits):
+                    job_title[0] not in string.letters + string.digits):
                 job_title = 'j' + job_title
 
             # Truncate to the first 15 characters
@@ -356,8 +357,8 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
         # if one of the job is not in the list anymore
 
         # retval should be zero
-        #if retval != 0:
-        #self.logger.warning("Error in _parse_joblist_output: retval={}; "
+        # if retval != 0:
+        # self.logger.warning("Error in _parse_joblist_output: retval={}; "
         #    "stdout={}; stderr={}".format(retval, stdout, stderr))
 
         # issue a warning if there is any stderr output
@@ -397,7 +398,7 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
                         # string: it is an error. However this may happen
                         # only before the first job.
                         raise SchedulerParsingError("I did not find the header for the first job")
-                        #self.logger.warning("I found some text before the "
+                        # self.logger.warning("I found some text before the "
                         #"first job: {}".format(l))
                     else:
                         if l.startswith(' '):
@@ -413,13 +414,13 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
                                     "starts with a TAB! ({})".format(line_num, l))
                             jobdata_raw[-1]['lines'][-1] += l[1:]
                         else:
-                            #raise SchedulerParsingError(
+                            # raise SchedulerParsingError(
                             #    "Wrong starting character at line {}! ({})"
                             #    "".format(line_num, l))
-                            ## For some reasons, the output of 'comment' and
-                            ## 'Variable_List', for instance, can have
-                            ## newlines if they are included... # I do a
-                            ## workaround
+                            # For some reasons, the output of 'comment' and
+                            # 'Variable_List', for instance, can have
+                            # newlines if they are included... # I do a
+                            # workaround
                             jobdata_raw[-1]['lines'][-1] += "\n{}".format(l)
                             jobdata_raw[-1]['warning_lines_idx'].append(
                                 len(jobdata_raw[-1]['lines']) - 1)
@@ -442,13 +443,13 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
                                              "sign."))
 
             raw_data = {i.split('=', 1)[0].strip().lower():
-                            i.split('=', 1)[1].lstrip()
+                        i.split('=', 1)[1].lstrip()
                         for i in job['lines'] if '=' in i}
 
-            ## I ignore the errors for the time being - this seems to be
-            ## a problem if there are \n in the content of some variables?
-            ## I consider this a workaround...
-            #for line_with_warning in set(job['warning_lines_idx']):
+            # I ignore the errors for the time being - this seems to be
+            # a problem if there are \n in the content of some variables?
+            # I consider this a workaround...
+            # for line_with_warning in set(job['warning_lines_idx']):
             #    if job['lines'][line_with_warning].split(
             #        '=',1)[0].strip().lower() != "comment":
             #        raise SchedulerParsingError(
@@ -481,7 +482,7 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
             except KeyError:
                 # Many jobs do not have a comment; I do not complain about it.
                 pass
-                #self.logger.debug("No 'comment' field for job id {}".format(
+                # self.logger.debug("No 'comment' field for job id {}".format(
                 #    this_job.job_id))
 
             try:
@@ -539,7 +540,7 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
                     self.logger.debug("Problem parsing the node names, I "
                                       "got Exception {} with message {}; "
                                       "exec_hosts was {}".format(
-                        str(type(e)), e.message, exec_hosts))
+                                          str(type(e)), e.message, exec_hosts))
 
             try:
                 # I strip the part after the @: is this always ok?
@@ -558,8 +559,8 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
             except ValueError:
                 self.logger.warning("'resource_list.ncpus' is not an integer "
                                     "({}) for job id {}!".format(
-                    raw_data['resource_list.ncpus'],
-                    this_job.job_id))
+                                        raw_data['resource_list.ncpus'],
+                                        this_job.job_id))
 
             try:
                 this_job.num_mpiprocs = int(raw_data['resource_list.mpiprocs'])
@@ -571,8 +572,8 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
             except ValueError:
                 self.logger.warning("'resource_list.mpiprocs' is not an integer "
                                     "({}) for job id {}!".format(
-                    raw_data['resource_list.mpiprocs'],
-                    this_job.job_id))
+                                        raw_data['resource_list.mpiprocs'],
+                                        this_job.job_id))
 
             try:
                 this_job.num_machines = int(raw_data['resource_list.nodect'])
@@ -582,17 +583,17 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
             except ValueError:
                 self.logger.warning("'resource_list.nodect' is not an integer "
                                     "({}) for job id {}!".format(
-                    raw_data['resource_list.nodect'],
-                    this_job.job_id))
+                                        raw_data['resource_list.nodect'],
+                                        this_job.job_id))
 
             # Double check of redundant info
             if (this_job.allocated_machines is not None and
-                        this_job.num_machines is not None):
+                    this_job.num_machines is not None):
                 if len(this_job.allocated_machines) != this_job.num_machines:
                     self.logger.error("The length of the list of allocated "
                                       "nodes ({}) is different from the "
                                       "expected number of nodes ({})!".format(
-                        len(this_job.allocated_machines), this_job.num_machines))
+                                          len(this_job.allocated_machines), this_job.num_machines))
 
             try:
                 this_job.queue_name = raw_data['queue']
@@ -714,7 +715,8 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
         Parse a time string in the format returned from qstat -f and
         returns a datetime object.
         """
-        import time, datetime
+        import time
+        import datetime
 
         try:
             time_struct = time.strptime(string, fmt)
@@ -742,12 +744,12 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
                               "stdout={}; stderr={}".format(retval, stdout, stderr))
             raise SchedulerError("Error during submission, retval={}\n"
                                  "stdout={}\nstderr={}".format(
-                retval, stdout, stderr))
+                                     retval, stdout, stderr))
 
         if stderr.strip():
             self.logger.warning("in _parse_submit_output for {}: "
                                 "there was some text in stderr: {}".format(
-                str(self.transport), stderr))
+                                    str(self.transport), stderr))
 
         return stdout.strip()
 
@@ -777,11 +779,11 @@ class PbsBaseClass(aiida.scheduler.Scheduler):
         if stderr.strip():
             self.logger.warning("in _parse_kill_output for {}: "
                                 "there was some text in stderr: {}".format(
-                str(self.transport), stderr))
+                                    str(self.transport), stderr))
 
         if stdout.strip():
             self.logger.warning("in _parse_kill_output for {}: "
                                 "there was some text in stdout: {}".format(
-                str(self.transport), stdout))
+                                    str(self.transport), stdout))
 
         return True

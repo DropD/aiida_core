@@ -98,6 +98,7 @@ class FailCreateFromSavedStateProcess(DummyProcess):
 
 
 class TestDaemon(AiidaTestCase):
+
     def setUp(self):
         self.assertEquals(len(util.ProcessStack.stack()), 0)
 
@@ -147,4 +148,3 @@ class TestDaemon(AiidaTestCase):
 
         self.assertTrue(registry.has_finished(dp_pk))
         self.assertFalse(registry.has_finished(fail_pk))
-

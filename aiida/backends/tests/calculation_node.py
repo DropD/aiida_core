@@ -11,6 +11,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 class TestCalcNode(AiidaTestCase):
     """
     These tests check the features of Calculation nodes that differ from the

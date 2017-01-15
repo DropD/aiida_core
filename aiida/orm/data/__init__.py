@@ -115,7 +115,7 @@ class Data(Node):
         from aiida.orm.calculation import Calculation
 
         if link_type is LinkType.CREATE and \
-                        len(self.get_inputs(link_type=LinkType.CREATE)) > 0:
+                len(self.get_inputs(link_type=LinkType.CREATE)) > 0:
             raise ValueError("At most one CREATE node can enter a data node")
 
         if not isinstance(src, Calculation):
@@ -154,12 +154,12 @@ class Data(Node):
             if len(exporters.keys()) > 0:
                 raise ValueError("The format {} is not implemented for {}. "
                                  "Currently implemented are: {}.".format(
-                    fileformat, self.__class__.__name__,
-                    ",".join(exporters.keys())))
+                                     fileformat, self.__class__.__name__,
+                                     ",".join(exporters.keys())))
             else:
                 raise ValueError("The format {} is not implemented for {}. "
                                  "No formats are implemented yet.".format(
-                    fileformat, self.__class__.__name__))
+                                     fileformat, self.__class__.__name__))
 
         return func(**kwargs)
 
@@ -209,12 +209,12 @@ class Data(Node):
             if len(importers.keys()) > 0:
                 raise ValueError("The format {} is not implemented for {}. "
                                  "Currently implemented are: {}.".format(
-                    fileformat, self.__class__.__name__,
-                    ",".join(importers.keys())))
+                                     fileformat, self.__class__.__name__,
+                                     ",".join(importers.keys())))
             else:
                 raise ValueError("The format {} is not implemented for {}. "
                                  "No formats are implemented yet.".format(
-                    fileformat, self.__class__.__name__))
+                                     fileformat, self.__class__.__name__))
 
         # func is bound to self by getattr in _get_importers()
         func(inputstring, **kwargs)
@@ -273,7 +273,7 @@ class Data(Node):
             else:
                 raise ValueError("The format {} is not implemented for {}. "
                                  "No formats are implemented yet.".format(
-                    object_format, self.__class__.__name__))
+                                     object_format, self.__class__.__name__))
 
         return func(*args)
 
@@ -305,13 +305,13 @@ class Data(Node):
 
         super(Data, self)._validate()
 
-        ## Validation of ``source`` is commented out due to Issue #9
-        ## (https://bitbucket.org/epfl_theos/aiida_epfl/issues/9/)
+        # Validation of ``source`` is commented out due to Issue #9
+        # (https://bitbucket.org/epfl_theos/aiida_epfl/issues/9/)
         ##
-        ## if self.source is not None and \
-        ##    self.source.get('license', None) and \
-        ##    self.source['license'].startswith('CC-BY') and \
-        ##    self.source.get('description', None) is None:
-        ##     raise ValidationError("License of the object ({}) requires "
+        # if self.source is not None and \
+        # self.source.get('license', None) and \
+        # self.source['license'].startswith('CC-BY') and \
+        # self.source.get('description', None) is None:
+        # raise ValidationError("License of the object ({}) requires "
         ##                           "attribution, while none is given in the "
-        ##                           "description".format(self.source['license']))
+        # "description".format(self.source['license']))

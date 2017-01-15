@@ -92,14 +92,14 @@ def parse_path(path_string):
             result_type (string))
     """
 
-    ## Initialization
+    # Initialization
     page = None
     pk = None
     query_type = "default"
     path = split_path(strip_prefix(path_string))
 
-    ## Pop out iteratively the "words" of the path until it is an empty list.
-    ##  This way it should be easier to plug in more endpoint logic
+    # Pop out iteratively the "words" of the path until it is an empty list.
+    # This way it should be easier to plug in more endpoint logic
     # Resource type
     resource_type = path.pop(0)
     if not path:
@@ -145,6 +145,7 @@ def parse_path(path_string):
             page = int(path.pop(0))
             return (resource_type, page, pk, query_type)
 
+
 def validate_request(limit=None, offset=None, perpage=None, page=None,
                      query_type=None, is_querystring_defined=False):
     """
@@ -189,7 +190,7 @@ def paginate(page, perpage, total_count):
     """
     from math import ceil
 
-    ## Type checks
+    # Type checks
     # Mandatory params
     try:
         page = int(page)
@@ -208,21 +209,21 @@ def paginate(page, perpage, total_count):
     else:
         perpage = PERPAGE_DEFAULT
 
-    ## First_page is anyway 1
+    # First_page is anyway 1
     first_page = 1
 
-    ## Calculate last page
+    # Calculate last page
     if total_count == 0:
         last_page = 1
     else:
         last_page = int(ceil(float(total_count) / float(perpage)))
 
-    ## Check validity of required page and calculate limit, offset, previous,
+    # Check validity of required page and calculate limit, offset, previous,
     #  and next page
     if page > last_page or page < 1:
         raise RestInputValidationError("Non existent page requested. The "
                                        "page range is [{} : {}]".format(
-            first_page, last_page))
+                                           first_page, last_page))
     else:
         limit = perpage
         offset = (page - 1) * perpage
@@ -257,8 +258,8 @@ class CustomJSONEncoder(JSONEncoder):
         # Treat the datetime objects
         if isinstance(obj, datetime):
             if 'datetime_format' in SERIALIZER_CONFIG.keys() and \
-                            SERIALIZER_CONFIG[
-                                'datetime_format'] is not 'default':
+                    SERIALIZER_CONFIG[
+                    'datetime_format'] is not 'default':
                 if SERIALIZER_CONFIG['datetime_format'] == 'asinput':
                     if obj.utcoffset() is not None:
                         obj = obj - obj.utcoffset()
@@ -266,7 +267,7 @@ class CustomJSONEncoder(JSONEncoder):
                                          str(obj.day).zfill(2)]) + 'T' + \
                                ':'.join([str(
                                    obj.hour).zfill(2), str(obj.minute).zfill(2),
-                                         str(obj.second).zfill(2)])
+                                   str(obj.second).zfill(2)])
 
         # If not returned yet, do it in the default way
         return JSONEncoder.default(self, obj)
@@ -283,7 +284,7 @@ def build_headers(rel_pages=None, url=None, total_count=None):
     :return:
     """
 
-    ## Type validation
+    # Type validation
     # mandatory parameters
     try:
         total_count = int(total_count)
@@ -300,7 +301,7 @@ def build_headers(rel_pages=None, url=None, total_count=None):
         except ValueError:
             raise InputValidationError("url must be a string")
 
-    ## Input consistency
+    # Input consistency
     # rel_pages cannot be defined without url
     if rel_pages is not None and url is None:
         raise InputValidationError("'rel_pages' parameter requires 'url' "
@@ -308,12 +309,12 @@ def build_headers(rel_pages=None, url=None, total_count=None):
 
     headers = {}
 
-    ## Setting mandatory headers
+    # Setting mandatory headers
     # set X-Total-Count
     headers['X-Total-Count'] = total_count
     expose_header = ["X-Total-Count"]
 
-    ## Two auxiliary functions
+    # Two auxiliary functions
     def split_url(url):
         if '?' in url:
             [path, query_string] = url.split('?')
@@ -329,7 +330,7 @@ def build_headers(rel_pages=None, url=None, total_count=None):
         return '<' + '/'.join(new_path_elems) + \
                question_mark + query_string + ">; rel={}, ".format(rel)
 
-    ## Setting non-mandatory parameters
+    # Setting non-mandatory parameters
     # set links to related pages
     if rel_pages is not None:
         (path, query_string, question_mark) = split_url(url)
@@ -346,7 +347,7 @@ def build_headers(rel_pages=None, url=None, total_count=None):
             pass
 
     # to expose header access in cross-domain requests
-    headers['Access-Control-Expose-Headers'] =','.join(expose_header)
+    headers['Access-Control-Expose-Headers'] = ','.join(expose_header)
 
     return headers
 
@@ -361,7 +362,7 @@ def build_response(status=200, headers=None, data=None):
     :return: a Flask response object
     """
 
-    ## Type checks
+    # Type checks
     # mandatory parameters
     if not isinstance(data, dict):
         raise InputValidationError("data must be a dictionary")
@@ -410,7 +411,7 @@ def build_datetime_filter(dt):
     reference_datetime = dt.dt
     precision = dt.precision
 
-    ## Define interval according to the precision
+    # Define interval according to the precision
     if precision == 1:
         Dt = timedelta(days=1)
     elif precision == 2:
@@ -439,7 +440,7 @@ def build_translator_parameters(field_list):
     :return: the filters in the
     """
 
-    ## Create void variables
+    # Create void variables
     filters = {}
     orderby = []
     limit = None
@@ -450,7 +451,7 @@ def build_translator_parameters(field_list):
     elist = None
     nelist = None
 
-    ## Count how many time a key has been used for the filters and check if
+    # Count how many time a key has been used for the filters and check if
     # reserved keyword
     # have been used twice,
     field_counts = {}
@@ -470,7 +471,7 @@ def build_translator_parameters(field_list):
             #                                "membership opertor '=in='")
             field_counts[field_key] = field_counts[field_key] + 1
 
-    ## Check the reserved keywords
+    # Check the reserved keywords
     if 'limit' in field_counts.keys() and field_counts['limit'] > 1:
         raise RestInputValidationError("You cannot specify limit more than "
                                        "once")
@@ -496,7 +497,7 @@ def build_translator_parameters(field_list):
         raise RestInputValidationError("You cannot specify nelist more than "
                                        "once")
 
-    ## Extract results
+    # Extract results
     for field in field_list:
 
         if field[0] == 'limit':
@@ -560,7 +561,7 @@ def build_translator_parameters(field_list):
                                                "is permitted after 'orderby'")
         else:
 
-            ## Construct the filter entry.
+            # Construct the filter entry.
             field_key = field[0]
             operator = field[1]
             field_value = field[2]
@@ -607,7 +608,7 @@ def parse_query_string(query_string):
     from dateutil import parser as dtparser
     from psycopg2.tz import FixedOffsetTimezone
 
-    ## Define grammar
+    # Define grammar
     # key types
     key = Word(alphas + '_', alphanums + '_')
     # operators
@@ -623,7 +624,7 @@ def parse_query_string(query_string):
     valueString = QuotedString('"', escQuote='""')
     valueOrderby = Combine(Optional(Word('+-', exact=1)) + key)
 
-    ## DateTimeShift value. First, compose the atomic values and then combine
+    # DateTimeShift value. First, compose the atomic values and then combine
     #  them and convert them to datetime objects
     # Date
     valueDate = Combine(
@@ -713,9 +714,9 @@ def parse_query_string(query_string):
 
     # General query string
     generalGrammar = SS() + Optional(Field) + ZeroOrMore(separator + Field) + \
-                     Optional(separator) + SE()
+        Optional(separator) + SE()
 
-    ## Parse the query string
+    # Parse the query string
     try:
         fields = generalGrammar.parseString(query_string)
         field_dict = fields.asDict()
@@ -729,5 +730,5 @@ def parse_query_string(query_string):
                                        "the first character of the query "
                                        "string.".format(e))
 
-    ## return the translator instructions elaborated from the field_list
+    # return the translator instructions elaborated from the field_list
     return build_translator_parameters(field_list)

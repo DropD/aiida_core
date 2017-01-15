@@ -147,7 +147,7 @@ class LocalSetup(AiidaTestCase):
         except Exception as error:
             self.fail("Error during retrieval of immigrated calcs:\n{}\n\n"
                       "".format(error)
-            )
+                      )
 
         # Test the create_input_nodes method by comparing the input files
         # generated above by the submit_test method. The first input file
@@ -189,8 +189,8 @@ class LocalSetup(AiidaTestCase):
                                 "are not within the specified number of "
                                 "decimal places."
                                 "".format(
-                                val1, val2, prefixes[0], prefix
-                            )
+                                    val1, val2, prefixes[0], prefix
+                                )
                         )
 
                     # If they weren't floats, then they should have been
@@ -202,8 +202,8 @@ class LocalSetup(AiidaTestCase):
                                 "input files for calcs with prefixes {} and {} "
                                 "did not match. They should have been "
                                 "identical!".format(
-                                val1, val2, prefixes[0], prefix
-                            )
+                                    val1, val2, prefixes[0], prefix
+                                )
                         )
 
 

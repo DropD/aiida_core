@@ -65,10 +65,10 @@ class Daemon(VerdiCommandWithSubcommands):
         }
 
         self.conffile_full_path = os.path.expanduser(os.path.join(
-                setup.AIIDA_CONFIG_FOLDER,
-                setup.DAEMON_SUBDIR,
-                setup.DAEMON_CONF_FILE
-            ))
+            setup.AIIDA_CONFIG_FOLDER,
+            setup.DAEMON_SUBDIR,
+            setup.DAEMON_CONF_FILE
+        ))
 
     def _get_pid_full_path(self):
         """
@@ -111,7 +111,7 @@ class Daemon(VerdiCommandWithSubcommands):
             from aiida.backends.utils import load_dbenv
             load_dbenv(process='daemon')
 
-        from aiida.daemon.timestamps import get_last_daemon_timestamp,set_daemon_timestamp
+        from aiida.daemon.timestamps import get_last_daemon_timestamp, set_daemon_timestamp
 
         if args:
             print >> sys.stderr, (
@@ -124,7 +124,6 @@ class Daemon(VerdiCommandWithSubcommands):
 
         daemon_user = get_daemon_user()
         this_user = get_configured_user_email()
-
 
         if daemon_user != this_user:
             print "You are not the daemon user! I will not start the daemon."
@@ -160,11 +159,11 @@ class Daemon(VerdiCommandWithSubcommands):
         # TODO: remove them when the old workflow system will be
         # taken away.
         try:
-            if (get_last_daemon_timestamp('workflow',when='stop')
-                -get_last_daemon_timestamp('workflow',when='start'))<timedelta(0):
+            if (get_last_daemon_timestamp('workflow', when='stop')
+                    - get_last_daemon_timestamp('workflow', when='start')) < timedelta(0):
                 logger.info("Workflow stop timestamp was {}; re-initializing "
                             "it to current time".format(
-                            get_last_daemon_timestamp('workflow',when='stop')))
+                                get_last_daemon_timestamp('workflow', when='stop')))
                 print "Re-initializing workflow stepper stop timestamp"
                 set_daemon_timestamp(task_name='workflow', when='stop')
         except TypeError:
@@ -175,7 +174,6 @@ class Daemon(VerdiCommandWithSubcommands):
 
         if (process.returncode == 0):
             print "Daemon started"
-
 
     def kill_daemon(self):
         """
@@ -219,8 +217,8 @@ class Daemon(VerdiCommandWithSubcommands):
         if not is_dbenv_loaded():
             from aiida.backends.utils import load_dbenv
             load_dbenv(process='daemon')
-        
-        from aiida.daemon.timestamps import get_last_daemon_timestamp,set_daemon_timestamp
+
+        from aiida.daemon.timestamps import get_last_daemon_timestamp, set_daemon_timestamp
 
         if args:
             print >> sys.stderr, (
@@ -252,11 +250,11 @@ class Daemon(VerdiCommandWithSubcommands):
                     # TODO: remove them when the old workflow system will be
                     # taken away.
                     try:
-                        if (get_last_daemon_timestamp('workflow',when='stop')
-                            -get_last_daemon_timestamp('workflow',when='start'))<timedelta(0):
+                        if (get_last_daemon_timestamp('workflow', when='stop')
+                                - get_last_daemon_timestamp('workflow', when='start')) < timedelta(0):
                             logger.info("Workflow stop timestamp was {}; re-initializing"
                                         " it to current time".format(
-                                        get_last_daemon_timestamp('workflow',when='stop')))
+                                            get_last_daemon_timestamp('workflow', when='stop')))
                             print "Re-initializing workflow stepper stop timestamp"
                             set_daemon_timestamp(task_name='workflow', when='stop')
                     except TypeError:
@@ -342,7 +340,7 @@ class Daemon(VerdiCommandWithSubcommands):
             return
 
         if running_processes:
-            print "## Found {} process{} running:".format(len(running_processes), '' if len(running_processes)==1 else 'es')
+            print "## Found {} process{} running:".format(len(running_processes), '' if len(running_processes) == 1 else 'es')
             for process in running_processes:
                 print "   * {:<22} {:<10} {}".format(
                     "{}[{}]".format(process['group'], process['name']),

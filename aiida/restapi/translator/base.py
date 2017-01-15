@@ -32,7 +32,6 @@ class BaseTranslator(object):
     _is_pk_query = None
     _total_count = None
 
-
     def __init__(self):
         """
         Initialise the parameters.
@@ -75,10 +74,10 @@ class BaseTranslator(object):
         basic_schema = orm_class.get_db_columns()
 
         if cls._default_projections == ['**']:
-            schema = basic_schema # No custom schema, take the basic one
+            schema = basic_schema  # No custom schema, take the basic one
         else:
             schema = dict([(k, basic_schema[k]) for k in cls._default_projections
-                                  if k in basic_schema.keys()])
+                           if k in basic_schema.keys()])
 
         # Convert the related_tablevalues to the RESTAPI resources
         # (orm class/db table ==> RESTapi resource)
@@ -107,7 +106,7 @@ class BaseTranslator(object):
                     schema[k].update(custom_schema['fields'][k])
 
             # Convert python types values into strings
-            schema[k]['type']=str(schema[k]['type'])[7:-2]
+            schema[k]['type'] = str(schema[k]['type'])[7:-2]
 
             # Construct the 'related resource' field from the 'related_table'
             # field
@@ -152,7 +151,7 @@ class BaseTranslator(object):
         Returns the number of rows of the query
         :return: total_count
         """
-        ## Count the results if needed
+        # Count the results if needed
         if not self._total_count:
             self.count()
 
@@ -233,13 +232,13 @@ class BaseTranslator(object):
         results
         :return: None or exception if any.
         """
-        ## Validate input
+        # Validate input
         if type(orders) is not dict:
             raise InputValidationError("orders has to be a dictionary"
                                        "compatible with the 'order_by' section"
                                        "of the query_help")
 
-        ## Auxiliary_function to get the ordering cryterion
+        # Auxiliary_function to get the ordering cryterion
         def def_order(columns):
             """
             Takes a list of signed column names ex. ['id', '-ctime',
@@ -260,7 +259,7 @@ class BaseTranslator(object):
                 order_dict[pk_dbsynonym] = order_dict.pop('pk')
             return order_dict
 
-        ## Assign orderby field query_help
+        # Assign orderby field query_help
         for tag, columns in orders.iteritems():
             self._query_help['order_by'][tag] = def_order(columns)
 
@@ -276,7 +275,7 @@ class BaseTranslator(object):
 
         tagged_filters = {}
 
-        ## Check if filters are well defined and construct an ad-hoc filter
+        # Check if filters are well defined and construct an ad-hoc filter
         # for pk_query
         if pk is not None:
             self._is_pk_query = True
@@ -296,22 +295,22 @@ class BaseTranslator(object):
         else:
             tagged_filters[self.__label__] = filters
 
-        ## Add filters
+        # Add filters
         self.set_filters(tagged_filters)
 
-        ## Add projections
+        # Add projections
         if projections is None:
             self.set_default_projections()
         else:
             tagged_projections = {self._result_type: projections}
             self.set_projections(tagged_projections)
 
-        ##Add order_by
+        # Add order_by
         if orders is not None:
             tagged_orders = {self._result_type: orders}
             self.set_order(tagged_orders)
 
-        ## Initialize the query_object
+        # Initialize the query_object
         self.init_qb()
 
     def get_query_help(self):
@@ -329,10 +328,10 @@ class BaseTranslator(object):
         :return:
         """
 
-        ## mandatory params
+        # mandatory params
         # none
 
-        ## non-mandatory params
+        # non-mandatory params
         if limit is not None:
             try:
                 limit = int(limit)
@@ -405,17 +404,17 @@ class BaseTranslator(object):
         from database
         """
 
-        ## Check whether the querybuilder object has been initialized
+        # Check whether the querybuilder object has been initialized
         if not self._is_qb_initialized:
             raise InvalidOperation("query builder object has not been "
                                    "initialized.")
 
-        ## Count the total number of rows returned by the query (if not
+        # Count the total number of rows returned by the query (if not
         # already done)
         if self._total_count is None:
             self.count()
 
-        ## Retrieve data
+        # Retrieve data
         data = self.get_formatted_result(self._result_type)
         return data
 

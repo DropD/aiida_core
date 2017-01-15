@@ -101,9 +101,9 @@ def extract_zip(infile, folder, nodes_export_subfolder="nodes",
         with zipfile.ZipFile(infile, "r") as zip:
 
             zip.extract(path=folder.abspath,
-                   member='metadata.json')
+                        member='metadata.json')
             zip.extract(path=folder.abspath,
-                   member='data.json')
+                        member='data.json')
 
             if not silent:
                 print "EXTRACTING NODE DATA..."
@@ -113,7 +113,7 @@ def extract_zip(infile, folder, nodes_export_subfolder="nodes",
                 # the subfolder!
                 # TODO: better check such that there are no .. in the
                 # path; use probably the folder limit checks
-                if not membername.startswith(nodes_export_subfolder+os.sep):
+                if not membername.startswith(nodes_export_subfolder + os.sep):
                     continue
                 zip.extract(path=folder.abspath,
                             member=membername)
@@ -142,9 +142,9 @@ def extract_tar(infile, folder, nodes_export_subfolder="nodes",
         with tarfile.open(infile, "r:*", format=tarfile.PAX_FORMAT) as tar:
 
             tar.extract(path=folder.abspath,
-                   member=tar.getmember('metadata.json'))
+                        member=tar.getmember('metadata.json'))
             tar.extract(path=folder.abspath,
-                   member=tar.getmember('data.json'))
+                        member=tar.getmember('data.json'))
 
             if not silent:
                 print "EXTRACTING NODE DATA..."
@@ -153,19 +153,19 @@ def extract_tar(infile, folder, nodes_export_subfolder="nodes",
                 if member.isdev():
                     # safety: skip if character device, block device or FIFO
                     print >> sys.stderr, ("WARNING, device found inside the "
-                        "import file: {}".format(member.name))
+                                          "import file: {}".format(member.name))
                     continue
                 if member.issym() or member.islnk():
                     # safety: in export, I set dereference=True therefore
                     # there should be no symbolic or hard links.
                     print >> sys.stderr, ("WARNING, link found inside the "
-                        "import file: {}".format(member.name))
+                                          "import file: {}".format(member.name))
                     continue
                 # Check that we are only exporting nodes within
                 # the subfolder!
                 # TODO: better check such that there are no .. in the
                 # path; use probably the folder limit checks
-                if not member.name.startswith(nodes_export_subfolder+os.sep):
+                if not member.name.startswith(nodes_export_subfolder + os.sep):
                     continue
                 tar.extract(path=folder.abspath,
                             member=member)
@@ -183,24 +183,24 @@ def extract_tree(infile, folder, silent=False):
     """
     import os
 
-    def add_files(args,path,files):
+    def add_files(args, path, files):
         folder = args['folder']
         root = args['root']
         for f in files:
-            fullpath = os.path.join(path,f)
-            relpath = os.path.relpath(fullpath,root)
+            fullpath = os.path.join(path, f)
+            relpath = os.path.relpath(fullpath, root)
             if os.path.isdir(fullpath):
                 if os.path.dirname(relpath) != '':
-	            folder.get_subfolder(os.path.dirname(relpath)+os.sep,
-                                     create=True)
+                    folder.get_subfolder(os.path.dirname(relpath) + os.sep,
+                                         create=True)
             elif not os.path.isfile(fullpath):
                 continue
             if os.path.dirname(relpath) != '':
-                folder.get_subfolder(os.path.dirname(relpath)+os.sep,
+                folder.get_subfolder(os.path.dirname(relpath) + os.sep,
                                      create=True)
-            folder.insert_path(os.path.abspath(fullpath),relpath)
+            folder.insert_path(os.path.abspath(fullpath), relpath)
 
-    os.path.walk(infile,add_files,{'folder': folder,'root': infile})
+    os.path.walk(infile, add_files, {'folder': folder, 'root': infile})
 
 
 def extract_cif(infile, folder, nodes_export_subfolder="nodes",
@@ -226,16 +226,16 @@ def extract_cif(infile, folder, nodes_export_subfolder="nodes",
     from aiida.tools.dbexporters.tcod import decode_textfield
 
     values = CifFile.ReadCif(infile)
-    values = values[values.keys()[0]] # taking the first datablock in CIF
+    values = values[values.keys()[0]]  # taking the first datablock in CIF
 
-    for i in range(0,len(values['_tcod_file_id'])-1):
+    for i in range(0, len(values['_tcod_file_id']) - 1):
         name = values['_tcod_file_name'][i]
-        if not name.startswith(aiida_export_subfolder+os.sep):
+        if not name.startswith(aiida_export_subfolder + os.sep):
             continue
-        dest_path = os.path.relpath(name,aiida_export_subfolder)
+        dest_path = os.path.relpath(name, aiida_export_subfolder)
         if name.endswith(os.sep):
             if not os.path.exists(folder.get_abs_path(dest_path)):
-                folder.get_subfolder(folder.get_abs_path(dest_path),create=True)
+                folder.get_subfolder(folder.get_abs_path(dest_path), create=True)
             continue
         contents = values['_tcod_file_contents'][i]
         if contents == '?' or contents == '.':
@@ -245,13 +245,13 @@ def extract_cif(infile, folder, nodes_export_subfolder="nodes",
         encoding = values['_tcod_file_content_encoding'][i]
         if encoding == '.':
             encoding = None
-        contents = decode_textfield(contents,encoding)
+        contents = decode_textfield(contents, encoding)
         if os.path.dirname(dest_path) != '':
-            folder.get_subfolder(os.path.dirname(dest_path)+os.sep,create=True)
-        with open(folder.get_abs_path(dest_path),'w') as f:
+            folder.get_subfolder(os.path.dirname(dest_path) + os.sep, create=True)
+        with open(folder.get_abs_path(dest_path), 'w') as f:
             f.write(contents)
             f.flush()
-        md5  = values['_tcod_file_md5sum'][i]
+        md5 = values['_tcod_file_md5sum'][i]
         if md5 is not None:
             if md5_file(folder.get_abs_path(dest_path)) != md5:
                 raise ValidationError("MD5 sum for extracted file '{}' is "
@@ -265,7 +265,7 @@ def extract_cif(infile, folder, nodes_export_subfolder="nodes",
                                       "file".format(dest_path))
 
 
-def import_data(in_path,ignore_unknown_nodes=False,
+def import_data(in_path, ignore_unknown_nodes=False,
                 silent=False):
 
     from aiida.backends.settings import BACKEND
@@ -273,17 +273,17 @@ def import_data(in_path,ignore_unknown_nodes=False,
 
     if BACKEND == BACKEND_SQLA:
         return import_data_sqla(in_path, ignore_unknown_nodes=ignore_unknown_nodes,
-                         silent=silent)
+                                silent=silent)
     elif BACKEND == BACKEND_DJANGO:
         return import_data_dj(in_path, ignore_unknown_nodes=ignore_unknown_nodes,
-                       silent=silent)
+                              silent=silent)
     else:
         raise Exception("Unknown settings.BACKEND: {}".format(
             BACKEND))
 
 
-def import_data_dj(in_path,ignore_unknown_nodes=False,
-                silent=False):
+def import_data_dj(in_path, ignore_unknown_nodes=False,
+                   silent=False):
     """
     Import exported AiiDA environment to the AiiDA database.
     If the 'in_path' is a folder, calls export_tree; otherwise, tries to
@@ -324,16 +324,16 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
     # The sandbox has to remain open until the end
     with SandboxFolder() as folder:
         if os.path.isdir(in_path):
-            extract_tree(in_path,folder,silent=silent)
+            extract_tree(in_path, folder, silent=silent)
         else:
             if tarfile.is_tarfile(in_path):
-                extract_tar(in_path,folder,silent=silent,
+                extract_tar(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             elif zipfile.is_zipfile(in_path):
-                extract_zip(in_path,folder,silent=silent,
+                extract_zip(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             elif os.path.isfile(in_path) and in_path.endswith('.cif'):
-                extract_cif(in_path,folder,silent=silent,
+                extract_cif(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             else:
                 raise ValueError("Unable to detect the input file format, it "
@@ -378,7 +378,6 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
         import_nodes_uuid = set(v['uuid'] for v in
                                 data['export_data'][dbnode_model].values())
 
-
         unknown_nodes = linked_nodes.union(group_nodes) - db_nodes_uuid.union(
             import_nodes_uuid)
 
@@ -400,15 +399,15 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                         models.DbComputer,
                         models.DbNode,
                         models.DbGroup,
-                       )
-        ]
+                        )
+                       ]
 
         # Models that do appear in the import file, but whose import is
         # managed manually
         model_manual = [get_class_string(m) for m in
                         (models.DbLink,
                          models.DbAttribute,)
-        ]
+                        ]
 
         all_known_models = model_order + model_manual
 
@@ -474,7 +473,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                         relevant_db_entries = {getattr(n, unique_identifier): n
                                                for n in Model.objects.filter(
                             **{'{}__in'.format(unique_identifier):
-                                   import_unique_ids})}
+                               import_unique_ids})}
 
                         foreign_ids_reverse_mappings[model_name] = {
                             k: v.pk for k, v in relevant_db_entries.iteritems()}
@@ -500,7 +499,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                     existing_entry_id = foreign_ids_reverse_mappings[model_name][unique_id]
                     # TODO COMPARE, AND COMPARE ATTRIBUTES
                     if model_name not in ret_dict:
-                        ret_dict[model_name] = { 'new': [], 'existing': [] }
+                        ret_dict[model_name] = {'new': [], 'existing': []}
                     ret_dict[model_name]['existing'].append((import_entry_id,
                                                              existing_entry_id))
                     if not silent:
@@ -521,7 +520,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                         k, v, fields_info=fields_info,
                         import_unique_ids_mappings=import_unique_ids_mappings,
                         foreign_ids_reverse_mappings=foreign_ids_reverse_mappings)
-                                       for k, v in entry_data.iteritems())
+                        for k, v in entry_data.iteritems())
 
                     objects_to_create.append(Model(**import_data))
                     import_entry_ids[unique_id] = import_entry_id
@@ -537,7 +536,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                             nodes_export_subfolder, export_shard_uuid(o.uuid)))
                         if not subfolder.exists():
                             raise ValueError("Unable to find the repository "
-                                             "folder for node with UUID={} " \
+                                             "folder for node with UUID={} "
                                              "in the exported "
                                              "file".format(o.uuid))
                         destdir = RepositoryFolder(
@@ -556,7 +555,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                 # Get back the just-saved entries
                 just_saved = dict(Model.objects.filter(
                     **{"{}__in".format(unique_identifier):
-                           import_entry_ids.keys()}).values_list(unique_identifier, 'pk'))
+                       import_entry_ids.keys()}).values_list(unique_identifier, 'pk'))
 
                 imported_states = []
                 if model_name == get_class_string(models.DbNode):
@@ -576,7 +575,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                     import_entry_id = import_entry_ids[unique_id]
                     foreign_ids_reverse_mappings[model_name][unique_id] = new_pk
                     if model_name not in ret_dict:
-                        ret_dict[model_name] = { 'new': [], 'existing': [] }
+                        ret_dict[model_name] = {'new': [], 'existing': []}
                     ret_dict[model_name]['new'].append((import_entry_id,
                                                         new_pk))
 
@@ -601,7 +600,7 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                         except KeyError:
                             raise ValueError("Unable to find attribute info "
                                              "for DbNode with UUID = {}".format(
-                                unique_id))
+                                                 unique_id))
 
                         # Here I have to deserialize the attributes
                         deserialized_attributes = deserialize_attributes(
@@ -613,8 +612,8 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
 
             if not silent:
                 print "STORING NODE LINKS..."
-            ## TODO: check that we are not creating input links of an already
-            ##       existing node...
+            # TODO: check that we are not creating input links of an already
+            # existing node...
             import_links = data['links_uuid']
             links_to_store = []
 
@@ -657,14 +656,14 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
                         raise ValueError("There exists already an input link to "
                                          "node {} with label {} but it does not "
                                          "come the expected input {}".format(
-                            out_id, link['label'], in_id))
+                                             out_id, link['label'], in_id))
                     except KeyError:
                         # New link
                         links_to_store.append(models.DbLink(
                             input_id=in_id, output_id=out_id, label=link['label']))
                         if 'aiida.backends.djsite.db.models.DbLink' not in ret_dict:
-                            ret_dict['aiida.backends.djsite.db.models.DbLink'] = { 'new': [] }
-                        ret_dict['aiida.backends.djsite.db.models.DbLink']['new'].append((in_id,out_id))
+                            ret_dict['aiida.backends.djsite.db.models.DbLink'] = {'new': []}
+                        ret_dict['aiida.backends.djsite.db.models.DbLink']['new'].append((in_id, out_id))
 
             # Store new links
             if links_to_store:
@@ -692,12 +691,12 @@ def import_data_dj(in_path,ignore_unknown_nodes=False,
             dbnode_model_name = get_class_string(models.DbNode)
             existing = existing_entries.get(dbnode_model_name, {})
             existing_pk = [foreign_ids_reverse_mappings[
-                               dbnode_model_name][v['uuid']]
-                           for v in existing.itervalues()]
+                dbnode_model_name][v['uuid']]
+                for v in existing.itervalues()]
             new = new_entries.get(dbnode_model_name, {})
             new_pk = [foreign_ids_reverse_mappings[
-                          dbnode_model_name][v['uuid']]
-                      for v in new.itervalues()]
+                dbnode_model_name][v['uuid']]
+                for v in new.itervalues()]
 
             pks_for_group = existing_pk + new_pk
 
@@ -767,7 +766,6 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
     from aiida.orm.querybuilder import QueryBuilder
     # from aiida.backends.sqlalchemy import session
 
-
     # This is the export version expected by this function
     expected_export_version = '0.2'
 
@@ -783,16 +781,16 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
     # The sandbox has to remain open until the end
     with SandboxFolder() as folder:
         if os.path.isdir(in_path):
-            extract_tree(in_path,folder,silent=silent)
+            extract_tree(in_path, folder, silent=silent)
         else:
             if tarfile.is_tarfile(in_path):
-                extract_tar(in_path,folder,silent=silent,
+                extract_tar(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             elif zipfile.is_zipfile(in_path):
-                extract_zip(in_path,folder,silent=silent,
+                extract_zip(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             elif os.path.isfile(in_path) and in_path.endswith('.cif'):
-                extract_cif(in_path,folder,silent=silent,
+                extract_cif(in_path, folder, silent=silent,
                             nodes_export_subfolder=nodes_export_subfolder)
             else:
                 raise ValueError("Unable to detect the input file format, it "
@@ -874,7 +872,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                        #  "aiida.backends.sqlalchemy.models.node.DbNode",
                        #  "aiida.backends.sqlalchemy.models.group.DbGroup",
                        # )
-        ]
+                       ]
 
         # Models that do appear in the import file, but whose import is
         # managed manually
@@ -883,7 +881,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                          "aiida.backends.djsite.db.models.DbAttribute",)
                         # ("aiida.backends.sqlalchemy.models.node.DbLink",
                         #  "aiida.backends.djsite.db.models.DbAttribute",)
-        ]
+                        ]
 
         all_known_models = model_order + model_manual
 
@@ -986,7 +984,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                     existing_entry_id = foreign_ids_reverse_mappings[model_name][unique_id]
                     # TODO COMPARE, AND COMPARE ATTRIBUTES
                     if model_name not in ret_dict:
-                        ret_dict[model_name] = { 'new': [], 'existing': [] }
+                        ret_dict[model_name] = {'new': [], 'existing': []}
                     ret_dict[model_name]['existing'].append((import_entry_id,
                                                              existing_entry_id))
                     if not silent:
@@ -1007,7 +1005,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                         k, v, fields_info=fields_info,
                         import_unique_ids_mappings=import_unique_ids_mappings,
                         foreign_ids_reverse_mappings=foreign_ids_reverse_mappings)
-                                       for k, v in entry_data.iteritems())
+                        for k, v in entry_data.iteritems())
 
                     # print "================================> INSIDE"
                     objects_to_create.append(Model(**import_data))
@@ -1066,7 +1064,6 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                                 o.attributes[k] = v
                             #     o.set_attr(k, v)
 
-
                 # Store them all in once; however, the PK are not set in this way...
                 # Model.objects.bulk_create(objects_to_create)
                 if objects_to_create:
@@ -1082,13 +1079,12 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                     qb = QueryBuilder()
                     qb.append(Model, filters={
                         unique_identifier: {"in": import_entry_ids.keys()}},
-                              project=[unique_identifier, "id"], tag="res")
+                        project=[unique_identifier, "id"], tag="res")
                     # print qb.all()
                     # exit(0)
                     just_saved = {v[0]: v[1] for v in qb.all()}
                 else:
                     just_saved = dict()
-
 
                 imported_states = []
                 if model_name == "aiida.backends.djsite.db.models.DbNode":
@@ -1100,7 +1096,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                     for unique_id, new_pk in just_saved.iteritems():
                         imported_states.append(
                             DbCalcState(dbnode_id=new_pk,
-                                               state=calc_states.IMPORTED))
+                                        state=calc_states.IMPORTED))
 
                     # from aiida.backends.sqlalchemy import session
                     aiida.backends.sqlalchemy.session.add_all(imported_states)
@@ -1116,7 +1112,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                     import_entry_id = import_entry_ids[unique_id]
                     foreign_ids_reverse_mappings[model_name][unique_id] = new_pk
                     if model_name not in ret_dict:
-                        ret_dict[model_name] = { 'new': [], 'existing': [] }
+                        ret_dict[model_name] = {'new': [], 'existing': []}
                     ret_dict[model_name]['new'].append((import_entry_id,
                                                         new_pk))
 
@@ -1127,8 +1123,8 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
 
             if not silent:
                 print "STORING NODE LINKS..."
-            ## TODO: check that we are not creating input links of an already
-            ##       existing node...
+            # TODO: check that we are not creating input links of an already
+            # existing node...
             import_links = data['links_uuid']
             links_to_store = []
 
@@ -1173,14 +1169,14 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                         raise ValueError("There exists already an input link to "
                                          "node {} with label {} but it does not "
                                          "come the expected input {}".format(
-                            out_id, link['label'], in_id))
+                                             out_id, link['label'], in_id))
                     except KeyError:
                         # New link
                         links_to_store.append(DbLink(
                             input_id=in_id, output_id=out_id, label=link['label']))
                         if 'aiida.backends.djsite.db.models.DbLink' not in ret_dict:
-                            ret_dict['aiida.backends.djsite.db.models.DbLink'] = { 'new': [] }
-                        ret_dict['aiida.backends.djsite.db.models.DbLink']['new'].append((in_id,out_id))
+                            ret_dict['aiida.backends.djsite.db.models.DbLink'] = {'new': []}
+                        ret_dict['aiida.backends.djsite.db.models.DbLink']['new'].append((in_id, out_id))
 
             # Store new links
             if links_to_store:
@@ -1215,12 +1211,12 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
             dbnode_model_name = "aiida.backends.djsite.db.models.DbNode"
             existing = existing_entries.get(dbnode_model_name, {})
             existing_pk = [foreign_ids_reverse_mappings[
-                               dbnode_model_name][v['uuid']]
-                           for v in existing.itervalues()]
+                dbnode_model_name][v['uuid']]
+                for v in existing.itervalues()]
             new = new_entries.get(dbnode_model_name, {})
             new_pk = [foreign_ids_reverse_mappings[
-                          dbnode_model_name][v['uuid']]
-                      for v in new.itervalues()]
+                dbnode_model_name][v['uuid']]
+                for v in new.itervalues()]
 
             pks_for_group = existing_pk + new_pk
 
@@ -1242,7 +1238,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
                                   type_string=IMPORTGROUP_TYPE)
                     from aiida.backends.sqlalchemy.models.group import DbGroup
                     if aiida.backends.sqlalchemy.session.query(DbGroup).filter(
-                        DbGroup.name == group._dbgroup.name).count() == 0:
+                            DbGroup.name == group._dbgroup.name).count() == 0:
                         aiida.backends.sqlalchemy.session.add(group._dbgroup)
                         created = True
                     else:
@@ -1278,6 +1274,7 @@ def import_data_sqla(in_path, ignore_unknown_nodes=False, silent=False):
 
 
 class HTMLGetLinksParser(HTMLParser.HTMLParser):
+
     def __init__(self, filter_extension=None):
         """
         If a filter_extension is passed, only links with extension matching
@@ -1359,7 +1356,7 @@ def serialize_field(data, track_conversion=False):
         else:
             ret_data = [serialize_field(
                 data=value, track_conversion=track_conversion)
-                        for value in data]
+                for value in data]
     elif isinstance(data, datetime.datetime):
         # Note: requires timezone-aware objects!
         ret_data = data.astimezone(pytz.utc).strftime(
@@ -1445,84 +1442,84 @@ def get_all_fields_info_sqla():
 
     all_fields_info = dict()
     all_fields_info["aiida.backends.djsite.db.models.DbLink"] = {
-            "input": {
-                "requires": "aiida.backends.djsite.db.models.DbNode",
-                "related_name": "output_links"
-            },
-            "type": {},
-            "output": {
-                "requires": "aiida.backends.djsite.db.models.DbNode",
-                "related_name": "input_links"
-            },
-            "label": {}
-        }
+        "input": {
+            "requires": "aiida.backends.djsite.db.models.DbNode",
+            "related_name": "output_links"
+        },
+        "type": {},
+        "output": {
+            "requires": "aiida.backends.djsite.db.models.DbNode",
+            "related_name": "input_links"
+        },
+        "label": {}
+    }
     all_fields_info["aiida.backends.djsite.db.models.DbNode"] = {
-             "ctime" : {
-                "convert_type" : "date"
-             },
-             "uuid" : {},
-             "public" : {},
-             "mtime" : {
-                "convert_type" : "date"
-             },
-             "type" : {},
-             "label" : {},
-             "nodeversion" : {},
-             "user" : {
-                "requires" : "aiida.backends.djsite.db.models.DbUser",
-                "related_name" : "dbnodes"
-             },
-             "dbcomputer" : {
-                "requires" : "aiida.backends.djsite.db.models.DbComputer",
-                "related_name" : "dbnodes"
-             },
-             "description" : {}
-        }
+        "ctime": {
+            "convert_type": "date"
+        },
+        "uuid": {},
+        "public": {},
+        "mtime": {
+            "convert_type": "date"
+        },
+        "type": {},
+        "label": {},
+        "nodeversion": {},
+        "user": {
+            "requires": "aiida.backends.djsite.db.models.DbUser",
+            "related_name": "dbnodes"
+        },
+        "dbcomputer": {
+            "requires": "aiida.backends.djsite.db.models.DbComputer",
+            "related_name": "dbnodes"
+        },
+        "description": {}
+    }
     all_fields_info["aiida.backends.djsite.db.models.DbUser"] = {
-             "last_name" : {},
-             "first_name" : {},
-             "institution" : {},
-             "email" : {}
-        }
+        "last_name": {},
+        "first_name": {},
+        "institution": {},
+        "email": {}
+    }
     all_fields_info["aiida.backends.djsite.db.models.DbComputer"] = {
-             "transport_type" : {},
-             "transport_params" : {},
-             "hostname" : {},
-             "description" : {},
-             "scheduler_type" : {},
-             "metadata" : {},
-             "enabled" : {},
-             "uuid" : {},
-             "name" : {}
-        }
+        "transport_type": {},
+        "transport_params": {},
+        "hostname": {},
+        "description": {},
+        "scheduler_type": {},
+        "metadata": {},
+        "enabled": {},
+        "uuid": {},
+        "name": {}
+    }
     all_fields_info["aiida.backends.djsite.db.models.DbGroup"] = {
-             "description" : {},
-             "user" : {
-                "related_name" : "dbgroups",
-                "requires" : "aiida.backends.djsite.db.models.DbUser"
-             },
-             "time" : {
-                "convert_type" : "date"
-             },
-             "type" : {},
-             "uuid" : {},
-             "name" : {}
-        }
+        "description": {},
+        "user": {
+            "related_name": "dbgroups",
+            "requires": "aiida.backends.djsite.db.models.DbUser"
+        },
+        "time": {
+            "convert_type": "date"
+        },
+        "type": {},
+        "uuid": {},
+        "name": {}
+    }
     all_fields_info["aiida.backends.djsite.db.models.DbAttribute"] = {
-             "dbnode" : {
-                "requires" : "aiida.backends.djsite.db.models.DbNode",
-                "related_name" : "dbattributes"
-             },
-             "key" : {},
-             "tval" : {},
-             "fval" : {},
-             "bval" : {},
-             "datatype" : {},
-             "dval" : {
-                "convert_type" : "date"
-             },
-             "ival" : {}
-        }
+        "dbnode": {
+            "requires": "aiida.backends.djsite.db.models.DbNode",
+            "related_name": "dbattributes"
+        },
+        "key": {},
+        "tval": {},
+        "fval": {},
+        "bval": {},
+        "datatype": {},
+        "dval": {
+            "convert_type": "date"
+        },
+        "ival": {}
+    }
     return all_fields_info, unique_identifiers
 
 
@@ -1592,18 +1589,18 @@ def get_all_fields_info_sqla_old():
                     rel_model_name = get_class_string(field.mapper.entity)
                     related_name = field.key
                     thisinfo[field.backref[0]] = {
-                            # The 'values' method will return the id (an integer),
-                            # so no custom serializer is required
-                            'requires': rel_model_name,
-                            'related_name': related_name,
-                        }
+                        # The 'values' method will return the id (an integer),
+                        # so no custom serializer is required
+                        'requires': rel_model_name,
+                        'related_name': related_name,
+                    }
                     export_models.add(rel_model_name)
                 elif isinstance(field, sorm.properties.ColumnProperty):
                     # print field.columns[0].type
                     # print field.columns[0].type.__class__
                     if isinstance(field.columns[0].type, (stypes.Integer,
-                                  stypes.Boolean, stypes.String,
-                                  stypes.Text, stypes.Float)):
+                                                          stypes.Boolean, stypes.String,
+                                                          stypes.Text, stypes.Float)):
                         thisinfo[unicode(field.expression._label)] = {}
                     elif isinstance(field.columns[0].type, stypes.DateTime):
                         thisinfo[unicode(field.expression._label)] = {
@@ -1613,11 +1610,9 @@ def get_all_fields_info_sqla_old():
                 else:
                     raise NotImplementedError(
                         "Export not implemented for field {} of type {}."
-                            .format(field, field.__class__))
+                        .format(field, field.__class__))
 
                 all_fields_info[model_name] = thisinfo
-
-
 
                 # if field.key in exclude_fields:
                 #     continue
@@ -1649,7 +1644,6 @@ def get_all_fields_info_sqla_old():
                 #         "Export not implemented for field of type {}.{}".format(
                 #             get_class_string(field)))
                 # all_fields_info[model_name] = thisinfo
-
 
             # for field in Model._meta.fields:
             #     if field.name in exclude_fields:
@@ -1707,8 +1701,6 @@ def get_all_fields_info_sqla_old():
                              "for model {}".format(k))
 
     return all_fields_info, unique_identifiers
-
-
 
 
 def get_all_fields_info():
@@ -1832,26 +1824,27 @@ django_to_sqla_schema = {
 
 django_fields_to_sqla = {
     "aiida.backends.sqlalchemy.models.node.DbNode": {
-        "dbcomputer" : "dbcomputer_id",
+        "dbcomputer": "dbcomputer_id",
         "user": "user_id"},
     "aiida.backends.sqlalchemy.models.computer.DbComputer": {
-        "metadata" : "_metadata"}
+        "metadata": "_metadata"}
 }
 
 sqla_fields_to_django = {
     "aiida.backends.sqlalchemy.models.node.DbNode": {
-        "dbcomputer_id" : "dbcomputer",
+        "dbcomputer_id": "dbcomputer",
         "user_id": "user"},
     "aiida.backends.sqlalchemy.models.node.DbLink": {},
     "aiida.backends.sqlalchemy.models.group.DbGroup": {},
     "aiida.backends.sqlalchemy.models.computer.DbComputer": {
-        "_metadata" : "metadata"},
+        "_metadata": "metadata"},
     "aiida.backends.sqlalchemy.models.user.DbUser": {}
 }
 
-def export_spyros(dbnodes, dbcomputers, dbgroups, folder, also_parents = True, also_calc_outputs=True,
-                allowed_licenses=None, forbidden_licenses=None,
-                silent=False):
+
+def export_spyros(dbnodes, dbcomputers, dbgroups, folder, also_parents=True, also_calc_outputs=True,
+                  allowed_licenses=None, forbidden_licenses=None,
+                  silent=False):
 
     exported_dbnode_ids = list()
     exported_dbcomputer_ids = list()
@@ -1936,7 +1929,7 @@ def fill_in_query(partial_query, originating_entity_str, current_entity_str):
     # print relationship_dic[aiida_current_entity_str]
     rel_string = relationship_dic[aiida_current_entity_str][aiida_originating_entity_str]
     # print rel_string
-    mydict= {rel_string: originating_entity_str}
+    mydict = {rel_string: originating_entity_str}
     # print "mydict", mydict
 
     partial_query.append(current_entity_mod, tag=str(current_entity_str),
@@ -1954,9 +1947,9 @@ def fill_in_query(partial_query, originating_entity_str, current_entity_str):
         fill_in_query(partial_query, current_entity_str, ref_model_name)
 
 
-def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
-                allowed_licenses=None, forbidden_licenses=None,
-                silent=False):
+def export_tree_sqla(what, folder, also_parents=True, also_calc_outputs=True,
+                     allowed_licenses=None, forbidden_licenses=None,
+                     silent=False):
     """
     Export the DB entries passed in the 'what' list to a file tree.
 
@@ -1999,7 +1992,6 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
 
     all_fields_info, unique_identifiers = get_all_fields_info_sqla()
 
-
     entries_ids_to_add = defaultdict(list)
     # I store a list of the actual dbnodes
     groups_entries = []
@@ -2039,7 +2031,6 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
             entries_ids_to_add[
                 "aiida.backends.sqlalchemy.models.node.DbNode"] = given_nodes
 
-
     # Initial query to fire the generation of the export data
 
     # print entries_ids_to_add
@@ -2049,10 +2040,8 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     from aiida.orm.querybuilder import QueryBuilder
     from aiida.orm.node import Node
 
-
     # The following is done for the nodes but we should also do it for the
     # other type of input given data
-
 
     # Here we get all the columns that we plan to project
     model_name = get_class_string(models.node.DbNode)
@@ -2061,8 +2050,8 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     # Here we do the necessary renaming of
     for prop in entity_prop:
         nprop = (django_fields_to_sqla[model_name][prop]
-                if django_fields_to_sqla[model_name].has_key(prop)
-                else prop)
+                 if django_fields_to_sqla[model_name].has_key(prop)
+                 else prop)
         project_cols.append(nprop)
 
     entries_to_add = dict()
@@ -2079,7 +2068,6 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     # entries_to_add = {k: [Q(id__in=v)]for k, v
     #                   in entries_ids_to_add. iteritems()}
 
-
     # TODO (Spyros) To see better! Especially for functional licenses
     # Check the licenses of exported data.
     if allowed_licenses is not None or forbidden_licenses is not None:
@@ -2088,11 +2076,8 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
                   filters={"id": {"in": entries_ids_to_add[
                       'aiida.backends.sqlalchemy.models.node.DbNode']}})
         # Skip those nodes where the license is not set (this is the standard behavior with Django)
-        node_licenses = list((a,b) for [a,b] in qb.all() if b is not None)
+        node_licenses = list((a, b) for [a, b] in qb.all() if b is not None)
         check_licences(node_licenses, allowed_licenses, forbidden_licenses)
-
-
-
 
     ############################################################
     ##### Start automatic recursive export data generation #####
@@ -2113,7 +2098,6 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
             ref_model_name = v['requires']
             new_ref_model_name = django_to_sqla_schema[ref_model_name]
             fill_in_query(partial_query, top_entity_str, new_ref_model_name)
-
 
         # print "===============> "
         # print str(partial_query)
@@ -2136,7 +2120,6 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
 
     # Until here
     # sys.exit()
-
 
     ######################################
     # Manually manage links and attributes
@@ -2167,7 +2150,7 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     #         len(all_nodes_pk))
     # all_nodes_query = models.DbNode.objects.filter(pk__in=all_nodes_pk)
 
-    ## ATTRIBUTES
+    # ATTRIBUTES
     if not silent:
         print "STORING NODE ATTRIBUTES..."
     node_attributes = {}
@@ -2183,20 +2166,20 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
 
     # See if the above is correct!!!!
 
-    ## If I want to store them 'raw'; it is faster, but more error prone and
-    ## less version-independent, I think. Better to optimize the n.attributes
-    ## call.
+    # If I want to store them 'raw'; it is faster, but more error prone and
+    # less version-independent, I think. Better to optimize the n.attributes
+    # call.
     # all_nodes_query = models.DbNode.objects.filter(pk__in=all_nodes_pk)
-    #node_attributes_raw = list(models.DbAttribute.objects.filter(
+    # node_attributes_raw = list(models.DbAttribute.objects.filter(
     #    dbnode__in=all_nodes_pk).distinct().values(
     #    'bval', 'tval', 'ival', 'fval', 'dval',
     #    'datatype', 'time', 'dbnode', 'key')
 
     if not silent:
         print "STORING NODE LINKS..."
-    ## All 'parent' links (in this way, I can automatically export a node
-    ## that will get automatically attached to a parent node in the end DB,
-    ## if the parent node is already present in the DB)
+    # All 'parent' links (in this way, I can automatically export a node
+    # that will get automatically attached to a parent node in the end DB,
+    # if the parent node is already present in the DB)
     from aiida.backends.sqlalchemy import session
     from aiida.backends.sqlalchemy.models.node import DbLink
     # authinfo = session.query(DbLink).filter(DbLink.output_id.in_(all_nodes_pk)).all()
@@ -2225,7 +2208,7 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     # Now I store
     ######################################
     # subfolder inside the export package
-    nodesubfolder = folder.get_subfolder('nodes',create=True,
+    nodesubfolder = folder.get_subfolder('nodes', create=True,
                                          reset_limit=True)
 
     if not silent:
@@ -2233,19 +2216,19 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
 
     with folder.open('data.json', 'w') as f:
         json.dump({
-                'node_attributes': node_attributes,
-                'node_attributes_conversion': node_attributes_conversion,
-                'export_data': export_data,
-                'links_uuid': links_uuid,
-                'groups_uuid': groups_uuid,
-                }, f)
+            'node_attributes': node_attributes,
+            'node_attributes_conversion': node_attributes_conversion,
+            'export_data': export_data,
+            'links_uuid': links_uuid,
+            'groups_uuid': groups_uuid,
+        }, f)
 
     metadata = {
         'aiida_version': aiida.get_version(),
         'export_version': EXPORT_VERSION,
         'all_fields_info': all_fields_info,
         'unique_identifiers': unique_identifiers,
-        }
+    }
 
     with folder.open('metadata.json', 'w') as f:
         json.dump(metadata, f)
@@ -2259,9 +2242,9 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
     #     'uuid', flat=True):
     uuid_query = QueryBuilder()
     uuid_query.append(Node, filters={"id": {"in": all_nodes_pk}},
-                               project=["uuid"])
+                      project=["uuid"])
     for res in uuid_query.all():
-        uuid =  str(res[0])
+        uuid = str(res[0])
         sharded_uuid = export_shard_uuid(uuid)
 
         # Important to set create=False, otherwise creates
@@ -2274,7 +2257,7 @@ def export_tree_sqla(what, folder, also_parents = True, also_calc_outputs=True,
         # itself
         thisnodefolder.insert_path(src=RepositoryFolder(
             section=Node._section_name, uuid=uuid).abspath,
-                                   dest_name='.')
+            dest_name='.')
 
 
 def check_licences(node_licenses, allowed_licenses, forbidden_licenses):
@@ -2308,7 +2291,7 @@ def check_licences(node_licenses, allowed_licenses, forbidden_licenses):
                                          "under {} license, which "
                                          "is not in the list of "
                                          "allowed licenses".format(
-                    pk, license))
+                                             pk, license))
         if forbidden_licenses is not None:
             try:
                 if isfunction(forbidden_licenses):
@@ -2325,10 +2308,10 @@ def check_licences(node_licenses, allowed_licenses, forbidden_licenses):
                                          "under {} license, which "
                                          "is in the list of "
                                          "forbidden licenses".format(
-                    pk, license))
+                                             pk, license))
 
 
-def export_tree(what, folder, also_parents = True, also_calc_outputs=True,
+def export_tree(what, folder, also_parents=True, also_calc_outputs=True,
                 allowed_licenses=None, forbidden_licenses=None,
                 silent=False):
 
@@ -2336,13 +2319,13 @@ def export_tree(what, folder, also_parents = True, also_calc_outputs=True,
     from aiida.backends.profile import BACKEND_DJANGO, BACKEND_SQLA
 
     if BACKEND == BACKEND_SQLA:
-        export_tree_sqla(what, folder, also_parents = also_parents,
+        export_tree_sqla(what, folder, also_parents=also_parents,
                          also_calc_outputs=also_calc_outputs,
                          allowed_licenses=allowed_licenses,
                          forbidden_licenses=forbidden_licenses,
                          silent=silent)
     elif BACKEND == BACKEND_DJANGO:
-        export_tree_dj(what, folder, also_parents = also_parents,
+        export_tree_dj(what, folder, also_parents=also_parents,
                        also_calc_outputs=also_calc_outputs,
                        allowed_licenses=allowed_licenses,
                        forbidden_licenses=forbidden_licenses,
@@ -2352,9 +2335,9 @@ def export_tree(what, folder, also_parents = True, also_calc_outputs=True,
             BACKEND))
 
 
-def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
-                allowed_licenses=None, forbidden_licenses=None,
-                silent=False):
+def export_tree_dj(what, folder, also_parents=True, also_calc_outputs=True,
+                   allowed_licenses=None, forbidden_licenses=None,
+                   silent=False):
     """
     Export the DB entries passed in the 'what' list to a file tree.
 
@@ -2494,16 +2477,16 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
                 print "  - Model: {}".format(model_name)
             Model = get_object_from_string(model_name)
 
-            ## Before I was doing this. But it is VERY slow! E.g.
-            ## To get the user owning 44 nodes or 1 group was taking
-            ## 26 seconds, while it was taking only 0.1 seconds if the two
-            ## queries were run independently!
-            ## I think this was doing the wrong type of UNION
-            #dbentries = Model.objects.filter(
+            # Before I was doing this. But it is VERY slow! E.g.
+            # To get the user owning 44 nodes or 1 group was taking
+            # 26 seconds, while it was taking only 0.1 seconds if the two
+            # queries were run independently!
+            # I think this was doing the wrong type of UNION
+            # dbentries = Model.objects.filter(
             #    reduce(operator.or_, querysets)).distinct()
-            ## Now I instead create the list of UUIDs and do a set() instead
-            ## of .distinct(); then I get the final results with a further
-            ## query.
+            # Now I instead create the list of UUIDs and do a set() instead
+            # of .distinct(); then I get the final results with a further
+            # query.
             db_ids = set()
             for queryset in querysets:
                 db_ids.update(Model.objects.filter(queryset).values_list(
@@ -2538,7 +2521,7 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
 
                 for k, v in foreign_fields.iteritems():
                     related_queryobj = Q(**{'{}__in'.format(v['related_name']):
-                                                serialized.keys()})
+                                            serialized.keys()})
                     try:
                         new_entries_to_add[v['requires']].append(related_queryobj)
                     except KeyError:
@@ -2562,7 +2545,7 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
             len(all_nodes_pk))
     all_nodes_query = models.DbNode.objects.filter(pk__in=all_nodes_pk)
 
-    ## ATTRIBUTES
+    # ATTRIBUTES
     if not silent:
         print "STORING NODE ATTRIBUTES..."
     node_attributes = {}
@@ -2571,20 +2554,20 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
         (node_attributes[str(n.pk)],
          node_attributes_conversion[str(n.pk)]) = serialize_dict(
             n.attributes, track_conversion=True)
-    ## If I want to store them 'raw'; it is faster, but more error prone and
-    ## less version-independent, I think. Better to optimize the n.attributes
-    ## call.
+    # If I want to store them 'raw'; it is faster, but more error prone and
+    # less version-independent, I think. Better to optimize the n.attributes
+    # call.
     # all_nodes_query = models.DbNode.objects.filter(pk__in=all_nodes_pk)
-    #node_attributes_raw = list(models.DbAttribute.objects.filter(
+    # node_attributes_raw = list(models.DbAttribute.objects.filter(
     #    dbnode__in=all_nodes_pk).distinct().values(
     #    'bval', 'tval', 'ival', 'fval', 'dval',
     #    'datatype', 'time', 'dbnode', 'key')
 
     if not silent:
         print "STORING NODE LINKS..."
-    ## All 'parent' links (in this way, I can automatically export a node
-    ## that will get automatically attached to a parent node in the end DB,
-    ## if the parent node is already present in the DB)
+    # All 'parent' links (in this way, I can automatically export a node
+    # that will get automatically attached to a parent node in the end DB,
+    # if the parent node is already present in the DB)
     linksquery = models.DbLink.objects.filter(
         output__in=all_nodes_query).distinct()
 
@@ -2604,7 +2587,7 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
     # Now I store
     ######################################
     # subfolder inside the export package
-    nodesubfolder = folder.get_subfolder('nodes',create=True,
+    nodesubfolder = folder.get_subfolder('nodes', create=True,
                                          reset_limit=True)
 
     if not silent:
@@ -2612,19 +2595,19 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
 
     with folder.open('data.json', 'w') as f:
         json.dump({
-                'node_attributes': node_attributes,
-                'node_attributes_conversion': node_attributes_conversion,
-                'export_data': export_data,
-                'links_uuid': links_uuid,
-                'groups_uuid': groups_uuid,
-                }, f)
+            'node_attributes': node_attributes,
+            'node_attributes_conversion': node_attributes_conversion,
+            'export_data': export_data,
+            'links_uuid': links_uuid,
+            'groups_uuid': groups_uuid,
+        }, f)
 
     metadata = {
         'aiida_version': aiida.get_version(),
         'export_version': EXPORT_VERSION,
         'all_fields_info': all_fields_info,
         'unique_identifiers': unique_identifiers,
-        }
+    }
 
     with folder.open('metadata.json', 'w') as f:
         json.dump(metadata, f)
@@ -2635,7 +2618,7 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
     # Large speed increase by not getting the node itself and looping in memory
     # in python, but just getting the uuid
     for uuid in models.DbNode.objects.filter(pk__in=all_nodes_pk).values_list(
-        'uuid', flat=True):
+            'uuid', flat=True):
         sharded_uuid = export_shard_uuid(uuid)
 
         # Important to set create=False, otherwise creates
@@ -2648,10 +2631,11 @@ def export_tree_dj(what, folder, also_parents = True, also_calc_outputs=True,
         # itself
         thisnodefolder.insert_path(src=RepositoryFolder(
             section=Node._section_name, uuid=uuid).abspath,
-                                   dest_name='.')
+            dest_name='.')
 
 
 class MyWritingZipFile(object):
+
     def __init__(self, zipfile, fname):
 
         self._zipfile = zipfile
@@ -2687,8 +2671,9 @@ class ZipFolder(object):
     (e.g. add explicit open method, rename open to openfile,
     set _zipfile to None, ...)
     """
+
     def __init__(self, zipfolder_or_fname, mode=None, subfolder='.',
-                  use_compression=True):
+                 use_compression=True):
         """
         :param zipfolder_or_fname: either another ZipFolder instance,
           of which you want to get a subfolder, or a filename to create.
@@ -2776,23 +2761,23 @@ class ZipFolder(object):
                 exists = False
             if exists:
                 raise IOError("destination already exists: {}".format(
-                        filename))
+                    filename))
 
-        #print src, filename
+        # print src, filename
         if os.path.isdir(src):
             for dirpath, dirnames, filenames in os.walk(src):
                 relpath = os.path.relpath(dirpath, src)
                 for fn in dirnames + filenames:
-                    real_src = os.path.join(dirpath,fn)
-                    real_dest = os.path.join(base_filename,relpath,fn)
+                    real_src = os.path.join(dirpath, fn)
+                    real_dest = os.path.join(base_filename, relpath, fn)
                     self._zipfile.write(real_src,
                                         real_dest)
         else:
             self._zipfile.write(src, base_filename)
 
 
-def export_zip(what, outfile = 'testzip', overwrite = False,
-              silent = False, use_compression = True, **kwargs):
+def export_zip(what, outfile='testzip', overwrite=False,
+               silent=False, use_compression=True, **kwargs):
     import os
 
     if not overwrite and os.path.exists(outfile):
@@ -2801,14 +2786,14 @@ def export_zip(what, outfile = 'testzip', overwrite = False,
 
     import time
     t = time.time()
-    with ZipFolder(outfile, mode='w', use_compression = use_compression) as folder:
+    with ZipFolder(outfile, mode='w', use_compression=use_compression) as folder:
         export_tree(what, folder=folder, silent=silent, **kwargs)
     if not silent:
         print "File written in {:10.3g} s.".format(time.time() - t)
 
 
-def export(what, outfile = 'export_data.aiida.tar.gz', overwrite = False,
-           silent = False, **kwargs):
+def export(what, outfile='export_data.aiida.tar.gz', overwrite=False,
+           silent=False, **kwargs):
     """
     Export the DB entries passed in the 'what' list on a file.
 
@@ -2861,8 +2846,8 @@ def export(what, outfile = 'export_data.aiida.tar.gz', overwrite = False,
     t4 = time.time()
 
     if not silent:
-        filecr_time = t2-t1
-        filecomp_time = t4-t3
+        filecr_time = t2 - t1
+        filecomp_time = t4 - t3
         print "Exported in {:6.2g}s, compressed in {:6.2g}s, total: {:6.2g}s.".format(filecr_time, filecomp_time, filecr_time + filecomp_time)
 
     if not silent:
@@ -2879,7 +2864,7 @@ def export(what, outfile = 'export_data.aiida.tar.gz', overwrite = False,
 #        return data.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
 #
 #    raise TypeError(repr(data) + " is not JSON serializable")
-#with open('testout.json', 'w') as f:
+# with open('testout.json', 'w') as f:
 #    json.dump({
 #            'entries': serialized_entries,
 #        },

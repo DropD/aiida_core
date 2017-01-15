@@ -14,7 +14,9 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 class LockManager(AbstractLockManager):
+
     def aquire(self, key, timeout=3600, owner="None"):
         from aiida.backends.djsite.db.models import DbLock
         try:

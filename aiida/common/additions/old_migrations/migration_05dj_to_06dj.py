@@ -93,8 +93,7 @@ process_name=%(process_num)s
                 f.write(
                     daemon_conf.format(daemon_dir=daemon_dir, log_dir=log_dir,
                                        local_user=local_user,
-                                       aiida_module_dir=
-                                       os.path.split(os.path.abspath(
+                                       aiida_module_dir=os.path.split(os.path.abspath(
                                            aiida.__file__))[0]))
         finally:
             os.umask(old_umask)
@@ -125,8 +124,6 @@ process_name=%(process_num)s
         # Returning the configuration
         return conf
 
-
-
     def perform_migration(self):
         # Backup the previous config
         setup.backup_config()
@@ -142,7 +139,7 @@ process_name=%(process_num)s
         setup.store_config(confs)
         # Update the daemon directory
         self.install_daemon_files(aiida_directory, daemon_dir, log_dir,
-                             getpass.getuser())
+                                  getpass.getuser())
 
 if __name__ == '__main__':
     Migration().perform_migration()

@@ -10,6 +10,7 @@ from aiida.work.defaults import class_loader
 
 
 class Persistence(plum.persistence.pickle_persistence.PicklePersistence):
+
     @override
     def load_checkpoint_from_file(self, filepath):
         cp = super(Persistence, self).load_checkpoint_from_file(filepath)

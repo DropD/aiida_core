@@ -24,6 +24,7 @@ def return_input(inp):
 
 
 class TestWf(AiidaTestCase):
+
     def setUp(self):
         super(TestWf, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)

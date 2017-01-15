@@ -51,7 +51,8 @@ def print_node_info(node, print_summary=True):
     table = []
     print "##### INPUTS:"
     for k, v in node.get_inputs_dict().iteritems():
-        if k == 'code': continue
+        if k == 'code':
+            continue
         table.append([k, v.pk, v.__class__.__name__])
     print(tabulate(table, headers=table_headers))
 
@@ -66,4 +67,3 @@ def print_node_info(node, print_summary=True):
         print ("##### NOTE! There are {} log messages for this "
                "calculation.".format(len(log_messages)))
         print "      Use the 'calculation logshow' command to see them."
-

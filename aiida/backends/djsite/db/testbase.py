@@ -21,6 +21,8 @@ __authors__ = "The AiiDA team."
 # This inherits only from 'object' to avoid that it is picked up by the automatic discovery of tests
 # (It shouldn't, as it risks to destroy the DB if there are not the checks in place, and these are
 # implemented in the AiidaTestCase
+
+
 class DjangoTests(AiidaTestImplementation):
     """
     Automatically takes care of the setUpClass and TearDownClass, when needed.
@@ -60,10 +62,10 @@ class DjangoTests(AiidaTestImplementation):
 
         # Also self.computer is required by the calling class
         self.computer = Computer(name='localhost',
-                                hostname='localhost',
-                                transport_type='local',
-                                scheduler_type='pbspro',
-                                workdir='/tmp/aiida')
+                                 hostname='localhost',
+                                 transport_type='local',
+                                 scheduler_type='pbspro',
+                                 workdir='/tmp/aiida')
         self.computer.store()
 
     def clean_db(self):
@@ -92,7 +94,7 @@ class DjangoTests(AiidaTestImplementation):
 
         DbNode.objects.all().delete()
 
-        ## I do not delete it, see discussion in setUpClass
+        # I do not delete it, see discussion in setUpClass
         # try:
         #    DbUser.objects.get(email=get_configured_user_email()).delete()
         # except ObjectDoesNotExist:

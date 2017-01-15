@@ -60,20 +60,20 @@ db_test_list = {
     }
 }
 
+
 def get_db_test_names():
     retlist = []
     for backend in db_test_list:
         for name in db_test_list[backend]:
             retlist.append(name)
 
-
-    # Explode the list so that if I have a.b.c, 
+    # Explode the list so that if I have a.b.c,
     # I can run it also just with 'a' or with 'a.b'
     final_list = [_ for _ in retlist]
     for k in retlist:
         if '.' in k:
             parts = k.split('.')
-            for last_idx in range(1,len(parts)):
+            for last_idx in range(1, len(parts)):
                 parentkey = ".".join(parts[:last_idx])
                 final_list.append(parentkey)
 
@@ -113,7 +113,7 @@ def get_db_test_list():
         for t in tests:
             retdict[k].append(t)
 
-    # Explode the dictionary so that if I have a.b.c, 
+    # Explode the dictionary so that if I have a.b.c,
     # I can run it also just with 'a' or with 'a.b'
     final_retdict = defaultdict(list)
     for k, v in retdict.iteritems():
@@ -121,7 +121,7 @@ def get_db_test_list():
     for k, v in retdict.iteritems():
         if '.' in k:
             parts = k.split('.')
-            for last_idx in range(1,len(parts)):
+            for last_idx in range(1, len(parts)):
                 parentkey = ".".join(parts[:last_idx])
                 final_retdict[parentkey].extend(v)
 

@@ -46,6 +46,7 @@ def _load_dbenv_noschemacheck(process, profile):
 
 
 class DBLogHandler(logging.Handler):
+
     def emit(self, record):
         from django.core.exceptions import ImproperlyConfigured
 
@@ -172,7 +173,7 @@ def check_schema_version():
     """
     import aiida.backends.djsite.db.models
     from aiida.backends.utils import (
-        get_current_profile,  set_db_schema_version, get_db_schema_version)
+        get_current_profile, set_db_schema_version, get_db_schema_version)
     from django.db import connection
     from aiida.common.exceptions import ConfigurationError
 

@@ -187,6 +187,7 @@ class User(AbstractUser):
 
 
 class Util(UserUtil):
+
     @override
     def delete_user(self, pk):
         """

@@ -220,7 +220,6 @@ class NodeNumberJobResource(JobResource):
         if self.num_machines <= 0:
             raise ValueError("num_machine must be >= 1")
 
-
     def get_tot_num_mpiprocs(self):
         """
         Return the total number of cpus of this job resource.
@@ -395,11 +394,11 @@ class JobTemplate(DefaultFieldsAttributeDict):
         'prepend_text',
         'append_text',
         'import_sys_environment',
-#        'stderr_name', # this 5 5keys have been moved to codes_info
-#        'join_files',
-#        'argv',
-#        'stdin_name',
-#        'stdout_name',
+        #        'stderr_name', # this 5 5keys have been moved to codes_info
+        #        'join_files',
+        #        'argv',
+        #        'stdin_name',
+        #        'stdout_name',
         'codes_run_mode',
         'codes_info',
     )
@@ -543,7 +542,6 @@ class JobInfo(DefaultFieldsAttributeDict):
                                               '%Y-%m-%dT%H:%M:%S.%f').replace(
                 tzinfo=pytz.timezone(v['timezone']))
 
-
     def serialize_field(self, value, field_type):
         if field_type is None:
             return value
@@ -565,10 +563,9 @@ class JobInfo(DefaultFieldsAttributeDict):
 
         ser_data = {k: self.serialize_field(
             v, self._special_serializers.get(k, None))
-                    for k, v in self.iteritems()}
+            for k, v in self.iteritems()}
 
         return json.dumps(ser_data)
-
 
     def load_from_serialized(self, data):
         import json
@@ -578,6 +575,3 @@ class JobInfo(DefaultFieldsAttributeDict):
         for k, v in deser_data.iteritems():
             self[k] = self.deserialize_field(
                 v, self._special_serializers.get(k, None))
-
-
-

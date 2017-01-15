@@ -5,6 +5,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 def get_dblogger_extra(obj):
     """
     Given an object (Node, Calculation, ...) return a dictionary to be passed

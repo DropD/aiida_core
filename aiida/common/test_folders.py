@@ -18,7 +18,8 @@ class FoldersTest(unittest.TestCase):
         using unicode folders.
         """
         from aiida.common.folders import Folder
-        import os, tempfile
+        import os
+        import tempfile
 
         tmpsource = tempfile.mkdtemp()
         tmpdest = tempfile.mkdtemp()
@@ -33,7 +34,6 @@ class FoldersTest(unittest.TestCase):
         fd = Folder(os.path.join(tmpsource, u"šaltinis"))
         fd.insert_path(tmpsource, "destination")
         fd.insert_path(tmpdest, u"kitas-šaltinis")
-
 
     def test_get_abs_path_without_limit(self):
         from aiida.common.folders import Folder

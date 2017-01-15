@@ -4,7 +4,7 @@ from ete3 import Tree
 
 
 def draw_parents(node, node_label=None, show_pk=True, dist=2,
-                  follow_links_of_type=None):
+                 follow_links_of_type=None):
     """
     Print an ASCII tree of the parents of the given node.
 
@@ -68,7 +68,7 @@ def get_ascii_tree(node, node_label=None, show_pk=True, max_depth=1,
     :rtype: str
     """
     tree_string = build_tree(
-       node, node_label, show_pk, max_depth, follow_links_of_type, descend
+        node, node_label, show_pk, max_depth, follow_links_of_type, descend
     )
     t = Tree("({});".format(tree_string), format=1)
     return t.get_ascii(show_internal=True)

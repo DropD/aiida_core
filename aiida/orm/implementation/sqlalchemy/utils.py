@@ -23,7 +23,7 @@ def iter_dict(attrs):
     elif isinstance(attrs, list):
         for i, val in enumerate(attrs):
             it = iter_dict(val)
-            for k, v  in it:
+            for k, v in it:
                 new_key = str(i)
                 if k:
                     new_key += "." + str(k)
@@ -80,14 +80,13 @@ def django_filter(cls_query, **kwargs):
     # query.
     current_join = None
 
-
     tmp_attr = dict(key=None, val=None)
     tmp_extra = dict(key=None, val=None)
 
     for key in sorted(kwargs.iterkeys()):
         val = kwargs[key]
 
-        join, field, op = [None]*3
+        join, field, op = [None] * 3
 
         splits = key.split("__")
         if len(splits) > 3:
@@ -203,14 +202,14 @@ def get_db_columns(db_class):
     :return: a dictionary
     """
 
-    ## Retrieve the columns of the table corresponding to the present class
+    # Retrieve the columns of the table corresponding to the present class
     # and its foreignkeys
     table = db_class.metadata.tables[db_class.__tablename__]
     columns = table.columns
     foreign_keys = [get_foreign_key_infos(foreign_key) for foreign_key in
                     table.foreign_keys]
 
-    ## retrieve the types and convert them in python types
+    # retrieve the types and convert them in python types
     column_names = columns.keys()
     column_types = map(lambda x: x.type, columns.values())
     column_python_types = []
@@ -232,7 +231,7 @@ def get_db_columns(db_class):
                 raise NotImplementedError("Unknown type from the "
                                           "database schema")
 
-    ## Fill in the returned dictionary
+    # Fill in the returned dictionary
     schema = {}
 
     # Fill in the keys based on the column names and the types. By default we
@@ -241,7 +240,7 @@ def get_db_columns(db_class):
         schema[k] = {'type': v, 'is_foreign_key': False}
 
     # Add infos about the foreign relationships
-    for k, referred_table_name, referred_field_name  in foreign_keys:
+    for k, referred_table_name, referred_field_name in foreign_keys:
 
         print k, referred_field_name, referred_table_name
         schema[k].update({
@@ -251,4 +250,3 @@ def get_db_columns(db_class):
         })
 
     return schema
-

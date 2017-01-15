@@ -12,14 +12,14 @@ __authors__ = "The AiiDA team."
 
 
 ### Here comparisons are defined #####################################
-### Each comparison has to be a function with name
-### _comparison_COMPARISONNAME
-### and accepting three parameters:
-### - testclass: the testing class, with the proper AssertXXX methods
-### - the dbdata value, i.e. the value parsed by the test
-### - comparisondata, the values specified by the user for comparison;
-###   they typically contain a 'value', and possibly other keys for
-###   more advanced keys
+# Each comparison has to be a function with name
+# _comparison_COMPARISONNAME
+# and accepting three parameters:
+# - testclass: the testing class, with the proper AssertXXX methods
+# - the dbdata value, i.e. the value parsed by the test
+# - comparisondata, the values specified by the user for comparison;
+# they typically contain a 'value', and possibly other keys for
+# more advanced keys
 def _comparison_AlmostEqual(testclass, dbdata, comparisondata):
     """
     Compare two numbers (or a list of numbers) to check that
@@ -112,7 +112,6 @@ def output_test(pk, testname, skip_uuids_from_inputs=[]):
                 f.flush()
 
 
-
 def is_valid_folder_name(name):
     """
     Return True if the string (that will be the folder name of each subtest)
@@ -153,7 +152,7 @@ class TestParsers(AiidaTestCase):
         from aiida.orm.importexport import import_data
 
         imported = import_data(outfolder,
-                                    ignore_unknown_nodes=True, silent=True)
+                               ignore_unknown_nodes=True, silent=True)
 
         calc = None
         for _, pk in imported['aiida.backends.djsite.db.models.DbNode']['new']:
@@ -223,8 +222,8 @@ class TestParsers(AiidaTestCase):
                         except AttributeError:
                             raise AssertionError("Attribute '{}' not found in "
                                                  "parsed node '{}'".format(
-                                attr_test,
-                                test_node_name))
+                                                     attr_test,
+                                                     test_node_name))
                         # Test data from the JSON
                         attr_test_listtests = tests[test_node_name][attr_test]
                         for test_number, attr_test_data in enumerate(
@@ -267,12 +266,12 @@ class TestParsers(AiidaTestCase):
                                     e.message)
                                 if e.args:
                                     e.args = tuple([
-                                                       "Failed test #{} for {}->{}: {}".format(
-                                                           test_number,
-                                                           test_node_name,
-                                                           attr_test,
-                                                           e.args[0])]
-                                                   + list(e.args[1:]))
+                                        "Failed test #{} for {}->{}: {}".format(
+                                            test_number,
+                                            test_node_name,
+                                            attr_test,
+                                            e.args[0])]
+                                        + list(e.args[1:]))
                                 raise e
 
         return base_test

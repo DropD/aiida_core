@@ -12,11 +12,13 @@ or internal errors, are not embedded into the HTTP response.
 
 from aiida.common.exceptions import ValidationError, InputValidationError
 
+
 class RestValidationError(ValidationError):
     """
     document with an example
     """
     pass
+
 
 class RestInputValidationError(InputValidationError):
     """

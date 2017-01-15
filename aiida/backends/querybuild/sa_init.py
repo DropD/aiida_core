@@ -20,7 +20,7 @@ Compile a function that postgresql has implemented, but SQLAlchemy has not
 """
 
 from sqlalchemy import (
-    Column, Table, ForeignKey, UniqueConstraint,create_engine,
+    Column, Table, ForeignKey, UniqueConstraint, create_engine,
     select, func, join, and_, or_, not_, except_, case, exists,
     text
 )
@@ -48,8 +48,10 @@ __license__ = "MIT license, see LICENSE.txt file."
 __authors__ = "The AiiDA team."
 __version__ = "0.7.1"
 
+
 class jsonb_array_length(FunctionElement):
     name = 'jsonb_array_len'
+
 
 @compiles(jsonb_array_length)
 def compile(element, compiler, **kw):
@@ -62,6 +64,7 @@ def compile(element, compiler, **kw):
 class array_length(FunctionElement):
     name = 'array_len'
 
+
 @compiles(array_length)
 def compile(element, compiler, **kw):
     """
@@ -70,11 +73,11 @@ def compile(element, compiler, **kw):
     return "array_length(%s)" % compiler.process(element.clauses)
 
 
-
 class jsonb_typeof(FunctionElement):
     name = 'jsonb_typeof'
 
-@compiles(jsonb_typeof  )
+
+@compiles(jsonb_typeof)
 def compile(element, compiler, **kw):
     """
     Get length of array defined in a JSONB column

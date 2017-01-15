@@ -7,5 +7,6 @@ __authors__ = "The AiiDA team."
 
 from aiida.backends.testbase import AiidaTestCase
 
+
 class TestProcessRegistry(AiidaTestCase):
     pass

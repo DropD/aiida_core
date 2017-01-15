@@ -532,8 +532,10 @@ class TestNodeBasic(AiidaTestCase):
         Similar as test_files, but I manipulate a tree of folders
         """
         import tempfile
-        import os, shutil
-        import random, string
+        import os
+        import shutil
+        import random
+        import string
 
         a = Node()
 
@@ -1100,6 +1102,7 @@ class TestNodeBasic(AiidaTestCase):
 
 
 class TestSubNodesAndLinks(AiidaTestCase):
+
     def test_cachelink(self):
         """
         Test the proper functionality of the links cache, with different
@@ -1267,7 +1270,7 @@ class TestSubNodesAndLinks(AiidaTestCase):
         with self.assertRaises(Exception):
             # I should get an error if I ask for a computer id/pk that doesn't
             # exist
-            _ = JobCalculation(computer=self.computer.id+100000,
+            _ = JobCalculation(computer=self.computer.id + 100000,
                                resources={'num_machines': 2,
                                           'num_mpiprocs_per_machine': 1}).store()
 

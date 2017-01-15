@@ -35,7 +35,7 @@ class TestComputer(AiidaTestCase):
 
         _ = JobCalculation(**calc_params).store()
 
-        #print "Node stored with pk:",  _.dbnode.pk
+        # print "Node stored with pk:",  _.dbnode.pk
 
         # This should fail, because there is at least a calculation
         # using this computer (the one created just above)
@@ -133,7 +133,7 @@ class TestDbExtrasSqla(AiidaTestCase):
 
         n2.set_extra("pippo2", [3, 4, u'b'])
 
-        self.assertEqual(n1.get_extras(),{'pippo': [1, 2, u'a'], 'pippobis': [5, 6, u'c']})
+        self.assertEqual(n1.get_extras(), {'pippo': [1, 2, u'a'], 'pippobis': [5, 6, u'c']})
 
         self.assertEquals(n2.get_extras(), {'pippo2': [3, 4, 'b']})
 

@@ -40,7 +40,7 @@ class Code(AbstractCode):
         """
 
         if (not isinstance(remote_computer_exec, (list, tuple))
-            or len(remote_computer_exec) != 2):
+                or len(remote_computer_exec) != 2):
             raise ValueError("remote_computer_exec must be a list or tuple "
                              "of length 2, with machine and executable "
                              "name")

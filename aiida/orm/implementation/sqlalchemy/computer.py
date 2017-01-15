@@ -80,14 +80,12 @@ class Computer(AbstractComputer):
         if is_modified:
             flag_modified(self._dbcomputer, "_metadata")
 
-
     @staticmethod
     def get_db_columns():
-        #I import get_db_columns here to avoid circular imports.
-        #Indeed, aiida.orm.implementation.django.utils imports Computer
+        # I import get_db_columns here to avoid circular imports.
+        # Indeed, aiida.orm.implementation.django.utils imports Computer
         from aiida.orm.implementation.sqlalchemy.utils import get_db_columns
         return get_db_columns(DbComputer)
-
 
     @classmethod
     def list_names(cls):
@@ -203,7 +201,7 @@ class Computer(AbstractComputer):
     def set_transport_params(self, val):
         # if self.to_be_stored:
         try:
-            json.dumps(val) # Check if json compatible
+            json.dumps(val)  # Check if json compatible
             self.dbcomputer.transport_params = val
         except ValueError:
             raise ValueError("The set of transport_params are not JSON-able")
@@ -226,7 +224,7 @@ class Computer(AbstractComputer):
         metadata = self._get_metadata()
         metadata['workdir'] = val
         self._set_metadata(metadata)
-        #else:
+        # else:
         #    raise ModificationNotAllowed("Cannot set a property after having stored the entry")
 
     def get_name(self):
@@ -264,8 +262,8 @@ class Computer(AbstractComputer):
 
     def get_dbauthinfo(self, user):
         info = DbAuthInfo.query.filter_by(
-                dbcomputer=self.dbcomputer,
-                aiidauser=user).first()
+            dbcomputer=self.dbcomputer,
+            aiidauser=user).first()
         if not info:
             raise NotExistent("The user '{}' is not configured for "
                               "computer '{}'".format(
@@ -312,6 +310,7 @@ class Computer(AbstractComputer):
 
 
 class Util(ComputerUtil):
+
     @override
     def delete_computer(self, pk):
         """

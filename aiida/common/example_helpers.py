@@ -10,7 +10,7 @@ def test_and_get_code(codename, expected_code_type, use_exceptions=False):
     """
     Pass a code name and an expected code (plugin) type. Check that the
     code exists, is unique, and return the Code object. 
-    
+
     :param codename: the name of the code to load (in the form label@machine)
     :param expected_code_type: a string with the plugin that is expected to
       be loaded. In case no plugins exist with the given name, show all existing
@@ -36,7 +36,7 @@ def test_and_get_code(codename, expected_code_type, use_exceptions=False):
         if valid_code_labels:
             msg = ("Pass as further parameter a valid code label.\n"
                    "Valid labels with a {} executable are:\n".format(
-                expected_code_type))
+                       expected_code_type))
             msg += "\n".join("* {}".format(l) for l in valid_code_labels)
 
             if use_exceptions:
@@ -48,7 +48,7 @@ def test_and_get_code(codename, expected_code_type, use_exceptions=False):
             msg = ("Code not valid, and no valid codes for {}.\n"
                    "Configure at least one first using\n"
                    "    verdi code setup".format(
-                expected_code_type))
+                       expected_code_type))
             if use_exceptions:
                 raise ValueError(msg)
             else:

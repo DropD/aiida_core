@@ -45,7 +45,7 @@ class DbComputer(Base):
         self.transport_params = {}
         # TODO SP: it's supposed to be nullable, but there is a NOT NULL
         # constraint inside the DB.
-        self.description= ""
+        self.description = ""
 
         super(DbComputer, self).__init__(*args, **kwargs)
 
@@ -58,7 +58,7 @@ class DbComputer(Base):
         from aiida.orm.computer import Computer
         if isinstance(computer, basestring):
             try:
-                dbcomputer = cls.session.query(cls).filter(cls.name==computer).one()
+                dbcomputer = cls.session.query(cls).filter(cls.name == computer).one()
             except NoResultFound:
                 raise NotExistent("No computer found in the table of computers with "
                                   "the given name '{}'".format(computer))
@@ -67,7 +67,7 @@ class DbComputer(Base):
                                      "pass a Computer instance".format(computer))
         elif isinstance(computer, int):
             try:
-                dbcomputer = cls.session.query(cls).filter(cls.id==computer).one()
+                dbcomputer = cls.session.query(cls).filter(cls.id == computer).one()
             except NoResultFound:
                 raise NotExistent("No computer found in the table of computers with "
                                   "the given id '{}'".format(computer))
@@ -93,7 +93,6 @@ class DbComputer(Base):
         except KeyError:
             raise ConfigurationError('No workdir found for DbComputer {} '.format(
                 self.name))
-
 
     def __str__(self):
         if self.enabled:

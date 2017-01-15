@@ -2,6 +2,7 @@ from aiida.backends.testbase import AiidaTestCase
 
 
 class TestQueryBuilderSQLA(AiidaTestCase):
+
     def test_clsf_sqla(self):
         from aiida.orm import Group, User, Computer, Node, Data, Calculation
         from aiida.backends.sqlalchemy.models.node import DbNode
@@ -19,10 +20,5 @@ class TestQueryBuilderSQLA(AiidaTestCase):
 
             cls, clstype, query_type_string = qb._get_ormclass(AiidaCls, None)
 
-
             self.assertEqual(cls, ORMCls)
             self.assertEqual(query_type_string, typestr)
-
-
-
-

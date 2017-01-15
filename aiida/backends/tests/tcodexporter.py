@@ -72,10 +72,10 @@ class TestTcodDbExporter(AiidaTestCase):
                           ('YW5nc3Ryb20gw4XDhcOF', 'base64'))
         self.assertEquals(cif_encode_contents(
             "".join("a" for i in range(0, 2048)))[1],
-                          None)
+            None)
         self.assertEquals(cif_encode_contents(
             "".join("a" for i in range(0, 2049)))[1],
-                          'quoted-printable')
+            'quoted-printable')
         self.assertEquals(cif_encode_contents('datatest')[1], None)
         self.assertEquals(cif_encode_contents('data_test')[1], 'base64')
 
@@ -386,9 +386,9 @@ class TestTcodDbExporter(AiidaTestCase):
             '_dft_pseudopotential_atom_type': [],
             '_dft_pseudopotential_type': [],
             '_dft_pseudopotential_type_other_name': [],
-            ## Residual forces are no longer produced, as they should
-            ## be in the same CIF loop with coordinates -- to be
-            ## implemented later, since it's not yet clear how.
+            # Residual forces are no longer produced, as they should
+            # be in the same CIF loop with coordinates -- to be
+            # implemented later, since it's not yet clear how.
             # '_tcod_atom_site_resid_force_Cartn_x': [1,4],
             # '_tcod_atom_site_resid_force_Cartn_y': [2,5],
             # '_tcod_atom_site_resid_force_Cartn_z': [3,6],
@@ -404,56 +404,56 @@ class TestTcodDbExporter(AiidaTestCase):
 
         calc = FakeObject({
             "out": {"output":
-                ParameterData(dict={
-                    "basis_set": {
-                        "H": {
-                            "description": "6-31g",
-                            "functions": "2",
-                            "shells": "2",
-                            "types": "2s"
+                    ParameterData(dict={
+                        "basis_set": {
+                            "H": {
+                                "description": "6-31g",
+                                "functions": "2",
+                                "shells": "2",
+                                "types": "2s"
+                            },
+                            "O": {
+                                "description": "6-31g",
+                                "functions": "9",
+                                "shells": "5",
+                                "types": "3s2p"
+                            }
                         },
-                        "O": {
-                            "description": "6-31g",
-                            "functions": "9",
-                            "shells": "5",
-                            "types": "3s2p"
-                        }
-                    },
-                    "corrections": {},
-                    "energies": [
-                        -2057.99011937535
-                    ],
-                    "errors": [],
-                    "frequencies": None,
-                    "has_error": False,
-                    "job_type": "NWChem SCF Module"
-                }),
-                "job_info": ParameterData(dict={
-                    "0 permanent": ".",
-                    "0 scratch": ".",
-                    "argument  1": "aiida.in",
-                    "compiled": "Sun_Dec_22_04:02:59_2013",
-                    "data base": "./aiida.db",
-                    "date": "Mon May 11 17:10:07 2015",
-                    "ga revision": "10379",
-                    "global": "200.0 Mbytes (distinct from heap & stack)",
-                    "hardfail": "no",
-                    "heap": "100.0 Mbytes",
-                    "hostname": "theospc11",
-                    "input": "aiida.in",
-                    "nproc": "6",
-                    "nwchem branch": "6.3",
-                    "nwchem revision": "24277",
-                    "prefix": "aiida.",
-                    "program": "/usr/bin/nwchem",
-                    "source": "/build/buildd/nwchem-6.3+r1",
-                    "stack": "100.0 Mbytes",
-                    "status": "startup",
-                    "time left": "-1s",
-                    "total": "400.0 Mbytes",
-                    "verify": "yes",
-                })
-            }})
+                        "corrections": {},
+                        "energies": [
+                            -2057.99011937535
+                        ],
+                        "errors": [],
+                        "frequencies": None,
+                        "has_error": False,
+                        "job_type": "NWChem SCF Module"
+                    }),
+                    "job_info": ParameterData(dict={
+                        "0 permanent": ".",
+                        "0 scratch": ".",
+                        "argument  1": "aiida.in",
+                        "compiled": "Sun_Dec_22_04:02:59_2013",
+                        "data base": "./aiida.db",
+                        "date": "Mon May 11 17:10:07 2015",
+                        "ga revision": "10379",
+                        "global": "200.0 Mbytes (distinct from heap & stack)",
+                        "hardfail": "no",
+                        "heap": "100.0 Mbytes",
+                        "hostname": "theospc11",
+                        "input": "aiida.in",
+                        "nproc": "6",
+                        "nwchem branch": "6.3",
+                        "nwchem revision": "24277",
+                        "prefix": "aiida.",
+                        "program": "/usr/bin/nwchem",
+                        "source": "/build/buildd/nwchem-6.3+r1",
+                        "stack": "100.0 Mbytes",
+                        "status": "startup",
+                        "time left": "-1s",
+                        "total": "400.0 Mbytes",
+                        "verify": "yes",
+                    })
+                    }})
         res = translate_calculation_specific_values(calc, NPT)
         self.assertEquals(res, {
             '_tcod_software_package': 'NWChem',
@@ -712,7 +712,7 @@ class TestTcodDbExporter(AiidaTestCase):
         check_ncr(self, 'tabbed\ttext', 'tabbed&#9;text')
         check_ncr(self, 'angstrom Å', 'angstrom &#195;&#133;')
         check_ncr(self, '<html>&#195;&#133;</html>',
-                 '<html>&#38;#195;&#38;#133;</html>')
+                  '<html>&#38;#195;&#38;#133;</html>')
 
         check_quoted_printable(self, '.', '=2E')
         check_quoted_printable(self, '?', '=3F')
@@ -724,9 +724,9 @@ class TestTcodDbExporter(AiidaTestCase):
         # This one is particularly tricky: a long line is folded by the QP
         # and the semicolon sign becomes the first character on a new line.
         check_quoted_printable(self,
-                              "Å{};a".format("".join("a" for i in range(0, 69))),
-                              '=C3=85aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-                              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa=\n=3Ba')
+                               "Å{};a".format("".join("a" for i in range(0, 69))),
+                               '=C3=85aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                               'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa=\n=3Ba')
 
         check_base64(self, 'angstrom ÅÅÅ', 'YW5nc3Ryb20gw4XDhcOF')
         check_gzip_base64(self, 'angstrom ÅÅÅ')

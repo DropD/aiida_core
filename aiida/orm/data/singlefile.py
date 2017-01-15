@@ -100,7 +100,7 @@ class SinglefileData(Data):
             try:
                 self._del_attr('filename')
             except AttributeError:
-                ## There was not file set
+                # There was not file set
                 pass
 
     def _validate(self):
@@ -117,6 +117,4 @@ class SinglefileData(Data):
             raise ValidationError("The list of files in the folder does not "
                                   "match the 'filename' attribute. "
                                   "_filename='{}', content: {}".format(
-                filename, self.get_folder_list()))
-
-
+                                      filename, self.get_folder_list()))

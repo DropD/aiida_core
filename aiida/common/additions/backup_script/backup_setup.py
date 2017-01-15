@@ -50,7 +50,7 @@ class BackupSetup(object):
 
         # Configuring the logging
         logging.basicConfig(
-                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+            format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
         # The logger of the backup script
         self._logger = logging.getLogger("aiida_backup_setup")
@@ -106,7 +106,7 @@ class BackupSetup(object):
 
         if not os.path.exists(final_path):
             if utils.query_yes_no("The path {} doesn't exist. Should it be "
-                              "created?".format(final_path), "yes"):
+                                  "created?".format(final_path), "yes"):
                 try:
                     os.makedirs(final_path)
                 except OSError:
@@ -117,7 +117,7 @@ class BackupSetup(object):
 
     def print_info(self):
         info_str = \
-"""Variables to set up in the JSON file
+            """Variables to set up in the JSON file
 ------------------------------------
 
  * ``periodicity`` (in days): The backup runs periodically for a number of days
@@ -193,10 +193,10 @@ class BackupSetup(object):
             raise
 
         if utils.query_yes_no("A sample configuration file was copied to {}. "
-                             "Would you like to ".format(
-                                    conf_backup_folder_abs) +
-                             "see the configuration parameters explanation?",
-                             default="yes"):
+                              "Would you like to ".format(
+                                  conf_backup_folder_abs) +
+                              "see the configuration parameters explanation?",
+                              default="yes"):
             self.print_info()
 
         # Construct the path to the backup configuration file
@@ -205,7 +205,7 @@ class BackupSetup(object):
 
         # If the backup parameters are configured now
         if utils.query_yes_no("Would you like to configure the backup " +
-                             "configuration file now?", default="yes"):
+                              "configuration file now?", default="yes"):
 
             # Ask questions to properly setup the backup variables
             backup_variables = self.construct_backup_variables(
@@ -216,16 +216,16 @@ class BackupSetup(object):
         # If the backup parameters are configured manually
         else:
             sys.stdout.write(
-             "Please rename the file {} ".format(
-                 self._backup_info_tmpl_filename) +
-             "found in {} to ".format(conf_backup_folder_abs) +
-             "{} and ".format(self._backup_info_filename) +
-             "change the backup parameters accordingly.\n")
+                "Please rename the file {} ".format(
+                    self._backup_info_tmpl_filename) +
+                "found in {} to ".format(conf_backup_folder_abs) +
+                "{} and ".format(self._backup_info_filename) +
+                "change the backup parameters accordingly.\n")
             sys.stdout.write(
-             "Please adapt the startup script accordingly to point to the " +
-             "correct backup configuration file. For the moment, it points " +
-             "to {}\n".format(os.path.join(conf_backup_folder_abs,
-                                           self._backup_info_filename)))
+                "Please adapt the startup script accordingly to point to the " +
+                "correct backup configuration file. For the moment, it points " +
+                "to {}\n".format(os.path.join(conf_backup_folder_abs,
+                                              self._backup_info_filename)))
 
         # The contents of the startup script
         if BACKEND == BACKEND_DJANGO:
@@ -238,7 +238,7 @@ class BackupSetup(object):
             raise BackupError("Following backend is unknown: ".format(BACKEND))
 
         script_content = \
-"""#!/usr/bin/env python
+            """#!/usr/bin/env python
 import logging
 from aiida.backends.utils import load_dbenv, is_dbenv_loaded
 

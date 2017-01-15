@@ -167,11 +167,11 @@ def upload_upf_family(folder, group_name, group_description,
     for f in files:
         md5sum = aiida.common.utils.md5_file(f)
         qb = QueryBuilder()
-        qb.append(UpfData, filters={'attributes.md5':{'==':md5sum}})
+        qb.append(UpfData, filters={'attributes.md5': {'==': md5sum}})
         existing_upf = qb.first()
 
         #~ existing_upf = UpfData.query(dbattributes__key="md5",
-                                     #~ dbattributes__tval=md5sum)
+        #~ dbattributes__tval=md5sum)
 
         if existing_upf is None:
             # return the upfdata instances, not stored
@@ -183,10 +183,10 @@ def upload_upf_family(folder, group_name, group_description,
         else:
             if stop_if_existing:
                 raise ValueError(
-                        "A UPF with identical MD5 to "
-                        " {} cannot be added with stop_if_existing"
-                        "".format(f)
-                    )
+                    "A UPF with identical MD5 to "
+                    " {} cannot be added with stop_if_existing"
+                    "".format(f)
+                )
             existing_upf = existing_upf[0]
             pseudo_and_created.append((existing_upf, False))
 
@@ -272,7 +272,7 @@ def parse_upf(fname, check_filename=True):
             # to version 1
             aiidalogger.debug("Falling back to version 1 for file {}, "
                               "version string '{}' unrecognized".format(
-                fname, version))
+                                  fname, version))
             version_major = 1
 
         element = None
@@ -320,7 +320,6 @@ def parse_upf(fname, check_filename=True):
 #                print ">>>>>>>>>>>>>>>> ERROR: %s" % e.message
 
 
-
 class UpfData(SinglefileData):
     """
     Function not yet documented.
@@ -365,7 +364,7 @@ class UpfData(SinglefileData):
                     raise ValueError("More than one copy of a pseudopotential "
                                      "with the same MD5 has been found in the "
                                      "DB. pks={}".format(
-                        ",".join([str(i.pk) for i in pseudos])))
+                                         ",".join([str(i.pk) for i in pseudos])))
             else:
                 return (pseudos[0], False)
 
@@ -398,7 +397,6 @@ class UpfData(SinglefileData):
         self._set_attr('md5', md5sum)
 
         return super(UpfData, self).store(*args, **kwargs)
-
 
     @classmethod
     def from_md5(cls, md5):
@@ -487,13 +485,12 @@ class UpfData(SinglefileData):
         if attr_element != element:
             raise ValidationError("Attribute 'element' says '{}' but '{}' was "
                                   "parsed instead.".format(
-                attr_element, element))
+                                      attr_element, element))
 
         if attr_md5 != md5:
             raise ValidationError("Attribute 'md5' says '{}' but '{}' was "
                                   "parsed instead.".format(
-                attr_md5, md5))
-
+                                      attr_md5, md5))
 
     @classmethod
     def get_upf_group(cls, group_name):
@@ -503,7 +500,6 @@ class UpfData(SinglefileData):
         from aiida.orm import Group
 
         return Group.get(name=group_name, type_string=cls.upffamily_type_string)
-
 
     @classmethod
     def get_upf_groups(cls, filter_elements=None, user=None):
@@ -541,4 +537,3 @@ class UpfData(SinglefileData):
         groups.sort()
         # Return the groups, without name
         return [_[1] for _ in groups]
-

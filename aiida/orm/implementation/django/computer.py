@@ -20,6 +20,7 @@ __version__ = "0.7.1"
 
 
 class Computer(AbstractComputer):
+
     @property
     def uuid(self):
         return unicode(self._dbcomputer.uuid)
@@ -73,7 +74,6 @@ class Computer(AbstractComputer):
                 raise ValueError("Unable to set '{0}', set_{0} is not "
                                  "callable!".format(k))
             method(v)
-
 
     @staticmethod
     def get_db_columns():
@@ -264,7 +264,7 @@ class Computer(AbstractComputer):
         except ObjectDoesNotExist:
             raise NotExistent("The user '{}' is not configured for "
                               "computer '{}'".format(
-                user.email, self.name))
+                                  user.email, self.name))
 
     def is_user_configured(self, user):
         try:
@@ -306,6 +306,7 @@ class Computer(AbstractComputer):
 
 
 class Util(ComputerUtil):
+
     @override
     def delete_computer(self, pk):
         """

@@ -208,8 +208,8 @@ class DbEntry(object):
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__,
                                ",".join(["{}={}".format(k, '"{}"'.format(v)
-                               if issubclass(v.__class__, basestring)
-                               else v)
+                                                        if issubclass(v.__class__, basestring)
+                                                        else v)
                                          for k, v in self.source.iteritems()]))
 
     @property

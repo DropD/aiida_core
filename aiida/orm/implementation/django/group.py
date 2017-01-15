@@ -26,6 +26,7 @@ __version__ = "0.7.1"
 
 
 class Group(AbstractGroup):
+
     def __init__(self, **kwargs):
         from aiida.backends.djsite.db.models import DbGroup
         dbgroup = kwargs.pop('dbgroup', None)
@@ -58,7 +59,7 @@ class Group(AbstractGroup):
             if kwargs:
                 raise ValueError("Too many parameters passed to Group, the "
                                  "unknown parameters are: {}".format(
-                    ", ".join(kwargs.keys())))
+                                     ", ".join(kwargs.keys())))
 
     @staticmethod
     def get_db_columns():
@@ -144,7 +145,7 @@ class Group(AbstractGroup):
             raise TypeError("Invalid type passed as the 'nodes' parameter to "
                             "add_nodes, can only be a Node, DbNode, or a list "
                             "of such objects, it is instead {}".format(
-                str(type(nodes))))
+                                str(type(nodes))))
 
         list_pk = []
         for node in nodes:
@@ -152,7 +153,7 @@ class Group(AbstractGroup):
                 raise TypeError("Invalid type of one of the elements passed "
                                 "to add_nodes, it should be either a Node or "
                                 "a DbNode, it is instead {}".format(
-                    str(type(node))))
+                                    str(type(node))))
             if node.pk is None:
                 raise ValueError("At least one of the provided nodes is "
                                  "unstored, stopping...")
@@ -163,6 +164,7 @@ class Group(AbstractGroup):
     @property
     def nodes(self):
         class iterator(object):
+
             def __init__(self, dbnodes):
                 self.dbnodes = dbnodes
                 self.generator = self._genfunction()
@@ -201,7 +203,7 @@ class Group(AbstractGroup):
             raise TypeError("Invalid type passed as the 'nodes' parameter to "
                             "remove_nodes, can only be a Node, DbNode, or a "
                             "list of such objects, it is instead {}".format(
-                str(type(nodes))))
+                                str(type(nodes))))
 
         list_pk = []
         for node in nodes:
@@ -209,7 +211,7 @@ class Group(AbstractGroup):
                 raise TypeError("Invalid type of one of the elements passed "
                                 "to add_nodes, it should be either a Node or "
                                 "a DbNode, it is instead {}".format(
-                    str(type(node))))
+                                    str(type(node))))
             if node.pk is None:
                 raise ValueError("At least one of the provided nodes is "
                                  "unstored, stopping...")

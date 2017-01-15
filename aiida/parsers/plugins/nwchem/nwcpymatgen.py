@@ -8,10 +8,12 @@ __license__ = "MIT license, see LICENSE.txt file."
 __version__ = "0.7.1"
 __authors__ = "The AiiDA team."
 
+
 class NwcpymatgenParser(BasenwcParser):
     """
     Parser for the output of NWChem, using pymatgen.
     """
+
     def __init__(self, calc):
         """
         Initialize the instance of NwcpymatgenParser
@@ -57,5 +59,5 @@ class NwcpymatgenParser(BasenwcParser):
         # (https://bitbucket.org/epfl_theos/aiida_epfl/issues/9)
         nwo.job_info['program_source'] = nwo.job_info.pop('source', None)
         ret_dict.append(('job_info', ParameterData(dict=nwo.job_info)))
-        
+
         return ret_dict

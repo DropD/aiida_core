@@ -254,7 +254,6 @@ class Folder(object):
         else:
             os.remove(dest_abs_path)
 
-
     def get_abs_path(self, relpath, check_existence=False):
         """
         Return an absolute path for a file or folder in this folder.
@@ -297,7 +296,6 @@ class Folder(object):
         """
         return self._abspath
 
-
     @property
     def folder_limit(self):
         """
@@ -305,13 +303,11 @@ class Folder(object):
         """
         return self._folder_limit
 
-
     def exists(self):
         """
         Return True if the folder exists, False otherwise.
         """
         return os.path.exists(self.abspath)
-
 
     def isfile(self, relpath):
         """
@@ -342,7 +338,6 @@ class Folder(object):
         if create_empty_folder:
             self.create()
 
-
     def create(self):
         """
         Creates the folder, if it does not exist on the disk yet.
@@ -354,7 +349,6 @@ class Folder(object):
         """
         if not self.exists():
             os.makedirs(self.abspath, mode=self.mode_dir)
-
 
     def replace_with_folder(self, srcdir, move=False, overwrite=False):
         """
@@ -463,8 +457,8 @@ class RepositoryFolder(Folder):
         """
         if section not in _valid_sections:
             retstr = ("Repository section '{}' not allowed. "
-                "Valid sections are: {}".format(
-                    section, ",".join(_valid_sections)))
+                      "Valid sections are: {}".format(
+                          section, ",".join(_valid_sections)))
             raise ValueError(retstr)
         self._section = section
         self._uuid = uuid
@@ -518,7 +512,4 @@ class RepositoryFolder(Folder):
         """
         return RepositoryFolder(self.section, self.uuid)
 
-
         # NOTE! The get_subfolder method will return a Folder object, and not a RepositoryFolder object
-
-

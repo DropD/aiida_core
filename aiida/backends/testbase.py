@@ -21,7 +21,7 @@ def check_if_tests_can_run():
     base_repo_path = os.path.basename(
         os.path.normpath(settings2.REPOSITORY_PATH))
     if (not settings.AIIDADB_PROFILE.startswith(TEST_KEYWORD) or
-                TEST_KEYWORD not in base_repo_path or
+        TEST_KEYWORD not in base_repo_path or
             not settings2.DBNAME.startswith(TEST_KEYWORD)):
         msg = [
             "A non-test profile was given for tests. Please note "
@@ -57,13 +57,12 @@ class AiidaTestCase(unittest.TestCase):
             else:
                 raise ConfigurationError("Unknown backend type")
 
-
             # Check that it is of the right class
             if not issubclass(cls.__impl_class, AiidaTestImplementation):
                 raise InternalError("The AiiDA test implementation is not of type "
-                    "{}, that is not a subclass of AiidaTestImplementation".format(
-                    cls.__impl_class.__name__
-                ))
+                                    "{}, that is not a subclass of AiidaTestImplementation".format(
+                                        cls.__impl_class.__name__
+                                    ))
 
         return cls.__impl_class
 
@@ -133,7 +132,7 @@ def run_aiida_db_tests(tests_to_run, verbose=False):
 
     actually_run_tests = []
     num_tests_expected = 0
-    
+
     # To avoid adding more than once the same test
     # (e.g. if you type both db and db.xxx)
     found_modulenames = set()

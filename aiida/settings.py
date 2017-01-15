@@ -41,7 +41,7 @@ DBPORT = profile_conf.get('AIIDADB_PORT', '')
 REPOSITORY_URI = profile_conf.get('AIIDADB_REPOSITORY_URI', '')
 
 
-## Checks on the REPOSITORY_* variables
+# Checks on the REPOSITORY_* variables
 try:
     REPOSITORY_URI
 except NameError:

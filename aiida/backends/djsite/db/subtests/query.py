@@ -9,7 +9,6 @@ __version__ = "0.7.1"
 
 class TestQueryBuilderDjango(AiidaTestCase):
 
-
     def test_clsf_django(self):
         """
         This tests the classifications of the QueryBuilder u. the django backend.
@@ -25,7 +24,7 @@ class TestQueryBuilderDjango(AiidaTestCase):
         from aiida.orm import Group, User, Node, Computer, Data, Calculation
         from aiida.common.exceptions import InputValidationError
         qb = QueryBuilder()
-        
+
         with self.assertRaises(InputValidationError):
             qb._get_ormclass(None, 'data')
         with self.assertRaises(InputValidationError):
@@ -89,4 +88,3 @@ class TestQueryBuilderDjango(AiidaTestCase):
             self.assertEqual(clstype, Data._plugin_type_string)
             self.assertEqual(query_type_string, Data._query_type_string)
             self.assertTrue(issubclass(cls, DbNode))
-

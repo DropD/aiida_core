@@ -77,16 +77,16 @@ class CpCalculation(BasePwCpInputGenerator, JobCalculation):
                                   ('SYSTEM', 'cosab'), ('SYSTEM', 'cosac'), ('SYSTEM', 'cosbc'),
                                   ('CONTROL', 'ndr', _cp_read_unit_number),
                                   ('CONTROL', 'ndw', _cp_write_unit_number),
-        ]
+                                  ]
 
         self._use_kpoints = False
 
-        # in restarts, it will copy from the parent the following 
+        # in restarts, it will copy from the parent the following
         self._restart_copy_from = os.path.join(
             BasePwCpInputGenerator._OUTPUT_SUBFOLDER,
             '{}_{}.save'.format(BasePwCpInputGenerator._PREFIX,
                                 _cp_write_unit_number))
-        # in restarts, it will copy the previous folder in the following one 
+        # in restarts, it will copy the previous folder in the following one
         self._restart_copy_to = os.path.join(
             BasePwCpInputGenerator._OUTPUT_SUBFOLDER,
             '{}_{}.save'.format(BasePwCpInputGenerator._PREFIX,
@@ -114,7 +114,6 @@ class CpCalculation(BasePwCpInputGenerator, JobCalculation):
     def _default_verbosity(cls):
         return 'low'
 
-
     @classproperty
     def _use_methods(cls):
         """
@@ -124,5 +123,3 @@ class CpCalculation(BasePwCpInputGenerator, JobCalculation):
         retdict.update(BasePwCpInputGenerator._baseclass_use_methods)
 
         return retdict
-    
-    

@@ -9,6 +9,7 @@ __version__ = "0.7.1"
 
 
 class Capturing(list):
+
     def __enter__(self):
         self._stdout = sys.stdout
         sys.stdout = self._stringio = StringIO()

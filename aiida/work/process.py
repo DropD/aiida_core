@@ -28,6 +28,7 @@ __authors__ = "The AiiDA team."
 
 
 class DictSchema(object):
+
     def __init__(self, schema):
         self._schema = voluptuous.Schema(schema)
 
@@ -67,6 +68,7 @@ class DictSchema(object):
 
 
 class ProcessSpec(plum.process.ProcessSpec):
+
     def __init__(self):
         super(ProcessSpec, self).__init__()
         self._fastforwardable = False
@@ -460,6 +462,7 @@ class _ProcessFinaliser(plum.process_monitor.ProcessMonitorListener):
     Take care of finalising a process when it finishes either through successful
     completion or because of a failure caused by an exception.
     """
+
     def __init__(self):
         MONITOR.add_monitor_listener(self)
 

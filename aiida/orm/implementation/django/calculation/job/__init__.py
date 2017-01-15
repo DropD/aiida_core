@@ -21,6 +21,7 @@ __version__ = "0.7.1"
 
 
 class JobCalculation(AbstractJobCalculation, Calculation):
+
     def _set_state(self, state):
         """
         Set the state of the calculation.
@@ -110,7 +111,7 @@ class JobCalculation(AbstractJobCalculation, Calculation):
                     except ValueError as e:
                         raise DbContentError("Error in the content of the "
                                              "DbCalcState table ({})".format(
-                            e.message))
+                                                 e.message))
 
                     return most_recent_state
 
@@ -220,7 +221,7 @@ class JobCalculation(AbstractJobCalculation, Calculation):
             dbnode__in=calc_list,
             key='scheduler_lastchecktime').values_list('dbnode__pk', 'dval'))
 
-        ## Get the last daemon check
+        # Get the last daemon check
         try:
             last_daemon_check = get_last_daemon_timestamp('updater',
                                                           when='stop')
@@ -233,10 +234,10 @@ class JobCalculation(AbstractJobCalculation, Calculation):
             else:
                 last_check_string = ("# Last daemon state_updater check: "
                                      "{} ({})".format(
-                    str_timedelta(now - last_daemon_check,
-                                  negative_to_zero=True),
-                    timezone.localtime(last_daemon_check).strftime(
-                        "at %H:%M:%S on %Y-%m-%d")))
+                                         str_timedelta(now - last_daemon_check,
+                                                       negative_to_zero=True),
+                                         timezone.localtime(last_daemon_check).strftime(
+                                             "at %H:%M:%S on %Y-%m-%d")))
 
         disabled_ignorant_states = [
             None, calc_states.FINISHED, calc_states.SUBMISSIONFAILED,
@@ -284,7 +285,7 @@ class JobCalculation(AbstractJobCalculation, Calculation):
                     raise
 
                 calc_module = \
-                from_type_to_pluginclassname(calcdata['type']).rsplit(".", 1)[0]
+                    from_type_to_pluginclassname(calcdata['type']).rsplit(".", 1)[0]
                 prefix = 'calculation.job.'
                 prefix_len = len(prefix)
                 if calc_module.startswith(prefix):
@@ -297,10 +298,10 @@ class JobCalculation(AbstractJobCalculation, Calculation):
                 else:
                     calc_ctime = " ".join([timezone.localtime(
                         calcdata['ctime']).isoformat().split('T')[0],
-                                           timezone.localtime(calcdata[
-                                                                  'ctime']).isoformat().split(
-                                               'T')[1].split('.')[
-                                               0].rsplit(":", 1)[0]])
+                        timezone.localtime(calcdata[
+                            'ctime']).isoformat().split(
+                        'T')[1].split('.')[
+                        0].rsplit(":", 1)[0]])
 
                 the_state = states[calcdata['pk']]
 

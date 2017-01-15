@@ -33,7 +33,7 @@ class TestCodDbImporter(AiidaTestCase):
                            measurement_temp=[0, 10.5],
                            measurement_pressure=[1000, 1001],
                            determination_method=["single crystal", None])
-        self.assertEquals(q, \
+        self.assertEquals(q,
                           "SELECT file, svnrevision FROM data WHERE "
                           "(status IS NULL OR status != 'retracted') AND "
                           "(method IN ('single crystal') OR method IS NULL) AND "
@@ -65,11 +65,11 @@ class TestCodDbImporter(AiidaTestCase):
 
         codi = CodDbImporter()
         messages = ["",
-                    "incorrect value for keyword 'test' -- " + \
+                    "incorrect value for keyword 'test' -- " +
                     "only integers and strings are accepted",
-                    "incorrect value for keyword 'test' -- " + \
+                    "incorrect value for keyword 'test' -- " +
                     "only strings are accepted",
-                    "incorrect value for keyword 'test' -- " + \
+                    "incorrect value for keyword 'test' -- " +
                     "only integers and floats are accepted",
                     "invalid literal for int() with base 10: 'text'"]
         values = [10, 'text', u'text', '10', 1.0 / 3, [1, 2, 3]]
@@ -112,7 +112,7 @@ class TestCodDbImporter(AiidaTestCase):
                           'uri="http://www.crystallography.net/cod/1000001.cif@1234",'
                           'source_md5=None,db_uri="http://www.crystallography.net",'
                           'id="1000001",extras={})')
-        self.assertEquals(results.at(1).source['uri'], \
+        self.assertEquals(results.at(1).source['uri'],
                           "http://www.crystallography.net/cod/1000001.cif@1234")
         self.assertEquals([x.source['uri'] for x in results],
                           ["http://www.crystallography.net/cod/1000000.cif",
@@ -168,7 +168,7 @@ class TestTcodDbImporter(AiidaTestCase):
                           'uri="http://www.crystallography.net/tcod/10000001.cif@1234",'
                           'source_md5=None,db_uri="http://www.crystallography.net/tcod",'
                           'id="10000001",extras={})')
-        self.assertEquals(results.at(1).source['uri'], \
+        self.assertEquals(results.at(1).source['uri'],
                           "http://www.crystallography.net/tcod/10000001.cif@1234")
         self.assertEquals([x.source['uri'] for x in results],
                           ["http://www.crystallography.net/tcod/10000000.cif",
@@ -246,8 +246,7 @@ class TestNnincDbImporter(AiidaTestCase):
 
         with open(os.path.join(
                 os.path.split(aiida.__file__)[0], os.pardir,
-                "examples", "testdata", "qepseudos", "{}.UPF".format(upf))
-                , 'r') as f:
+                "examples", "testdata", "qepseudos", "{}.UPF".format(upf)), 'r') as f:
             entry._contents = f.read()
 
         upfnode = entry.get_upf_node()

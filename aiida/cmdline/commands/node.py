@@ -118,7 +118,7 @@ class Node(VerdiCommandRouter):
         """
         A dictionary with valid commands and functions to be called.
         """
-        ## Add here the classes to be supported.
+        # Add here the classes to be supported.
         self.routed_subcommands = {
             'repo': _Repo,
             'show': _Show,
@@ -272,8 +272,8 @@ class _Show(VerdiCommand):
     def print_node_info(self, node, print_groups=False):
         from aiida.cmdline.common import print_node_info
 
-###TODO
-#Add a check here on the node type, otherwise it might try to access attributes such as code which are not necessarily there
+# TODO
+# Add a check here on the node type, otherwise it might try to access attributes such as code which are not necessarily there
 #####
         print_node_info(node)
 

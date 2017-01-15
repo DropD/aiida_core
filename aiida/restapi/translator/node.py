@@ -43,7 +43,6 @@ class NodeTranslator(BaseTranslator):
         # basic query_help object
         super(NodeTranslator, self).__init__()
 
-
     def set_query_type(self, query_type, alist=None, nalist=None, elist=None,
                        nelist=None):
         """
@@ -70,15 +69,14 @@ class NodeTranslator(BaseTranslator):
             raise InputValidationError("invalid result/content value: {"
                                        "}".format(query_type))
 
-        ## Add input/output relation to the query help
+        # Add input/output relation to the query help
         if self._result_type is not self.__label__:
             self._query_help["path"].append(
                 {
-                "type": "node.Node.",
-                "label": self._result_type,
-                self._result_type: self.__label__
+                    "type": "node.Node.",
+                    "label": self._result_type,
+                    self._result_type: self.__label__
                 })
-
 
     def set_query(self, filters=None, orders=None, projections=None,
                   query_type=None, pk=None, alist=None, nalist=None,
@@ -96,25 +94,25 @@ class NodeTranslator(BaseTranslator):
         :param pk: (integer) pk of a specific node
         """
 
-        ## Check the compatibility of query_type and pk
+        # Check the compatibility of query_type and pk
         if query_type is not "default" and pk is None:
             raise ValidationError("non default result/content can only be "
                                   "applied to a specific pk")
 
-        ## Set the type of query
+        # Set the type of query
         self.set_query_type(query_type, alist=alist, nalist=nalist,
                             elist=elist, nelist=nelist)
 
-        ## Define projections
+        # Define projections
         if self._content_type is not None:
             # Use '*' so that the object itself will be returned.
             # In get_results() we access attributes/extras by
             # calling the get_attrs()/get_extras().
             projections = ['*']
         else:
-            pass #i.e. use the input parameter projection
+            pass  # i.e. use the input parameter projection
 
-        ## TODO this actually works, but the logic is a little bit obscure.
+        # TODO this actually works, but the logic is a little bit obscure.
         # Make it clearer
         if self._result_type is not self.__label__:
             projections = self._default_projections
@@ -124,7 +122,6 @@ class NodeTranslator(BaseTranslator):
                                               projections=projections,
                                               pk=pk)
 
-
     def _get_content(self):
         """
         Used by get_results() in case of endpoint include "content" option
@@ -133,12 +130,12 @@ class NodeTranslator(BaseTranslator):
         """
         if not self._is_qb_initialized:
             raise InvalidOperation("query builder object has not been "
-                                    "initialized.")
+                                   "initialized.")
 
-        ## Initialization
+        # Initialization
         data = {}
 
-        ## Count the total number of rows returned by the query (if not
+        # Count the total number of rows returned by the query (if not
         # already done)
         if self._total_count is None:
             self.count()
@@ -208,84 +205,84 @@ class NodeTranslator(BaseTranslator):
             return super(NodeTranslator, self).get_results()
 
     def get_statistics(self, tclass, users=[]):
-       from aiida.orm.querybuilder import QueryBuilder as QB
-       from aiida.orm import User
-       from collections import Counter
-       from datetime import datetime
+        from aiida.orm.querybuilder import QueryBuilder as QB
+        from aiida.orm import User
+        from collections import Counter
+        from datetime import datetime
 
-       def count_statistics(dataset):
+        def count_statistics(dataset):
 
-           def get_statistics_dict(dataset):
-               results = {}
-               for count, typestring in sorted((v, k) for k, v in dataset.iteritems())[::-1]:
-                   results[typestring] = count
-               return results
+            def get_statistics_dict(dataset):
+                results = {}
+                for count, typestring in sorted((v, k) for k, v in dataset.iteritems())[::-1]:
+                    results[typestring] = count
+                return results
 
-           count_dict = {}
+            count_dict = {}
 
-           types = Counter([r[3] for r in dataset])
-           count_dict["types"] = get_statistics_dict(types)
+            types = Counter([r[3] for r in dataset])
+            count_dict["types"] = get_statistics_dict(types)
 
-           ctimelist = [r[1].strftime("%Y-%m") for r in dataset]
-           ctime = Counter(ctimelist)
-           count_dict["ctime_by_month"] = get_statistics_dict(ctime)
+            ctimelist = [r[1].strftime("%Y-%m") for r in dataset]
+            ctime = Counter(ctimelist)
+            count_dict["ctime_by_month"] = get_statistics_dict(ctime)
 
-           ctimelist = [r[1].strftime("%Y-%m-%d") for r in dataset]
-           ctime = Counter(ctimelist)
-           count_dict["ctime_by_day"] = get_statistics_dict(ctime)
+            ctimelist = [r[1].strftime("%Y-%m-%d") for r in dataset]
+            ctime = Counter(ctimelist)
+            count_dict["ctime_by_day"] = get_statistics_dict(ctime)
 
-           mtimelist = [r[2].strftime("%Y-%m") for r in dataset]
-           mtime = Counter(ctimelist)
-           count_dict["mtime_by_month"] = get_statistics_dict(mtime)
+            mtimelist = [r[2].strftime("%Y-%m") for r in dataset]
+            mtime = Counter(ctimelist)
+            count_dict["mtime_by_month"] = get_statistics_dict(mtime)
 
-           mtimelist = [r[1].strftime("%Y-%m-%d") for r in dataset]
-           mtime = Counter(ctimelist)
-           count_dict["mtime_by_day"] = get_statistics_dict(mtime)
+            mtimelist = [r[1].strftime("%Y-%m-%d") for r in dataset]
+            mtime = Counter(ctimelist)
+            count_dict["mtime_by_day"] = get_statistics_dict(mtime)
 
-           return count_dict
+            return count_dict
 
-       statistics = {}
+        statistics = {}
 
-       q = QB()
-       q.append(tclass, project=['id', 'ctime', 'mtime', 'type'], tag='node')
-       q.append(User, creator_of='node', project='email')
-       qb_res = q.all()
+        q = QB()
+        q.append(tclass, project=['id', 'ctime', 'mtime', 'type'], tag='node')
+        q.append(User, creator_of='node', project='email')
+        qb_res = q.all()
 
-       # total count
-       statistics["total"] = len(qb_res)
+        # total count
+        statistics["total"] = len(qb_res)
 
-       node_users = Counter([r[4] for r in qb_res])
-       statistics["users"]={}
+        node_users = Counter([r[4] for r in qb_res])
+        statistics["users"] = {}
 
-       if isinstance(users,basestring):
-           users = [users]
-       if len(users) == 0:
-           users = node_users
+        if isinstance(users, basestring):
+            users = [users]
+        if len(users) == 0:
+            users = node_users
 
-       for user in users:
-           user_data = [r for r in qb_res if r[4] == user]
-           # statistics for user data
-           statistics["users"][user] = count_statistics(user_data)
-           statistics["users"][user]["total"] = node_users[user]
+        for user in users:
+            user_data = [r for r in qb_res if r[4] == user]
+            # statistics for user data
+            statistics["users"][user] = count_statistics(user_data)
+            statistics["users"][user]["total"] = node_users[user]
 
-       # statistics for node data
-       statistics.update( count_statistics(qb_res))
+        # statistics for node data
+        statistics.update(count_statistics(qb_res))
 
-       return statistics
+        return statistics
 
     def get_io_tree(self, nodeId, maxDepth=None):
         from aiida.orm.querybuilder import QueryBuilder
         from aiida.orm.node import Node
 
         def addNodes(nodeId, maxDepth, nodes, addedNodes, addedEdges, edgeType):
-            qb= QueryBuilder()
-            qb.append(Node, tag="main", filters={"id":{"==":nodeId}})
+            qb = QueryBuilder()
+            qb.append(Node, tag="main", filters={"id": {"==": nodeId}})
             if edgeType == "ancestors":
                 qb.append(Node, tag=edgeType, project=['id', 'type'], edge_project=['path', 'depth'],
-                        ancestor_of_beta='main', edge_filters={'depth':{'<=':maxDepth}})
+                          ancestor_of_beta='main', edge_filters={'depth': {'<=': maxDepth}})
             elif edgeType == "desc":
                 qb.append(Node, tag=edgeType, project=['id', 'type'], edge_project=['path', 'depth'],
-                        descendant_of_beta='main', edge_filters={'depth':{'<=':maxDepth}})
+                          descendant_of_beta='main', edge_filters={'depth': {'<=': maxDepth}})
 
             if (qb.count() > 0):
                 qbResults = qb.get_results_dict()
@@ -293,13 +290,13 @@ class NodeTranslator(BaseTranslator):
                 for resultDict in qbResults:
                     if resultDict[edgeType]["id"] not in addedNodes:
                         nodes.append({"id": len(addedNodes),
-                                      "nodeid":resultDict[edgeType]["id"],
-                                      "nodetype":resultDict[edgeType]["type"],
-                                      "group":edgeType + "-" +str(resultDict["main--"+edgeType]["depth"])
-                                     })
+                                      "nodeid": resultDict[edgeType]["id"],
+                                      "nodetype": resultDict[edgeType]["type"],
+                                      "group": edgeType + "-" + str(resultDict["main--" + edgeType]["depth"])
+                                      })
                         addedNodes.append(resultDict[edgeType]["id"])
 
-                    path = resultDict["main--"+edgeType]["path"]
+                    path = resultDict["main--" + edgeType]["path"]
                     if edgeType == "ancestors":
                         startEdge = path[0]
                         endEdge = path[1]
@@ -321,13 +318,13 @@ class NodeTranslator(BaseTranslator):
                     edges.append({"from": fromNodeIdIndex,
                                   "to": toNodeIdIndex,
                                   "arrows": "to",
-                                  "color":{"inherit":'from'}
-                                 })
+                                  "color": {"inherit": 'from'}
+                                  })
 
             return edges
 
-        nodes=[]
-        edges=[]
+        nodes = []
+        edges = []
         addedNodes = []
         addedEdges = {}
 
@@ -335,22 +332,22 @@ class NodeTranslator(BaseTranslator):
             from aiida.restapi.common.config import MAX_TREE_DEPTH
             maxDepth = MAX_TREE_DEPTH
 
-        qb= QueryBuilder()
-        qb.append(Node, tag="main",  project=["id", "type"], filters={"id":{"==":nodeId}})
+        qb = QueryBuilder()
+        qb.append(Node, tag="main", project=["id", "type"], filters={"id": {"==": nodeId}})
         if qb.count() > 0:
             mainNode = qb.first()
             nodes.append({"id": 0,
-                          "nodeid":mainNode[0],
-                          "nodetype":mainNode[1],
+                          "nodeid": mainNode[0],
+                          "nodetype": mainNode[1],
                           "group": "mainNode"
-                         })
+                          })
             addedNodes.append(mainNode[0])
 
         # get all descendents
         nodes, addedNodes, addedEdges = addNodes(nodeId, maxDepth, nodes,
-                               addedNodes, addedEdges, "ancestors")
+                                                 addedNodes, addedEdges, "ancestors")
         nodes, addedNodes, addedEdges = addNodes(nodeId, maxDepth, nodes,
-                               addedNodes, addedEdges, "desc")
+                                                 addedNodes, addedEdges, "desc")
 
         edges = addEdges(edges, addedNodes, addedEdges)
 

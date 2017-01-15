@@ -33,7 +33,7 @@ class TestRelationshipsSQLA(AiidaTestCase):
 
         # Create user
         dbu1 = DbUser('test1@schema', "spam", "eggs",
-               "monty")
+                      "monty")
 
         # Creat node
         node_dict = dict(user=dbu1)
@@ -65,7 +65,7 @@ class TestRelationshipsSQLA(AiidaTestCase):
 
         # Create user
         dbu1 = DbUser('tests2@schema', "spam", "eggs",
-               "monty")
+                      "monty")
 
         # Creat node
         node_dict = dict(user=dbu1)
@@ -100,7 +100,7 @@ class TestRelationshipsSQLA(AiidaTestCase):
         """
         # Create user
         dbu1 = DbUser('tests3@schema', "spam", "eggs",
-               "monty")
+                      "monty")
 
         # Creat node
         node_dict = dict(user=dbu1)
@@ -134,7 +134,7 @@ class TestRelationshipsSQLA(AiidaTestCase):
         """
         # Create user
         dbu1 = DbUser('tests4@schema', "spam", "eggs",
-               "monty")
+                      "monty")
 
         # Creat node objects assigningd them to the same name
         # Check https://docs.python.org/2/tutorial/classes.html subsec. 9.1
@@ -162,7 +162,6 @@ class TestRelationshipsSQLA(AiidaTestCase):
         # qb = QueryBuilder()
         # qb.append(Node, filters={'user_id': {'==', dbu1.id}})
         # self.assertIs(qb.count(), 1)
-
 
     # def test_Computer_node_1(self):
     #     """

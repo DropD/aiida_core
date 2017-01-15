@@ -25,6 +25,7 @@ table_groups_nodes = Table(
     Column('dbgroup_id', Integer, ForeignKey('db_dbgroup.id', deferrable=True, initially="DEFERRED"))
 )
 
+
 class DbGroup(Base):
     __tablename__ = "db_dbgroup"
 

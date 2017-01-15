@@ -18,25 +18,27 @@ StructureData = DataFactory('structure')
 
 logger = aiidalogger.getChild('WorkflowXTiO3')
 
-## ===============================================
-##    WorkflowXTiO3_EOS
-## ===============================================
+# ===============================================
+# WorkflowXTiO3_EOS
+# ===============================================
+
 
 class WorkflowXTiO3_EOS(Workflow):
+
     def __init__(self, **kwargs):
 
         super(WorkflowXTiO3_EOS, self).__init__(**kwargs)
 
-    ## ===============================================
-    ##    Structure generators
-    ## ===============================================
+    # ===============================================
+    # Structure generators
+    # ===============================================
 
     def get_structure(self, alat=4, x_material='Ba'):
 
         cell = [[alat, 0., 0., ],
                 [0., alat, 0., ],
                 [0., 0., alat, ],
-        ]
+                ]
 
         # BaTiO3 cubic structure
         s = StructureData(cell=cell)
@@ -75,9 +77,9 @@ class WorkflowXTiO3_EOS(Workflow):
 
         return kpoints
 
-    ## ===============================================
-    ##    Calculations generators
-    ## ===============================================
+    # ===============================================
+    # Calculations generators
+    # ===============================================
 
     def get_pw_calculation(self, pw_structure, pw_parameters, pw_kpoint):
 
@@ -107,9 +109,9 @@ class WorkflowXTiO3_EOS(Workflow):
 
         return calc
 
-    ## ===============================================
-    ##    Wf steps
-    ## ===============================================
+    # ===============================================
+    # Wf steps
+    # ===============================================
 
     @Workflow.step
     def start(self):
@@ -235,7 +237,7 @@ def Murnaghan_fit(e, v):
         BP = parameters[2]
         V0 = parameters[3]
 
-        EM = E0 + B0 * vol / BP * ( ((V0 / vol) ** BP) / (BP - 1) + 1 ) - V0 * B0 / (BP - 1.0)
+        EM = E0 + B0 * vol / BP * (((V0 / vol) ** BP) / (BP - 1) + 1) - V0 * B0 / (BP - 1.0)
 
         return EM
 

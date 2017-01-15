@@ -170,12 +170,11 @@ class Devel(VerdiCommandWithSubcommands):
         from aiida.orm import JobCalculation as OrmCalculation
         from aiida.orm.utils import load_node
 
-
         class InternalError(AiidaException):
+
             def __init__(self, real_exception, message):
                 self.real_exception = real_exception
                 self.message = message
-
 
         def get_suggestions(key, correct_keys):
             import difflib
@@ -209,7 +208,6 @@ class Devel(VerdiCommandWithSubcommands):
                         raise
             return parent_dict
 
-
         def index_finder(data, indices, list_name):
             if not indices:
                 return data
@@ -229,7 +227,6 @@ class Devel(VerdiCommandWithSubcommands):
                 except Exception as e:
                     raise InternalError(e, "Invalid index! Maybe %s is not a list?" % parent_name)
             return parent_data
-
 
         if not args:
             print >> sys.stderr, "Pass some parameters."
@@ -252,7 +249,6 @@ class Devel(VerdiCommandWithSubcommands):
         except ValueError:
             print >> sys.stderr, "All PKs after -- must be valid integers."
             sys.exit(1)
-
 
         sep = '\t'  # Default separator: a tab character
 
@@ -286,7 +282,7 @@ class Devel(VerdiCommandWithSubcommands):
             print >> sys.stderr, "Failed recognizing a calculation PK."
             sys.exit(1)
         if not keys_to_retrieve:
-            print  >> sys.stderr, "Failed recognizing a key to parse."
+            print >> sys.stderr, "Failed recognizing a key to parse."
             sys.exit(1)
 
         # load the data
@@ -575,13 +571,11 @@ class Devel(VerdiCommandWithSubcommands):
                 print "  - {}".format(reason)
 
         print "* Tests run:     {}".format(tot_num_tests)
-        # This count is wrong, sometimes a test can both error and fail 
+        # This count is wrong, sometimes a test can both error and fail
         # apparently, and you can get negative numbers...
-        #print "* Tests OK:      {}".format(tot_num_tests - len(test_errors) - len(test_failures))
+        # print "* Tests OK:      {}".format(tot_num_tests - len(test_errors) - len(test_failures))
         print "* Tests failed:  {}".format(len(test_failures))
         print "* Tests errored: {}".format(len(test_errors))
-
-
 
         # If there was any failure report it with the
         # right exit code
@@ -601,7 +595,6 @@ class Devel(VerdiCommandWithSubcommands):
             set(self.allowed_test_folders) - set(other_subargs))
 
         return " ".join(sorted(remaining_tests))
-
 
     def get_querydict_from_keyvalue(self, key, separator_filter, value):
         from aiida.orm import (Code, Data, Calculation,
@@ -663,7 +656,7 @@ class Devel(VerdiCommandWithSubcommands):
                          keystring + "__{}".format(attr_field): cast_value},
                         [keystring + "__key", keystring +
                          "__{}".format(attr_field)]
-                )
+                        )
             else:
                 # Standard query
                 return ({keystring + "__key": subproperty,
@@ -671,7 +664,7 @@ class Devel(VerdiCommandWithSubcommands):
                          + sep_filter_string: cast_value},
                         [keystring + "__key", keystring
                          + "__{}".format(attr_field)]
-                )
+                        )
 
         elif item == 'e':  # input
             keystring = "dbextras"
@@ -688,15 +681,14 @@ class Devel(VerdiCommandWithSubcommands):
                 return ({keystring + "__key__regex": r'^{}$'.format(regex_key),
                          keystring + "__ival": value},
                         [keystring + "__key", keystring + "__ival"],
-                )
+                        )
 
             else:
                 # Standard query
                 return ({keystring + "__key": subproperty,
                          keystring + "__ival" + sep_filter_string: value},
                         [keystring + "__key", keystring + "__ival"]
-                )
-
+                        )
 
         elif item == 't' or item == 'type':
             if sep_filter_string:
@@ -743,17 +735,16 @@ class Devel(VerdiCommandWithSubcommands):
                         ["{}__pk".format(keystring),
                          "{}__type".format(keystring),
                          "{}__label".format(keystring)],
-                )
+                        )
             else:
                 return ({keystring + sep_filter_string: value},
                         [keystring] +
                         ["{}__pk".format(keystring),
                          "{}__type".format(keystring),
                          "{}__label".format(keystring)],
-                )
+                        )
 
         raise NotImplementedError("Should not be here...")
-
 
     # To be put in the right order! For instance,
     # You want to put ~= before =, because this has
@@ -771,7 +762,6 @@ class Devel(VerdiCommandWithSubcommands):
     # TO ADD: startswith, istartswith, endswith, iendswith, ymdHMS, isnull, in, contains,
 
     # TO ADD: support for other types
-
 
     def parse_arg(self, arg):
         # pieces = arg.split("=")
@@ -798,7 +788,6 @@ class Devel(VerdiCommandWithSubcommands):
                                                      value)
 
         return querydict
-
 
     def run_query(self, *args):
         load_dbenv()
@@ -836,8 +825,8 @@ class Devel(VerdiCommandWithSubcommands):
                     raise NotImplementedError(
                         "The current implementation does not work for negation of attributes. See comments in source code.")
 
-                    ## NOT THE RIGHT WAY TO MANAGE NEGATIONS!! SEE AT THE
-                    ## END OF THE FILE
+                    # NOT THE RIGHT WAY TO MANAGE NEGATIONS!! SEE AT THE
+                    # END OF THE FILE
                     temp = [(k, v) for k, v in query.iteritems()]
                     if temp[0][0].endswith("__key"):
                         #                        django_query = django_query & (
@@ -870,7 +859,6 @@ class Devel(VerdiCommandWithSubcommands):
             for p, v in zip(all_values[1:], node[1:]):
                 print "  `-> {} = {}".format(p, v)
 
-
     def run_play(self, *args):
         """
         Open a browser and play the Aida triumphal march by Giuseppe Verdi
@@ -881,12 +869,12 @@ class Devel(VerdiCommandWithSubcommands):
 
 # In [11]: attr_res = DbAttribute.objects.filter(Q(key='cell.atoms'), ~Q(ival__gt=7))
 #
-#In [12]: dbres = DbNode.objects.filter(outputs__dbattributes__in=attr_res).distinct()
+# In [12]: dbres = DbNode.objects.filter(outputs__dbattributes__in=attr_res).distinct()
 #
-#In [13]: print dbres.query
-#SELECT DISTINCT "db_dbnode"."id", "db_dbnode"."uuid", "db_dbnode"."type", "db_dbnode"."label", "db_dbnode"."description", "db_dbnode"."ctime", "db_dbnode"."mtime", "db_dbnode"."user_id", "db_dbnode"."dbcomputer_id", "db_dbnode"."nodeversion", "db_dbnode"."lastsyncedversion" FROM "db_dbnode" INNER JOIN "db_dblink" ON ("db_dbnode"."id" = "db_dblink"."input_id") INNER JOIN "db_dbnode" T3 ON ("db_dblink"."output_id" = T3."id") INNER JOIN "db_dbattribute" ON (T3."id" = "db_dbattribute"."dbnode_id") WHERE "db_dbattribute"."id" IN (SELECT U0."id" FROM "db_dbattribute" U0 WHERE (U0."key" = cell.atoms  AND NOT ((U0."ival" > 7  AND U0."ival" IS NOT NULL))))
+# In [13]: print dbres.query
+# SELECT DISTINCT "db_dbnode"."id", "db_dbnode"."uuid", "db_dbnode"."type", "db_dbnode"."label", "db_dbnode"."description", "db_dbnode"."ctime", "db_dbnode"."mtime", "db_dbnode"."user_id", "db_dbnode"."dbcomputer_id", "db_dbnode"."nodeversion", "db_dbnode"."lastsyncedversion" FROM "db_dbnode" INNER JOIN "db_dblink" ON ("db_dbnode"."id" = "db_dblink"."input_id") INNER JOIN "db_dbnode" T3 ON ("db_dblink"."output_id" = T3."id") INNER JOIN "db_dbattribute" ON (T3."id" = "db_dbattribute"."dbnode_id") WHERE "db_dbattribute"."id" IN (SELECT U0."id" FROM "db_dbattribute" U0 WHERE (U0."key" = cell.atoms  AND NOT ((U0."ival" > 7  AND U0."ival" IS NOT NULL))))
 
-## OR, if doing
+# OR, if doing
 #dbres = DbNode.objects.filter(dbattributes__in=attr_res).distinct()
-#In [18]: print dbres.query
-#SELECT DISTINCT "db_dbnode"."id", "db_dbnode"."uuid", "db_dbnode"."type", "db_dbnode"."label", "db_dbnode"."description", "db_dbnode"."ctime", "db_dbnode"."mtime", "db_dbnode"."user_id", "db_dbnode"."dbcomputer_id", "db_dbnode"."nodeversion", "db_dbnode"."lastsyncedversion" FROM "db_dbnode" INNER JOIN "db_dbattribute" ON ("db_dbnode"."id" = "db_dbattribute"."dbnode_id") WHERE "db_dbattribute"."id" IN (SELECT U0."id" FROM "db_dbattribute" U0 WHERE (U0."key" = cell.atoms  AND NOT ((U0."ival" > 7  AND U0."ival" IS NOT NULL))))
+# In [18]: print dbres.query
+# SELECT DISTINCT "db_dbnode"."id", "db_dbnode"."uuid", "db_dbnode"."type", "db_dbnode"."label", "db_dbnode"."description", "db_dbnode"."ctime", "db_dbnode"."mtime", "db_dbnode"."user_id", "db_dbnode"."dbcomputer_id", "db_dbnode"."nodeversion", "db_dbnode"."lastsyncedversion" FROM "db_dbnode" INNER JOIN "db_dbattribute" ON ("db_dbnode"."id" = "db_dbattribute"."dbnode_id") WHERE "db_dbattribute"."id" IN (SELECT U0."id" FROM "db_dbattribute" U0 WHERE (U0."key" = cell.atoms  AND NOT ((U0."ival" > 7  AND U0."ival" IS NOT NULL))))

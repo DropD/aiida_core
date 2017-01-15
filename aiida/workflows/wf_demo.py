@@ -14,6 +14,7 @@ logger = aiidalogger.getChild('WorkflowDemo')
 
 
 class WorkflowDemo(Workflow):
+
     def __init__(self, **kwargs):
         super(WorkflowDemo, self).__init__(**kwargs)
 
@@ -71,6 +72,7 @@ class WorkflowDemo(Workflow):
 
 
 class SubWorkflowDemo(Workflow):
+
     def __init__(self, **kwargs):
         super(SubWorkflowDemo, self).__init__(**kwargs)
 
@@ -121,6 +123,7 @@ class SubWorkflowDemo(Workflow):
 
 
 class BranchWorkflowDemo(Workflow):
+
     def __init__(self, **kwargs):
 
         super(BranchWorkflowDemo, self).__init__(**kwargs)
@@ -207,6 +210,7 @@ class BranchWorkflowDemo(Workflow):
 
 
 class LoopBranchWorkflowDemo(Workflow):
+
     def __init__(self, **kwargs):
 
         super(LoopBranchWorkflowDemo, self).__init__(**kwargs)

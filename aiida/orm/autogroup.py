@@ -15,6 +15,7 @@ VERDIAUTOGROUP_TYPE = 'autogroup.run'
 
 # TODO: make the Autogroup usable to the user, and not only to the verdi run
 
+
 class Autogroup(object):
     """
     An object used for the autogrouping of objects.
@@ -39,7 +40,7 @@ class Autogroup(object):
                         i.startswith('code'),
                         i.startswith('data'),
                         i == 'all',
-            ]):
+                        ]):
                 raise ValidationError("Module not recognized, allow prefixes "
                                       " are: calculation, code or data")
         the_param = [i + '.' for i in param]
@@ -170,13 +171,13 @@ class Autogroup(object):
         if (('all.' in include) or
                 (the_class._plugin_type_string in include) or
                 any([the_class._plugin_type_string.startswith(i) for i in include_ws])
-        ):
+            ):
             exclude = self.get_exclude()
             exclude_ws = self.get_exclude_with_subclasses()
             if ((not 'all.' in exclude) or
                     (the_class._plugin_type_string in exclude) or
                     any([the_class._plugin_type_string.startswith(i) for i in exclude_ws])
-            ):
+                ):
                 return True
             else:
                 return False

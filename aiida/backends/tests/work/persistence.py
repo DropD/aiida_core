@@ -9,6 +9,7 @@ from aiida.work.test_utils import DummyProcess
 
 
 class TestProcess(AiidaTestCase):
+
     def setUp(self):
         super(TestProcess, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)

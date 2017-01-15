@@ -75,7 +75,6 @@ class Graph(VerdiCommandWithSubcommands):
         # until the connected part of the graph that contains the root_pk is fully explored.
         # TODO this command deserves to be radically improved, with options and further subcommands
 
-
         def kpoints_desc(node):
             """
             Returns a string with infos retrieved from  kpoints node's properties.
@@ -96,11 +95,11 @@ class Graph(VerdiCommandWithSubcommands):
             :param node:
             :return: retsrt:
             """
-            ############I won't use this until node.inp. methods won't be working correctly
+            # I won't use this until node.inp. methods won't be working correctly
             # return '{}'.format(node.inp.parameters.dict.CONTROL['calculation'])
             ###########
 
-            ###############3I rather use this black magic
+            # 3I rather use this black magic
             return '{}'.format(dict(node.get_inputs(also_labels=True))['parameters'].dict.CONTROL['calculation'])
 
         def get_additional_string(node):
@@ -163,12 +162,11 @@ class Graph(VerdiCommandWithSubcommands):
             return "N{} [{},{}{}];".format(node.pk, shape, labelstring,
                                            additional_params)
 
-
         # Breadth-first search of all ancestors and descendant nodes of a given node
         links = []  # Accumulate links here
-        nodes = {n.pk: draw_node_settings(n, style='filled', color='lightblue')} #Accumulate nodes specs here
+        nodes = {n.pk: draw_node_settings(n, style='filled', color='lightblue')}  # Accumulate nodes specs here
 
-        last_nodes = [n] # Put the nodes whose links have not been scanned yet
+        last_nodes = [n]  # Put the nodes whose links have not been scanned yet
 
         # Go through the graph on-ward (i.e. look at inputs)
         while last_nodes:
@@ -198,12 +196,12 @@ class Graph(VerdiCommandWithSubcommands):
         # Generate name of the output file. Default
         out_file_name = "{}.dot".format(root_pk)
         print "out_file_name ", out_file_name
-        with open(out_file_name,'w') as fout:
+        with open(out_file_name, 'w') as fout:
 
             fout.write("digraph G {\n")
 
             for l in links:
-                fout.write('    {} -> {} [label="{}"];\n'.format("N{}".format(l[0]),  "N{}".format(l[1]), l[2]))
+                fout.write('    {} -> {} [label="{}"];\n'.format("N{}".format(l[0]), "N{}".format(l[1]), l[2]))
             for n_name, n_values in nodes.iteritems():
                 fout.write("    {}\n".format(n_values))
 

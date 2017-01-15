@@ -26,7 +26,7 @@ def del_global_setting(key):
     """
     Return the value of the given setting, or raise a KeyError if the
     setting is not present in the DB.
-    
+
     :raise KeyError: if the setting does not exist in the DB
     """
     try:
@@ -40,7 +40,7 @@ def get_global_setting(key):
     """
     Return the value of the given setting, or raise a KeyError if the
     setting is not present in the DB.
-    
+
     :raise KeyError: if the setting does not exist in the DB
     """
     from aiida.backends.sqlalchemy.models.utils import get_value_of_sub_field
@@ -86,4 +86,3 @@ def table_check_test():
     inspector = reflection.Inspector.from_engine(sa.session.bind)
     if 'db_dbsetting' not in inspector.get_table_names():
         raise KeyError("No table found")
-

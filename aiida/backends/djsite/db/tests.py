@@ -54,11 +54,10 @@ for test in set(tests_to_run):
                     locals()[objname] = obj
                     num_tests_expected += len(testmethods)
                     # for debug
-                    #print "{} ==> {} ({})".format(modulename, objname, len(testmethods))
+                    # print "{} ==> {} ({})".format(modulename, objname, len(testmethods))
         actually_run_tests.append(test)
 
 obj = None  # To avoid double runnings of the last test
 
 print >> sys.stderr, "DB tests that will be run: {} (expecting {} tests)".format(
     ",".join(actually_run_tests), num_tests_expected)
-

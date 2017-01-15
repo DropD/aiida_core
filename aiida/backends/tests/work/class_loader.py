@@ -9,6 +9,7 @@ from aiida.work.legacy.job_process import JobProcess
 
 
 class TestJobProcess(AiidaTestCase):
+
     def setUp(self):
         super(TestJobProcess, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)
@@ -23,4 +24,3 @@ class TestJobProcess(AiidaTestCase):
 
         self.assertEqual(PwProcess.__name__, LoadedClass.__name__)
         self.assertEqual(fullname(PwProcess), fullname(LoadedClass))
-

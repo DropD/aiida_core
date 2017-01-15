@@ -28,7 +28,6 @@ __authors__ = "The AiiDA team."
 
 class TestBackupScriptUnit(AiidaTestCase):
 
-
     _json_test_input_1 = '{"backup_length_threshold": 2, "periodicity": 2,' + \
         ' "oldest_object_backedup": "2014-07-18 13:54:53.688484+00:00", ' + \
         '"end_date_of_backup": null, "days_to_backup": null, "backup_dir": ' +\
@@ -401,11 +400,11 @@ class TestBackupScriptIntegration(AiidaTestCase):
                    "",                  # should the folder be created?
                    "n",                 # print config explanation?
                    "",                  # configure the backup conf file now?
-                   "", # start date of backup?
+                   "",  # start date of backup?
                    "",                  # is it correct?
                    "",                  # days to backup?
                    "",                  # is it correct?
-                   "", # end date of backup
+                   "",  # end date of backup
                    "",                  # is it correct?
                    "1",                 # periodicity
                    "",                  # is it correct?

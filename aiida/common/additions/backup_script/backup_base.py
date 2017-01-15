@@ -169,8 +169,8 @@ class AbstractBackup(object):
         # You can not set an end-of-backup date and end days from the backup
         # that you should stop.
         if (backup_variables.get(self.DAYS_TO_BACKUP_KEY) is not None and
-                    backup_variables.get(
-                        self.END_DATE_OF_BACKUP_KEY) is not None):
+            backup_variables.get(
+                self.END_DATE_OF_BACKUP_KEY) is not None):
             self._logger.error("Only one end of backup date can be set.")
             raise BackupError("Only one backup end can be set (date or "
                               "days from backup start.")
@@ -275,7 +275,7 @@ class AbstractBackup(object):
         # If the end of the backup is after the given end by the user,
         # adapt it accordingly
         if (self._internal_end_date_of_backup is not None and
-                    backup_end_for_this_round > self._internal_end_date_of_backup):
+                backup_end_for_this_round > self._internal_end_date_of_backup):
             backup_end_for_this_round = self._internal_end_date_of_backup
 
         # If the end of the backup is after then current time,
@@ -380,8 +380,8 @@ class AbstractBackup(object):
                 copy_counter += 1
 
                 if (self._logger.getEffectiveLevel() <= logging.INFO and
-                            (datetime.datetime.now() -
-                                 last_progress_print).seconds > 60):
+                    (datetime.datetime.now() -
+                     last_progress_print).seconds > 60):
                     last_progress_print = datetime.datetime.now()
                     percent_progress = (copy_counter * 100 / dir_no_to_copy)
                     self._logger.info(
@@ -390,8 +390,8 @@ class AbstractBackup(object):
                         " ({}/100)".format(percent_progress))
 
                 if (self._logger.getEffectiveLevel() <= logging.INFO and
-                            percent_progress < (
-                                        copy_counter * 100 / dir_no_to_copy)):
+                    percent_progress < (
+                        copy_counter * 100 / dir_no_to_copy)):
                     percent_progress = (copy_counter * 100 / dir_no_to_copy)
                     last_progress_print = datetime.datetime.now()
                     self._logger.info(
@@ -424,7 +424,7 @@ class AbstractBackup(object):
         self._logger.info("End of backup")
         self._logger.info("Backed up objects with modification timestamp "
                           "less or equal to {}".format(
-            self._oldest_object_bk))
+                              self._oldest_object_bk))
 
     @staticmethod
     def _extract_parent_dirs(given_rel_dir, parent_dir_set):
@@ -499,8 +499,8 @@ class AbstractBackup(object):
         pass
 
 
-
 class BackupError(Exception):
+
     def __init__(self, value):
         self.value = value
 

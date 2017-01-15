@@ -98,11 +98,11 @@ def _load_dbenv_noschemacheck(process=None, profile=None, connection=None):
     # from aiida.backends.sqlalchemy.models.calcstate import DbCalcState
     from aiida.backends.sqlalchemy.models.comment import DbComment
     from aiida.backends.sqlalchemy.models.computer import DbComputer
-    from aiida.backends.sqlalchemy.models.group import DbGroup, table_groups_nodes #, table_groups_users
+    from aiida.backends.sqlalchemy.models.group import DbGroup, table_groups_nodes  # , table_groups_users
     from aiida.backends.sqlalchemy.models.lock import DbLock
     from aiida.backends.sqlalchemy.models.log import DbLog
     from aiida.backends.sqlalchemy.models.node import (
-            DbLink, DbNode, DbPath, DbCalcState)
+        DbLink, DbNode, DbPath, DbCalcState)
     from aiida.backends.sqlalchemy.models.user import DbUser
     from aiida.backends.sqlalchemy.models.workflow import DbWorkflow, DbWorkflowData, DbWorkflowStep
 
@@ -125,7 +125,7 @@ def get_automatic_user():
 
     from aiida.backends.sqlalchemy.models.user import DbUser
     from aiida.common.utils import get_configured_user_email
-    
+
     email = get_configured_user_email()
 
     _aiida_autouser_cache = DbUser.query.filter(DbUser.email == email).first()
@@ -209,7 +209,6 @@ def loads_json(s):
         return d
 
     return f(ret)
-
 
 
 # XXX the code here isn't different from the one use in Django. We may be able
@@ -435,7 +434,7 @@ def check_schema_version():
     from sqlalchemy.engine import reflection
     from aiida.backends.sqlalchemy.models import SCHEMA_VERSION
     from aiida.backends.utils import (
-        get_db_schema_version, set_db_schema_version,get_current_profile)
+        get_db_schema_version, set_db_schema_version, get_current_profile)
 
     # Do not do anything if the table does not exist yet
     inspector = reflection.Inspector.from_engine(sa.session.bind)

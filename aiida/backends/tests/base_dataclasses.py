@@ -15,6 +15,7 @@ __version__ = "0.7.0"
 
 
 class TestList(AiidaTestCase):
+
     def test_creation(self):
         l = base.List()
         self.assertEqual(len(l), 0)
@@ -86,6 +87,7 @@ class TestList(AiidaTestCase):
 
 
 class TestFloat(AiidaTestCase):
+
     def setUp(self):
         super(TestFloat, self).setUp()
         self.value = Float()

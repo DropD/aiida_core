@@ -2,6 +2,7 @@
 from aiida.restapi.translator.base import BaseTranslator
 from aiida.restapi.common.config import custom_schema
 
+
 class GroupTranslator(BaseTranslator):
     """
     It prepares the query_help from user inputs which later will be
@@ -58,11 +59,9 @@ class GroupTranslator(BaseTranslator):
     else:
         _default_projections = ['**']
 
-
     def __init__(self):
         """
         Initialise the parameters.
         Create the basic query_help
         """
         super(GroupTranslator, self).__init__()
-

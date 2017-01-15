@@ -38,7 +38,7 @@ class TestComputer(AiidaTestCase):
 
         _ = JobCalculation(**calc_params).store()
 
-        #print "Node stored with pk:",  _.dbnode.pk
+        # print "Node stored with pk:",  _.dbnode.pk
 
         # This should fail, because there is at least a calculation
         # using this computer (the one created just above)
@@ -119,6 +119,7 @@ class TestDbExtrasDjango(AiidaTestCase):
     """
     Test DbAttributes.
     """
+
     def test_replacement_1(self):
         from aiida.backends.djsite.db.models import DbExtra
 

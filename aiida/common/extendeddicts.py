@@ -3,15 +3,15 @@ from aiida.common.exceptions import ValidationError
 import collections
 from aiida.common.lang import override
 
-## TODO: see if we want to have a function to rebuild a nested dictionary as
-## a nested AttributeDict object when deserializing with json.
-## (now it deserialized to a standard dictionary; comparison of
-## AttributeDict == dict works fine, though.
-## Note also that when pickling, instead, the structure is well preserved)
+# TODO: see if we want to have a function to rebuild a nested dictionary as
+# a nested AttributeDict object when deserializing with json.
+# (now it deserialized to a standard dictionary; comparison of
+# AttributeDict == dict works fine, though.
+# Note also that when pickling, instead, the structure is well preserved)
 
-## Note that for instance putting this code in __getattr__ doesn't work:
-## everytime I try to write on a.b.c I am actually writing on a copy
-##    return AttributeDict(item) if type(item) == dict else item
+# Note that for instance putting this code in __getattr__ doesn't work:
+# everytime I try to write on a.b.c I am actually writing on a copy
+# return AttributeDict(item) if type(item) == dict else item
 
 __copyright__ = u"Copyright (c), This file is part of the AiiDA platform. For further information please visit http://www.aiida.net/. All rights reserved."
 __license__ = "MIT license, see LICENSE.txt file."
@@ -20,6 +20,7 @@ __authors__ = "The AiiDA team."
 
 
 class Enumerate(frozenset):
+
     def __getattr__(self, name):
         if name in self:
             return name.decode("utf-8")
@@ -82,7 +83,7 @@ class AttributeDict(dict):
         except KeyError:
             raise AttributeError(
                 "AttributeError: '{}' is not a valid attribute of the object "
-                "'{}'".format(attr,  self.__class__.__name__))
+                "'{}'".format(attr, self.__class__.__name__))
 
     def __delattr__(self, attr):
         """
@@ -295,6 +296,7 @@ class DefaultFieldsAttributeDict(AttributeDict):
 
 
 class FixedDict(collections.MutableMapping, object):
+
     def __init__(self, valid_keys):
         class M(object):
             pass
@@ -321,7 +323,7 @@ class FixedDict(collections.MutableMapping, object):
     @override
     def __delitem__(self, key):
         assert key in self._m.values,\
-               "Cannot delete an item that has not been set."
+            "Cannot delete an item that has not been set."
         return self._m.values.__delitem__(key)
 
     @override
@@ -351,6 +353,7 @@ class FixedDict(collections.MutableMapping, object):
 
 
 class _WithDefaults(object):
+
     def __init__(self, defaults):
         self._m._defaults = {}
         if defaults:
@@ -365,6 +368,7 @@ class _WithDefaults(object):
 
 
 class DefaultsDict(collections.MutableMapping):
+
     def __init__(self, valid_keys, defaults=None):
         self._set_internal('_valid_keys', valid_keys)
         self._set_internal('_user_supplied', {})

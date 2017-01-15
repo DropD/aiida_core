@@ -48,10 +48,10 @@ class CifcellcontentsParser(BaseCodtoolsParser):
         output_nodes = []
         output_nodes.append(('formulae',
                              ParameterData(dict={'formulae':
-                                                     formulae})))
+                                                 formulae})))
         output_nodes.append(('messages',
                              ParameterData(dict={'output_messages':
-                                                     messages})))
+                                                 messages})))
 
         success = True
         if len(formulae.keys()) == 0:

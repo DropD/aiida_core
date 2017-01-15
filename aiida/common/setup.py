@@ -376,7 +376,7 @@ def create_base_dirs(config_dir=None):
     create_htaccess_file()
 
 
-def set_default_profile(process, profile, force_rewrite = False):
+def set_default_profile(process, profile, force_rewrite=False):
     """
     Set a default db profile to be used by a process (default for verdi,
     default for daemon, ...)
@@ -406,7 +406,7 @@ def set_default_profile(process, profile, force_rewrite = False):
         confs['default_profiles'][process] = profile
     else:
         confs['default_profiles'][process] = confs['default_profiles'].get(
-                                                                process,profile)
+            process, profile)
     backup_config()
     store_config(confs)
 
@@ -640,6 +640,7 @@ def create_config_noninteractive(profile='default', force_overwrite=False, dry_r
     new_profile = update_profile(profile, new_profile, write=write)
     return new_profile
 
+
 def create_configuration(profile='default'):
     """
     :param profile: The profile to be configured
@@ -715,7 +716,7 @@ def create_configuration(profile='default'):
                 while not valid_aiida_backend:
                     backend_ans = raw_input(
                         'AiiDA backend (available: {} - sqlalchemy is in beta mode): '
-                            .format(', '.join(backend_possibilities)))
+                        .format(', '.join(backend_possibilities)))
                     if backend_ans in backend_possibilities:
                         valid_aiida_backend = True
                     else:
@@ -802,7 +803,7 @@ def create_configuration(profile='default'):
                 if is_test_profile and db_name.startswith(TEST_KEYWORD):
                     break
                 if (not is_test_profile and not
-                db_name.startswith(TEST_KEYWORD)):
+                        db_name.startswith(TEST_KEYWORD)):
                     break
                 print("The test databases should start with the prefix {} and "
                       "the non-test databases should not have this prefix."
@@ -845,7 +846,7 @@ def create_configuration(profile='default'):
                 if is_test_profile and db_name.startswith(TEST_KEYWORD):
                     break
                 if (not is_test_profile and not
-                db_name.startswith(TEST_KEYWORD)):
+                        db_name.startswith(TEST_KEYWORD)):
                     break
                 print("The test databases should start with the prefix {} and "
                       "the non-test databases should not have this prefix."
@@ -870,7 +871,7 @@ def create_configuration(profile='default'):
         # it should change in the future to add the possibility of having a
         # remote repository. Atm, I act as only a local repo is possible
         existing_repo = this_existing_confs.get('AIIDADB_REPOSITORY_URI',
-            os.path.join(aiida_dir, "repository-{}/".format(profile)))
+                                                os.path.join(aiida_dir, "repository-{}/".format(profile)))
         default_protocol = 'file://'
         if existing_repo.startswith(default_protocol):
             existing_repo = existing_repo[len(default_protocol):]
@@ -1020,7 +1021,7 @@ _property_table = {
         "E-mail address for TCOD depositions",
         None,
         None),
-    "warnings.showdeprecations":(
+    "warnings.showdeprecations": (
         "show_deprecations",
         "bool",
         "Boolean whether to print deprecation warnings",
@@ -1181,7 +1182,6 @@ def parse_repository_uri(repository_uri):
     """
     import uritools
     parts = uritools.urisplit(repository_uri)
-
 
     if parts.scheme != u'file':
         raise ConfigurationError("The current AiiDA version supports only a "

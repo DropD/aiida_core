@@ -98,7 +98,7 @@ class TemplatereplacerCalculation(JobCalculation):
         if template:
             raise InputValidationError("The following keys could not be "
                                        "used in the template node: {}".format(
-                template.keys()))
+                                           template.keys()))
 
         try:
             validate_list_of_string_tuples(files_to_copy, tuple_length=2)
@@ -123,7 +123,7 @@ class TemplatereplacerCalculation(JobCalculation):
             else:
                 raise InputValidationError("If you ask to copy a file link {}, "
                                            "it must be either a SinglefileData or a RemoteData; it is instead of type {}".format(
-                    link_name, fileobj.__class__.__name__))
+                                               link_name, fileobj.__class__.__name__))
 
         code = inputdict.pop('code', None)
         if code is None:
@@ -132,7 +132,7 @@ class TemplatereplacerCalculation(JobCalculation):
         if len(inputdict) > 0:
             raise InputValidationError("The input nodes with the following labels could not be "
                                        "used by the templatereplacer plugin: {}".format(
-                inputdict.keys()))
+                                           inputdict.keys()))
 
         if input_file_name is not None and not input_file_template:
             raise InputValidationError("If you give an input_file_name, you "

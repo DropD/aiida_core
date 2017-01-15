@@ -103,15 +103,15 @@ def cif_encode_contents(content, gzip=False, gzip_threshold=1024):
     elif gzip and len(content) >= gzip_threshold:
         # content is larger than some arbitrary value and should be gzipped
         method = 'gzip+base64'
-    elif float(len(re.findall('[^\x09\x0A\x0D\x20-\x7E]', content)))/len(content) > 0.25:
+    elif float(len(re.findall('[^\x09\x0A\x0D\x20-\x7E]', content))) / len(content) > 0.25:
         # contents are assumed to be binary
         method = 'base64'
-    elif re.search('^\s*data_',content) is not None or \
-         re.search('\n\s*data_',content) is not None:
+    elif re.search('^\s*data_', content) is not None or \
+            re.search('\n\s*data_', content) is not None:
         # contents have CIF datablock header-like lines, that may be
         # dangerous when parsed with primitive parsers
         method = 'base64'
-    elif re.search('.{2048}.',content) is not None:
+    elif re.search('.{2048}.', content) is not None:
         # lines are too long
         method = 'quoted-printable'
     elif len(re.findall('[^\x09\x0A\x0D\x20-\x7E]', content)) > 0:
@@ -292,7 +292,7 @@ def decode_textfield_gzip_base64(content):
     return gunzip_string(decode_textfield_base64(content))
 
 
-def decode_textfield(content,method):
+def decode_textfield(content, method):
     """
     Decodes the contents of encoded CIF textfield.
 
@@ -390,7 +390,7 @@ for key, value in {}(
     )[1].iteritems():
     value.store()
 """.format(calc.get_attr('source_file').encode('utf-8'),
-           calc.get_attr('function_name','f'),
+           calc.get_attr('function_name', 'f'),
            args_string)
 
 
@@ -413,13 +413,13 @@ def _collect_calculation_data(calc):
     files_in = []
     files_out = []
     this_calc = {
-        'uuid' : calc.uuid,
+        'uuid': calc.uuid,
         'files': [],
     }
 
     if isinstance(calc, JobCalculation):
         retrieved_abspath = calc.get_retrieved_node().get_abs_path()
-        files_in  = _collect_files(calc._raw_input_folder.abspath)
+        files_in = _collect_files(calc._raw_input_folder.abspath)
         files_out = _collect_files(os.path.join(retrieved_abspath, 'path'))
         this_calc['env'] = calc.get_environment_variables()
         this_calc['stdout'] = calc.get_scheduler_output()
@@ -429,20 +429,20 @@ def _collect_calculation_data(calc):
         import hashlib
         python_script = _inline_to_standalone_script(calc)
         files_in.append({
-            'name'    : inline_executable_name,
+            'name': inline_executable_name,
             'contents': python_script,
-            'md5'     : hashlib.md5(python_script).hexdigest(),
-            'sha1'    : hashlib.sha1(python_script).hexdigest(),
-            'type'    : 'file',
-            })
+            'md5': hashlib.md5(python_script).hexdigest(),
+            'sha1': hashlib.sha1(python_script).hexdigest(),
+            'type': 'file',
+        })
         shell_script = '#!/bin/bash\n\nverdi run {}\n'.format(inline_executable_name)
         files_in.append({
-            'name'    : aiida_executable_name,
+            'name': aiida_executable_name,
             'contents': shell_script,
-            'md5'     : hashlib.md5(shell_script).hexdigest(),
-            'sha1'    : hashlib.sha1(shell_script).hexdigest(),
-            'type'    : 'file',
-            })
+            'md5': hashlib.md5(shell_script).hexdigest(),
+            'sha1': hashlib.sha1(shell_script).hexdigest(),
+            'type': 'file',
+        })
 
     for f in files_in:
         if os.path.basename(f['name']) == aiida_executable_name:
@@ -466,32 +466,32 @@ def _collect_files(base, path=''):
     Recursively collects files from the tree, starting at a given path.
     """
     from aiida.common.folders import Folder
-    from aiida.common.utils import md5_file,sha1_file
+    from aiida.common.utils import md5_file, sha1_file
     import os
-    if os.path.isdir(os.path.join(base,path)):
-        folder = Folder(os.path.join(base,path))
+    if os.path.isdir(os.path.join(base, path)):
+        folder = Folder(os.path.join(base, path))
         files_now = []
         if path != '':
             if not path.endswith(os.sep):
-                path = "{}{}".format(path,os.sep)
+                path = "{}{}".format(path, os.sep)
             if path != '':
                 files_now.append({
                     'name': path,
                     'type': 'folder',
                 })
         for f in sorted(folder.get_content_list()):
-            files = _collect_files(base,path=os.path.join(path,f))
+            files = _collect_files(base, path=os.path.join(path, f))
             files_now.extend(files)
         return files_now
     else:
-        with open(os.path.join(base,path)) as f:
+        with open(os.path.join(base, path)) as f:
             return [{
                 'name': path,
                 'contents': f.read(),
-                'md5': md5_file(os.path.join(base,path)),
-                'sha1': sha1_file(os.path.join(base,path)),
+                'md5': md5_file(os.path.join(base, path)),
+                'sha1': sha1_file(os.path.join(base, path)),
                 'type': 'file',
-                }]
+            }]
 
 
 def extend_with_cmdline_parameters(parser, expclass="Data"):
@@ -527,7 +527,7 @@ def extend_with_cmdline_parameters(parser, expclass="Data"):
                              "Instead, the option is used in the case "
                              "the calculation produces more than a "
                              "single instance of "
-                             "ParameterData.".format(expclass,expclass))
+                             "ParameterData.".format(expclass, expclass))
     parser.add_argument('--dump-aiida-database', action='store_true',
                         default=None,
                         dest='dump_aiida_database',
@@ -567,7 +567,7 @@ def extend_with_cmdline_parameters(parser, expclass="Data"):
                              "Default {}.".format(default_options['gzip_threshold']))
 
 
-def _collect_tags(node, calc,parameters=None,
+def _collect_tags(node, calc, parameters=None,
                   dump_aiida_database=default_options['dump_aiida_database'],
                   exclude_external_contents=default_options['exclude_external_contents'],
                   gzip=default_options['gzip'],
@@ -576,8 +576,9 @@ def _collect_tags(node, calc,parameters=None,
     Retrieve metadata from attached calculation and pseudopotentials
     and prepare it to be saved in TCOD CIF.
     """
-    import os, json
-    tags = { '_audit_creation_method': "AiiDA version {}".format(__version__) }
+    import os
+    import json
+    tags = {'_audit_creation_method': "AiiDA version {}".format(__version__)}
 
     # Recording the dictionaries (if any)
 
@@ -608,11 +609,11 @@ def _collect_tags(node, calc,parameters=None,
     for step in calc_data:
         tags['_tcod_computation_step'].append(sn)
         tags['_tcod_computation_command'].append(
-            'cd {}; ./{}'.format(sn,aiida_executable_name))
+            'cd {}; ./{}'.format(sn, aiida_executable_name))
         tags['_tcod_computation_reference_uuid'].append(step['uuid'])
         if 'env' in step:
             tags['_tcod_computation_environment'].append(
-                "\n".join(["%s=%s" % (key,step['env'][key]) for key in step['env']]))
+                "\n".join(["%s=%s" % (key, step['env'][key]) for key in step['env']]))
         else:
             tags['_tcod_computation_environment'].append('')
         if 'stdout' in step and step['stdout'] is not None:
@@ -634,12 +635,12 @@ def _collect_tags(node, calc,parameters=None,
         else:
             tags['_tcod_computation_stderr'].append('')
 
-        export_files.append( {'name': "{}{}".format(sn, os.sep),
-                              'type': 'folder'} )
+        export_files.append({'name': "{}{}".format(sn, os.sep),
+                             'type': 'folder'})
 
         for f in step['files']:
             f['name'] = os.path.join(str(sn), f['name'])
-        export_files.extend( step['files'] )
+        export_files.extend(step['files'])
 
         sn = sn + 1
 
@@ -656,7 +657,7 @@ def _collect_tags(node, calc,parameters=None,
                 export_tree([node.dbnode], folder=folder, silent=True,
                             allowed_licenses=['CC0'])
             except LicensingException as e:
-                raise LicensingException(e.message + \
+                raise LicensingException(e.message +
                                          ". Only CC0 license is accepted.")
 
             files = _collect_files(folder.abspath)
@@ -667,11 +668,11 @@ def _collect_tags(node, calc,parameters=None,
                 for pk in data['node_attributes']:
                     n = data['node_attributes'][pk]
                     if 'md5' in n.keys() and 'source' in n.keys() and \
-                      'uri' in n['source'].keys():
+                            'uri' in n['source'].keys():
                         md5_to_url[n['md5']] = n['source']['uri']
 
             for f in files:
-                f['name'] = os.path.join('aiida',f['name'])
+                f['name'] = os.path.join('aiida', f['name'])
                 if f['type'] == 'file' and f['md5'] in md5_to_url.keys():
                     f['uri'] = md5_to_url[f['md5']]
 
@@ -708,7 +709,7 @@ def _collect_tags(node, calc,parameters=None,
         else:
             tags['_tcod_file_URI'].append('?')
             if f['type'] == 'file':
-                contents,encoding = \
+                contents, encoding = \
                     cif_encode_contents(f['contents'],
                                         gzip=gzip,
                                         gzip_threshold=gzip_threshold)
@@ -739,7 +740,7 @@ def _collect_tags(node, calc,parameters=None,
         layers = encoding.split('+')
         for i in range(0, len(layers)):
             tags['_tcod_content_encoding_id'].append(encoding)
-            tags['_tcod_content_encoding_layer_id'].append(i+1)
+            tags['_tcod_content_encoding_layer_id'].append(i + 1)
             tags['_tcod_content_encoding_layer_type'].append(layers[i])
 
     # Describing Brillouin zone (if used)
@@ -831,14 +832,14 @@ def add_metadata_inline(what, node=None, parameters=None, args=None):
     datablock_names = None
     if args:
         kwargs = args.get_dict()
-        additional_tags = kwargs.pop('additional_tags',{})
-        datablock_names = kwargs.pop('datablock_names',None)
+        additional_tags = kwargs.pop('additional_tags', {})
+        datablock_names = kwargs.pop('datablock_names', None)
 
     tags = _collect_tags(what, calc, parameters=parameters, **kwargs)
     loops.update(tcod_loops)
 
     for datablock in datablocks:
-        for k,v in dict(tags.items() + additional_tags.items()).iteritems():
+        for k, v in dict(tags.items() + additional_tags.items()).iteritems():
             if not k.startswith('_'):
                 raise ValueError("Tag '{}' does not seem to start with "
                                  "an underscode ('_'): all CIF tags must "
@@ -871,7 +872,7 @@ def export_values(what, **kwargs):
 
     .. note:: Requires PyCIFRW.
     """
-    cif = export_cifnode(what,**kwargs)
+    cif = export_cifnode(what, **kwargs)
     return cif.values
 
 
@@ -910,10 +911,10 @@ def export_cifnode(what, parameters=None, trajectory_index=None,
     """
     from aiida.common.exceptions import MultipleObjectsError
     from aiida.orm.calculation.inline import make_inline
-    CifData        = DataFactory('cif')
-    StructureData  = DataFactory('structure')
+    CifData = DataFactory('cif')
+    StructureData = DataFactory('structure')
     TrajectoryData = DataFactory('array.trajectory')
-    ParameterData  = DataFactory('parameter')
+    ParameterData = DataFactory('parameter')
 
     calc = _get_calculation(what)
 
@@ -940,12 +941,12 @@ def export_cifnode(what, parameters=None, trajectory_index=None,
     # Convert node to CifData (if required)
 
     if not isinstance(node, CifData) and getattr(node, '_get_cif'):
-        function_args = { 'store': store }
+        function_args = {'store': store}
         if trajectory_index is not None:
             function_args['index'] = trajectory_index
         node = node._get_cif(**function_args)
 
-    if not isinstance(node,CifData):
+    if not isinstance(node, CifData):
         raise NotImplementedError("Exporter does not know how to "
                                   "export {}".format(type(node)))
 
@@ -959,7 +960,7 @@ def export_cifnode(what, parameters=None, trajectory_index=None,
     # Addition of the metadata
 
     args = ParameterData(dict=kwargs)
-    function_args = { 'what': what, 'args': args, 'store': store }
+    function_args = {'what': what, 'args': args, 'store': store}
     if node != what:
         function_args['node'] = node
     if parameters is not None:
@@ -1011,7 +1012,7 @@ def deposit(what, type, author_name=None, author_email=None, url=None,
 
     if type == 'published':
         pass
-    elif type in ['prepublication','personal']:
+    elif type in ['prepublication', 'personal']:
         if not author_name:
             author_name = get_property('tcod.depositor_author_name')
             if not author_name:
@@ -1029,7 +1030,7 @@ def deposit(what, type, author_name=None, author_email=None, url=None,
 
     if replace:
         if str(int(replace)) != replace or int(replace) < 10000000 \
-            or int(replace) > 99999999:
+                or int(replace) > 99999999:
             raise ValueError("ID of the replaced structure ({}) does not "
                              "seem to be valid TCOD ID: must be in "
                              "range [10000000,99999999]".format(replace))
@@ -1098,7 +1099,7 @@ def deposition_cmdline_parameters(parser, expclass="Data"):
         options in order not to clash with any other data deposition plugins.
     """
     parser.add_argument('--type', '--deposition-type', type=str,
-                        choices=['published','prepublication','personal'],
+                        choices=['published', 'prepublication', 'personal'],
                         help="Type of the deposition.")
     parser.add_argument('-u', '--username', type=str, default=None,
                         dest='username',
@@ -1188,9 +1189,9 @@ def translate_calculation_specific_values(calc, translator, **kwargs):
         '_dft_pseudopotential_type': 'get_pseudopotential_type',
         '_dft_pseudopotential_type_other_name': 'get_pseudopotential_type_other_name',
 
-        ## Residual forces are no longer produced, as they should
-        ## be in the same CIF loop with coordinates -- to be
-        ## implemented later, since it's not yet clear how.
+        # Residual forces are no longer produced, as they should
+        # be in the same CIF loop with coordinates -- to be
+        # implemented later, since it's not yet clear how.
         # '_tcod_atom_site_resid_force_Cartn_x': 'get_atom_site_residual_force_Cartesian_x',
         # '_tcod_atom_site_resid_force_Cartn_y': 'get_atom_site_residual_force_Cartesian_y',
         # '_tcod_atom_site_resid_force_Cartn_z': 'get_atom_site_residual_force_Cartesian_z',
@@ -1203,8 +1204,8 @@ def translate_calculation_specific_values(calc, translator, **kwargs):
         except NotImplementedError as e:
             pass
         if value is not None:
-            if isinstance(value,list):
-                for i in range(0,len(value)):
+            if isinstance(value, list):
+                for i in range(0, len(value)):
                     if value[i] is None:
                         value[i] = '?'
             tags[tag] = value

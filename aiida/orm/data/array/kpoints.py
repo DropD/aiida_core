@@ -141,7 +141,7 @@ class KpointsData(ArrayData):
         """
         # return copy.deepcopy(self._pbc)
         return (
-        self.get_attr('pbc1'), self.get_attr('pbc2'), self.get_attr('pbc3'))
+            self.get_attr('pbc1'), self.get_attr('pbc2'), self.get_attr('pbc3'))
 
     @pbc.setter
     def pbc(self, value):
@@ -519,7 +519,7 @@ class KpointsData(ArrayData):
             if len(fill_values) < 3 - the_kpoints.shape[1]:
                 raise ValueError("fill_values should be either a scalar or a "
                                  "length-{} list".format(
-                    3 - the_kpoints.shape[1]))
+                                     3 - the_kpoints.shape[1]))
             else:
                 tmp_kpoints = numpy.zeros((the_kpoints.shape[0], 0))
                 i_kpts = 0
@@ -537,7 +537,7 @@ class KpointsData(ArrayData):
                         i_kpts += 1
                     else:
                         tmp_kpoints = numpy.hstack(
-                            (tmp_kpoints,numpy.ones(
+                            (tmp_kpoints, numpy.ones(
                                 (the_kpoints.shape[0], 1)
                             ) * fill_values[i_fill]))
                         i_fill += 1
@@ -1074,8 +1074,8 @@ class KpointsData(ArrayData):
                 # body centered orthorhombic #
                 # ============================#
                 elif (any([a_are_equals(cosa, bco1), a_are_equals(cosb, bco1), a_are_equals(cosc, bco1)]) and
-                          any([a_are_equals(cosa, bco2), a_are_equals(cosb, bco2), a_are_equals(cosc, bco2)]) and
-                          any([a_are_equals(cosa, bco3), a_are_equals(cosb, bco3), a_are_equals(cosc, bco3)])
+                      any([a_are_equals(cosa, bco2), a_are_equals(cosb, bco2), a_are_equals(cosc, bco2)]) and
+                      any([a_are_equals(cosa, bco3), a_are_equals(cosb, bco3), a_are_equals(cosc, bco3)])
                       ):
                     bravais_info = {"short_name": "orci",
                                     "extended_name": "body centered orthorhombic",
@@ -1108,8 +1108,6 @@ class KpointsData(ArrayData):
                                     }
                     # the check for triclinic variations is at the end of the method
 
-
-
             elif comparison_length.count(True) == 1:
                 # ============#
                 # tetragonal #
@@ -1130,7 +1128,7 @@ class KpointsData(ArrayData):
                 # ====================================#
                 # alpha/=beta=gamma=pi/2
                 elif (comparison_angles.count(True) == 1 and
-                          any([a_are_equals(cosa, _90), a_are_equals(cosb, _90), a_are_equals(cosc, _90)])
+                      any([a_are_equals(cosa, _90), a_are_equals(cosb, _90), a_are_equals(cosc, _90)])
                       ):
                     if any([a_are_equals(cosa, _120), a_are_equals(cosb, _120), a_are_equals(cosc, _120)]):
                         bravais_info = {"short_name": "hex",
@@ -1252,7 +1250,7 @@ class KpointsData(ArrayData):
                             mu = eta / 2. + the_b ** 2 / 4. / the_a ** 2 - the_b * the_c * the_cosa / 2. / the_a ** 2
                             nu = 2. * mu - csi
                             omg = (4. * nu - 1. - the_b ** 2 * (1. - the_cosa ** 2) / the_a ** 2) * the_c / (
-                            2. * the_b * the_cosa)
+                                2. * the_b * the_cosa)
                             dlt = csi * the_c * the_cosa / the_b + omg / 2. - 0.25
                             rho = 1. - csi * the_a ** 2 / the_b ** 2
                             bravais_info['extra'] = {'mu': mu,
@@ -1269,8 +1267,6 @@ class KpointsData(ArrayData):
                                     "index": 14,
                                     }
                     # the check for triclinic variations is at the end of the method
-
-
 
             else:  # if comparison_length.count(True)==0:
 
@@ -1304,7 +1300,7 @@ class KpointsData(ArrayData):
                 # monoclinic #
                 # ============#
                 elif (comparison_angles.count(True) == 1 and
-                          any([a_are_equals(cosa, _90), a_are_equals(cosb, _90), a_are_equals(cosc, _90)])):
+                      any([a_are_equals(cosa, _90), a_are_equals(cosb, _90), a_are_equals(cosc, _90)])):
                     bravais_info = {"short_name": "mcl",
                                     "extended_name": "monoclinic",
                                     "index": 12,
@@ -1347,8 +1343,8 @@ class KpointsData(ArrayData):
                 # face centered orthorhombic #
                 # ============================#
                 elif (any([a_are_equals(cosa, fco1), a_are_equals(cosb, fco1), a_are_equals(cosc, fco1)]) and
-                          any([a_are_equals(cosa, fco2), a_are_equals(cosb, fco2), a_are_equals(cosc, fco2)]) and
-                          any([a_are_equals(cosa, fco3), a_are_equals(cosb, fco3), a_are_equals(cosc, fco3)])
+                      any([a_are_equals(cosa, fco2), a_are_equals(cosb, fco2), a_are_equals(cosc, fco2)]) and
+                      any([a_are_equals(cosa, fco3), a_are_equals(cosb, fco3), a_are_equals(cosc, fco3)])
                       ):
                     bravais_info = {"short_name": "orcf",
                                     "extended_name": "face centered orthorhombic",
@@ -1550,8 +1546,8 @@ class KpointsData(ArrayData):
             # centered rectangular #
             # ======================#
             elif (comparison_length and
-                      l_are_equals(numpy.dot(vectors[0] + vectors[1],
-                                             vectors[0] - vectors[1]), 0.)):
+                  l_are_equals(numpy.dot(vectors[0] + vectors[1],
+                                         vectors[0] - vectors[1]), 0.)):
                 bravais_info = {"short_name": "recc",
                                 "extended_name": "centered rectangular",
                                 "index": 3,
@@ -2412,4 +2408,3 @@ class KpointsData(ArrayData):
             return the_abs_special_points, path
         else:
             return the_special_points, path
-

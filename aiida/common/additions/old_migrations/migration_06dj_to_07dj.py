@@ -105,7 +105,7 @@ priority=1000
         log_dir = os.path.join(aiida_directory, setup.LOG_SUBDIR)
         # Update the daemon directory
         setup.install_daemon_files(aiida_directory, daemon_dir, log_dir,
-                             getpass.getuser(),
+                                   getpass.getuser(),
                                    daemon_conf=self.curr_daemon_conf)
 
 if __name__ == '__main__':

@@ -832,7 +832,7 @@ class StructureData(Data):
             if counts[c] != 1:
                 raise ValidationError("Kind with name '{}' appears {} times "
                                       "instead of only one".format(
-                    c, counts[c]))
+                                          c, counts[c]))
 
         try:
             # This will try to create the sites objects
@@ -852,7 +852,7 @@ class StructureData(Data):
         if kinds_without_sites:
             raise ValidationError("The following kinds are defined, but there "
                                   "are no sites with that kind: {}".format(
-                list(kinds_without_sites)))
+                                      list(kinds_without_sites)))
 
     def _prepare_xsf(self):
         """
@@ -1057,7 +1057,7 @@ class StructureData(Data):
             symbol: symbols_list.count(symbol)
             for symbol
             in set(symbols_list)
-            }
+        }
         return composition
 
     def get_ase(self):
@@ -1269,7 +1269,7 @@ class StructureData(Data):
                                      "of the kind to '{}', that already "
                                      "exists, but the two kinds are different!"
                                      " (first difference: {})".format(
-                        kind.name, firstdiff))
+                                         kind.name, firstdiff))
 
         site = Site(kind_name=kind.name, position=position)
         self.append_site(site)
@@ -1538,7 +1538,7 @@ class StructureData(Data):
         """
         # return copy.deepcopy(self._pbc)
         return (
-        self.get_attr('pbc1'), self.get_attr('pbc2'), self.get_attr('pbc3'))
+            self.get_attr('pbc1'), self.get_attr('pbc2'), self.get_attr('pbc3'))
 
     @pbc.setter
     def pbc(self, value):
@@ -1789,7 +1789,7 @@ class Kind(object):
         # It will be remain to None in general; it is used to further
         # identify this species. At the moment, it is used only when importing
         # from ASE, if the species had a tag (different from zero).
-        ## NOTE! This is not persisted on DB but only used while the class
+        # NOTE! This is not persisted on DB but only used while the class
         # is loaded in memory (i.e., it is not output with the get_raw() method)
         self._internal_tag = None
 
@@ -1995,14 +1995,14 @@ class Kind(object):
             if self.symbols[i] != other_kind.symbols[i]:
                 return (False, "Symbol at position {:d} are different "
                                "({} vs. {})".format(
-                    i + 1, self.symbols[i], other_kind.symbols[i]))
+                                   i + 1, self.symbols[i], other_kind.symbols[i]))
         # Check weights (assuming length of weights and of symbols have same
         # length, which should be always true
         for i in range(len(self.weights)):
             if self.weights[i] != other_kind.weights[i]:
                 return (False, "Weight at position {:d} are different "
                                "({} vs. {})".format(
-                    i + 1, self.weights[i], other_kind.weights[i]))
+                                   i + 1, self.weights[i], other_kind.weights[i]))
         # Check masses
         if abs(self.mass - other_kind.mass) > _mass_threshold:
             return (False, "Masses are different ({} vs. {})"
@@ -2584,7 +2584,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
                  ]
                 for match
                 in cell_vector_regex.finditer(match.group('cell'))
-                ]
+            ]
         )
 
         # Now, we do the convert the cell to the right units (we want angstrom):
@@ -2925,7 +2925,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
                     float(
                         atom_match.group(c).replace('D', 'e').replace('d', 'e'))
                     for c in ('x', 'y', 'z')
-                    ]
+                ]
             )
         except Exception as e:
             raise InputValidationError(

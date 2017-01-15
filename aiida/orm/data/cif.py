@@ -353,7 +353,7 @@ class CifData(SinglefileData):
         """
         from ase.io import read
 
-        #the read function returns a list as a cif file might contain multiple
+        # the read function returns a list as a cif file might contain multiple
         # structures
         struct_list = read(fileobj, index=':', format='cif', **kwargs)
 
@@ -506,8 +506,8 @@ class CifData(SinglefileData):
         super(CifData, self).set_file(filename)
         md5sum = self.generate_md5()
         if isinstance(self.source, dict) and \
-                        self.source.get('source_md5', None) is not None and \
-                        self.source['source_md5'] != md5sum:
+                self.source.get('source_md5', None) is not None and \
+                self.source['source_md5'] != md5sum:
             self.source = {}
         self._set_attr('md5', md5sum)
         self._values = None

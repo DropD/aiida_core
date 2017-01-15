@@ -16,6 +16,7 @@ __version__ = "0.7.1"
 
 
 class StackTester(Process):
+
     @override
     def _run(self):
         assert ProcessStack.get_active_process_id() == self.pid
@@ -49,6 +50,7 @@ class TestProcessRegistry(AiidaTestCase):
     These these check that the registry is giving out the right pid which when
     using storage is equal to the node pk.
     """
+
     def setUp(self):
         super(TestProcessRegistry, self).setUp()
         self.assertEquals(len(ProcessStack.stack()), 0)
@@ -66,8 +68,3 @@ class TestProcessRegistry(AiidaTestCase):
 
         self.assertEqual(out['pid'], future.pid)
         self.assertEqual(out['node_pk'], future.pid)
-
-
-
-
-

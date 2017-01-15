@@ -10,6 +10,7 @@ __version__ = "0.7.1"
 
 from aiida.restapi.translator.node import NodeTranslator
 
+
 class DataTranslator(NodeTranslator):
     """
     It prepares the query_help from user inputs which later will be

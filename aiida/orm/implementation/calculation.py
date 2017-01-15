@@ -28,5 +28,4 @@ elif BACKEND == BACKEND_DJANGO:
 
 else:
     raise ConfigurationError("Invalid settings.BACKEND: {}".format(
-                BACKEND))
-
+        BACKEND))

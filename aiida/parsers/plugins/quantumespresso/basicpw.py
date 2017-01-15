@@ -49,7 +49,7 @@ class BasicpwParser(Parser):
 
         # check if I'm not to overwrite anything
         #state = self._calc.get_state()
-        #if state != calc_states.PARSING:
+        # if state != calc_states.PARSING:
         #    raise InvalidOperation("Calculation not in {} state"
         #                           .format(calc_states.PARSING) )
 
@@ -63,16 +63,15 @@ class BasicpwParser(Parser):
             parser_opts = {}
 
         # load the input dictionary
-        # TODO: pass this input_dict to the parser. It might need it.            
+        # TODO: pass this input_dict to the parser. It might need it.
         input_dict = self._calc.inp.parameters.get_dict()
 
-        # Check that the retrieved folder is there 
+        # Check that the retrieved folder is there
         try:
             out_folder = retrieved[self._calc._get_linkname_retrieved()]
         except KeyError:
             self.logger.error("No retrieved folder found")
             return False, ()
-
 
         # check what is inside the folder
         list_of_files = out_folder.get_folder_list()
@@ -167,7 +166,7 @@ class BasicpwParser(Parser):
 
                 symbols = numpy.array([str(i.kind_name) for i in in_struc.sites])
                 stepids = numpy.arange(len(positions))  # a growing integer per step
-                # I will insert time parsing when they fix their issues about time 
+                # I will insert time parsing when they fix their issues about time
                 # printing (logic is broken if restart is on)
 
                 traj = TrajectoryData()
@@ -175,7 +174,7 @@ class BasicpwParser(Parser):
                                     cells=cells,
                                     symbols=symbols,
                                     positions=positions,
-                )
+                                    )
                 for x in trajectory_data.iteritems():
                     traj.set_array(x[0], numpy.array(x[1]))
                 # return it to the execmanager

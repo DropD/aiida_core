@@ -20,7 +20,7 @@ def set_global_setting(key, value, description=None):
     # Before storing, validate the key
     DbSetting.validate_key(key)
 
-    # This also saves in the DB    
+    # This also saves in the DB
     DbSetting.set_value(key, value,
                         other_attribs={"description": description})
 
@@ -29,7 +29,7 @@ def del_global_setting(key):
     """
     Return the value of the given setting, or raise a KeyError if the
     setting is not present in the DB.
-    
+
     :raise KeyError: if the setting does not exist in the DB
     """
     from aiida.backends.djsite.db.models import DbSetting
@@ -48,7 +48,7 @@ def get_global_setting(key):
     """
     Return the value of the given setting, or raise a KeyError if the
     setting is not present in the DB.
-    
+
     :raise KeyError: if the setting does not exist in the DB
     """
     from aiida.backends.djsite.db.models import DbSetting

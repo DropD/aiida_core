@@ -1,6 +1,7 @@
 from aiida.common.exceptions import InternalError
 from abc import ABCMeta, abstractmethod
 
+
 class AiidaTestImplementation(object):
     """
     For each implementation, define what to do at setUp and tearDown.
@@ -76,4 +77,3 @@ class AiidaTestImplementation(object):
             return self.user_email
         except AttributeError:
             raise InternalError("The AiiDA Test implementation should define a self.computer in the setUpClass_method")
-

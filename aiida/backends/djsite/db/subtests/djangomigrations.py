@@ -10,6 +10,7 @@ __authors__ = "The AiiDA team."
 class CalcStateChanges(AiidaTestCase):
     # Class to check if the migration code that deals with removing the
     # NOTFOUND and UNDETERMINED calc states works properly
+
     def test_unexpected_calc_states(self):
         import logging
 
@@ -44,7 +45,7 @@ class CalcStateChanges(AiidaTestCase):
             # Temporarily disable logging to the stream handler (i.e. screen)
             # because otherwise fix_calc_states will print warnings
             handler = next((h for h in logging.getLogger('aiida').handlers if
-                           isinstance(h, logging.StreamHandler)), None)
+                            isinstance(h, logging.StreamHandler)), None)
             if handler:
                 handler.setLevel(logging.ERROR)
 

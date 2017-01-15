@@ -97,6 +97,7 @@ class Wf(WorkChain):
 
 
 class TestContext(AiidaTestCase):
+
     def test_attributes(self):
         c = WorkChain.Context()
         c.new_attr = 5
@@ -117,6 +118,7 @@ class TestContext(AiidaTestCase):
 
 
 class TestWorkchain(AiidaTestCase):
+
     def setUp(self):
         super(TestWorkchain, self).setUp()
         self.assertEquals(len(util.ProcessStack.stack()), 0)
@@ -159,6 +161,7 @@ class TestWorkchain(AiidaTestCase):
 
     def test_incorrect_outline(self):
         class Wf(WorkChain):
+
             @classmethod
             def define(cls, spec):
                 super(Wf, cls).define(spec)
@@ -181,6 +184,7 @@ class TestWorkchain(AiidaTestCase):
             return B
 
         class Wf(WorkChain):
+
             @classmethod
             def define(cls, spec):
                 super(Wf, cls).define(spec)

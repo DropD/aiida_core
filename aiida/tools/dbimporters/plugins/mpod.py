@@ -19,7 +19,7 @@ class MpodDbImporter(DbImporter):
         Returns part of HTTP GET query for querying string fields.
         """
         if not isinstance(values, basestring) and not isinstance(values, int):
-            raise ValueError("incorrect value for keyword '" + alias + \
+            raise ValueError("incorrect value for keyword '" + alias +
                              "' -- only strings and integers are accepted")
         return "{}={}".format(key, values)
 
@@ -106,9 +106,9 @@ class MpodDbImporter(DbImporter):
             self._query_url = query_url
 
         if kwargs.keys():
-            raise NotImplementedError( \
-                "unknown database connection parameter(s): '" + \
-                "', '".join(kwargs.keys()) + \
+            raise NotImplementedError(
+                "unknown database connection parameter(s): '" +
+                "', '".join(kwargs.keys()) +
                 "', available parameters: 'query_url'")
 
     def get_supported_keywords(self):

@@ -16,6 +16,7 @@ class TestDataNodeDjango(AiidaTestCase):
     """
     These tests check the features of Data nodes that differ from the base Node
     """
+
     def test_links_and_queries(self):
         from aiida.backends.djsite.db.models import DbNode, DbLink
 
@@ -90,6 +91,7 @@ class TestDataNodeDjango(AiidaTestCase):
 
 
 class TestTransitiveClosureDeletionDjango(AiidaTestCase):
+
     def test_creation_and_deletion(self):
         from aiida.backends.djsite.db.models import DbLink  # Direct links
         from aiida.backends.djsite.db.models import DbPath  # The transitive closure table
@@ -135,7 +137,7 @@ class TestTransitiveClosureDeletionDjango(AiidaTestCase):
         self.assertEquals(
             len(DbPath.objects.filter(parent=n1, child=n8).distinct()), 4)
 
-        ### I start deleting now
+        # I start deleting now
 
         # I cut one branch below: I should loose 2 links
         DbLink.objects.filter(input=n6, output=n9).delete()
@@ -176,7 +178,9 @@ class TestTransitiveClosureDeletionDjango(AiidaTestCase):
         self.assertEquals(
             len(DbPath.objects.filter(parent=n1, child=n8).distinct()), 1)
 
+
 class TestNodeBasicDjango(AiidaTestCase):
+
     def test_replace_extras_2(self):
         """
         This is a Django specific test which checks (manually) that,
@@ -296,5 +300,3 @@ class TestNodeBasicDjango(AiidaTestCase):
             load_node(uuid=a.pk)
         with self.assertRaises(ValueError):
             load_node()
-
-

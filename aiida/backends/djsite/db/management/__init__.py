@@ -713,7 +713,7 @@ def install_tc(sender, **kwargs):
 
         # Note: there are some problems with the new version of the triggers
         # This problem is not shown when the tests db.nodes are run
-        # However, the execution of the test on the database (copy/paste in 
+        # However, the execution of the test on the database (copy/paste in
         # the shell) does not work. The old version does not show this problem.
         # I comment the new one until it's fixed.
 
@@ -780,8 +780,8 @@ def install_tc(sender, **kwargs):
     else:
         print '== No transitive closure installed =='
 
-## dispatch_uid used to avoid to install twice the signal if this
-## module is loaded twice (it happens e.g. when tests are run)
+# dispatch_uid used to avoid to install twice the signal if this
+# module is loaded twice (it happens e.g. when tests are run)
 from django.db.models.signals import post_migrate
 from django.apps import apps
 

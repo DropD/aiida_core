@@ -93,7 +93,7 @@ class DbTestCase(unittest.TestCase):
 
         # DbNode.objects.all().delete()
 
-        ## I do not delete it, see discussion in setUpClass
+        # I do not delete it, see discussion in setUpClass
         # try:
         #    DbUser.objects.get(email=get_configured_user_email()).delete()
         # except ObjectDoesNotExist:

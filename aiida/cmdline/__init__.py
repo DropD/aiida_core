@@ -117,7 +117,7 @@ def print_dictionary(dictionary, format):
     except KeyError:
         print >> sys.stderr, ("Unrecognised printing format. Valid formats "
                               "are: {}".format(
-            ",".join(valid_formats_table.keys())))
+                                  ",".join(valid_formats_table.keys())))
         sys.exit(1)
 
     actual_printing_function(dictionary)

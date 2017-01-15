@@ -276,9 +276,9 @@ class Help(VerdiCommand):
             print get_listparams()
             print ""
             print (
-            "Before each command you can specify the AiiDA profile to use,"
-            " with 'verdi -p <profile> <command>' or "
-            "'verdi --profile=<profile> <command>'")
+                "Before each command you can specify the AiiDA profile to use,"
+                " with 'verdi -p <profile> <command>' or "
+                "'verdi --profile=<profile> <command>'")
             print ""
             print ("Use '{} help <command>' for more information "
                    "on a specific command.".format(execname))
@@ -337,6 +337,7 @@ class Setup(VerdiCommand):
     the repository location, does a setup of the daemon and runs
     a migrate command to create/setup the database.
     """
+
     def run(self, *args):
         ctx = _setup_cmd.make_context('setup', list(args))
         with ctx:
@@ -411,23 +412,23 @@ def setup(profile, only_config, non_interactive=False, **kwargs):
 
     # ~ only_user_config = False
     # ~ try:
-        # ~ cmdline_args.remove('--only-config')
-        # ~ only_user_config = True
+    # ~ cmdline_args.remove('--only-config')
+    # ~ only_user_config = True
     # ~ except ValueError:
-        # ~ # Parameter not provided
-        # ~ pass
+    # ~ # Parameter not provided
+    # ~ pass
     only_user_config = only_config
 
     # ~ if cmdline_args:
-        # ~ print >> sys.stderr, "Unknown parameters on the command line: "
-        # ~ print >> sys.stderr, ", ".join(cmdline_args)
-        # ~ sys.exit(1)
+    # ~ print >> sys.stderr, "Unknown parameters on the command line: "
+    # ~ print >> sys.stderr, ", ".join(cmdline_args)
+    # ~ sys.exit(1)
 
     # create the directories to store the configuration files
     create_base_dirs()
     # gprofile = 'default' if profile is None else profile
     # ~ gprofile = profile if settings_profile.AIIDADB_PROFILE is None \
-        # ~ else settings_profile.AIIDADB_PROFILE
+    # ~ else settings_profile.AIIDADB_PROFILE
     if settings_profile.AIIDADB_PROFILE and profile:
         sys.exit('the profile argument cannot be used if verdi is called with -p option: {} and {}'.format(settings_profile.AIIDADB_PROFILE, profile))
     gprofile = settings_profile.AIIDADB_PROFILE or profile
@@ -474,7 +475,7 @@ def setup(profile, only_config, non_interactive=False, **kwargs):
 
     if only_user_config:
         print ("Only user configuration requested, "
-                "skipping the migrate command")
+               "skipping the migrate command")
     else:
         print "Executing now a migrate command..."
 
@@ -500,7 +501,7 @@ def setup(profile, only_config, non_interactive=False, **kwargs):
 
             try:
                 pass_to_django_manage([execname, 'migrate'],
-                                        profile=gprofile)
+                                      profile=gprofile)
             finally:
                 os.umask(old_umask)
 
@@ -514,7 +515,7 @@ def setup(profile, only_config, non_interactive=False, **kwargs):
 
             from aiida.backends.sqlalchemy.models.base import Base
             from aiida.backends.sqlalchemy.utils import (get_engine,
-                                                            install_tc)
+                                                         install_tc)
             from aiida.common.setup import get_profile_config
 
             # This check should be done more properly
@@ -594,8 +595,8 @@ def setup(profile, only_config, non_interactive=False, **kwargs):
             # or don't ask
             User().user_configure(
                 kwargs['email'],
-                '--first-name='+kwargs.get('first_name'),
-                '--last-name='+kwargs.get('last_name'),
+                '--first-name=' + kwargs.get('first_name'),
+                '--last-name=' + kwargs.get('last_name'),
                 '--institution=' + kwargs.get('institution'),
                 '--no-password'
             )
@@ -611,7 +612,7 @@ class Quicksetup(VerdiCommand):
     Creates a 'aiidadb_qs_<username>' database (prompts to use or change the name if already exists).
     Makes sure not to overwrite existing databases or profiles without prompting for confirmation.
     '''
-    from  aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
+    from aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
 
     _create_user_command = 'CREATE USER "{}" WITH PASSWORD \'{}\''
     _create_db_command = 'CREATE DATABASE "{}" OWNER "{}"'
@@ -701,7 +702,7 @@ class Quicksetup(VerdiCommand):
     @click.option('--first-name', prompt='First Name', type=str)
     @click.option('--last-name', prompt='Last Name', type=str)
     @click.option('--institution', prompt='Institution', type=str)
-    @click.option('--backend', type=click.Choice([BACKEND_DJANGO,BACKEND_SQLA]), default=BACKEND_SQLA)
+    @click.option('--backend', type=click.Choice([BACKEND_DJANGO, BACKEND_SQLA]), default=BACKEND_SQLA)
     @click.option('--db-user', type=str)
     @click.option('--db-user-pw', type=str)
     @click.option('--db-name', type=str)
@@ -956,7 +957,7 @@ class Run(VerdiCommand):
     """
 
     def run(self, *args):
-        from aiida.backends.utils import load_dbenv,is_dbenv_loaded
+        from aiida.backends.utils import load_dbenv, is_dbenv_loaded
 
         if not is_dbenv_loaded():
             load_dbenv()
@@ -1008,8 +1009,8 @@ class Run(VerdiCommand):
             '__doc__': None,
             '__package__': None}
 
-        ## dynamically load modules (the same of verdi shell) - but in
-        ## globals_dict, not in the current environment
+        # dynamically load modules (the same of verdi shell) - but in
+        # globals_dict, not in the current environment
         for app_mod, model_name, alias in default_modules_list:
             globals_dict["{}".format(alias)] = getattr(
                 __import__(app_mod, {}, {}, model_name), model_name)
@@ -1031,8 +1032,8 @@ class Run(VerdiCommand):
             aiida_verdilib_autogroup.set_include_with_subclasses(
                 parsed_args.includesubclasses)
             aiida_verdilib_autogroup.set_group_name(automatic_group_name)
-            ## Note: this is also set in the exec environment!
-            ## This is the intended behavior
+            # Note: this is also set in the exec environment!
+            # This is the intended behavior
             aiida.orm.autogroup.current_autogroup = aiida_verdilib_autogroup
 
         try:
@@ -1052,11 +1053,11 @@ class Run(VerdiCommand):
                     exec (f, globals_dict)
                     # print sys.argv
             except SystemExit as e:
-                ## Script called sys.exit()
+                # Script called sys.exit()
                 # print sys.argv, "(sys.exit {})".format(e.message)
 
-                ## Note: remember to re-raise, the exception to have
-                ## the error code properly returned at the end!
+                # Note: remember to re-raise, the exception to have
+                # the error code properly returned at the end!
                 raise
             finally:
                 f.close()
@@ -1112,10 +1113,10 @@ def exec_from_cmdline(argv):
     """
     The main function to be called. Pass as parameter the sys.argv.
     """
-    ### This piece of code takes care of creating a list of valid
-    ### commands and of their docstrings for dynamic management of
-    ### the code.
-    ### It defines a few global variables
+    # This piece of code takes care of creating a list of valid
+    # commands and of their docstrings for dynamic management of
+    # the code.
+    # It defines a few global variables
 
     global execname
     global list_commands
@@ -1189,7 +1190,7 @@ def exec_from_cmdline(argv):
         else:
             print >> sys.stderr, ("{}: '{}' is not a valid command. "
                                   "See '{} help' for more help.".format(
-                execname, command, execname))
+                                      execname, command, execname))
             get_command_suggestion(command)
             sys.exit(1)
     except ProfileConfigurationError as e:
@@ -1197,10 +1198,11 @@ def exec_from_cmdline(argv):
         print >> sys.stderr, e.message
         sys.exit(1)
 
+
 def run():
     try:
         aiida.cmdline.verdilib.exec_from_cmdline(sys.argv)
     except KeyboardInterrupt:
-        pass # print "CTRL+C caught, exiting from verdi..."
+        pass  # print "CTRL+C caught, exiting from verdi..."
     except EOFError:
-        pass # print "CTRL+D caught, exiting from verdi..."
+        pass  # print "CTRL+D caught, exiting from verdi..."

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 ###
-### GP: a note on the local transport:
-### I believe that we must not use os.chdir to keep track of the folder
-### in which we are, since this may have very nasty side effects in other
-### parts of code, and make things not thread-safe.
-### we should instead keep track internally of the 'current working directory'
-### in the exact same way as paramiko does already.
+# GP: a note on the local transport:
+# I believe that we must not use os.chdir to keep track of the folder
+# in which we are, since this may have very nasty side effects in other
+# parts of code, and make things not thread-safe.
+# we should instead keep track internally of the 'current working directory'
+# in the exact same way as paramiko does already.
 
-import os, shutil, subprocess
+import os
+import shutil
+import subprocess
 import aiida.transport
 from aiida.transport import FileAttribute
 import StringIO
@@ -128,7 +130,8 @@ class LocalTransport(aiida.transport.Transport):
             newpath, tail = os.path.split(path)
             if newpath == path:
                 assert not tail
-                if path: parts.append(path)
+                if path:
+                    parts.append(path)
                 break
             parts.append(tail)
             path = newpath
@@ -362,7 +365,7 @@ class LocalTransport(aiida.transport.Transport):
     def rmtree(self, path):
         """
         Remove tree as rm -r would do
-        
+
         :param (str) path: a string to path
         """
         the_path = os.path.join(self.curdir, path)
@@ -606,7 +609,7 @@ class LocalTransport(aiida.transport.Transport):
         :param (str) source: path to local file
         :param (str) destination: path to remote file
         :param (bool) dereference: follow symbolic links. Default = False
-        
+
         :raise ValueError: if 'remote' source or destination is not valid
         :raise OSError: if source does not exist
         """
@@ -704,7 +707,7 @@ class LocalTransport(aiida.transport.Transport):
         Otherwise, to end the process, use the proc.wait() method.
 
         :param (str) command: the command to execute
-        
+
         :return: a tuple with (stdin, stdout, stderr, proc),
             where stdin, stdout and stderr behave as file-like objects,
             proc is the process object as returned by the
@@ -718,7 +721,7 @@ class LocalTransport(aiida.transport.Transport):
     def exec_command_wait(self, command, stdin=None):
         """
         Executes the specified command and waits for it to finish.
-        
+
         :param command: the command to execute
 
         :return: a tuple with (return_value, stdout, stderr) where stdout and 
@@ -771,7 +774,7 @@ class LocalTransport(aiida.transport.Transport):
     def rename(self, src, dst):
         """
         Rename a file or folder from oldpath to newpath.
-        
+
         :param str oldpath: existing name of the file or folder
         :param str newpath: new name for the file or folder
 
@@ -793,7 +796,7 @@ class LocalTransport(aiida.transport.Transport):
         """
         Create a symbolic link between the remote source and the remote 
         destination
-        
+
         :param (str) remotesource: remote source. Can contain a pattern.
         :param (str) remotedestination: remote destination
         """

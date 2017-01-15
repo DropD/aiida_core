@@ -82,6 +82,7 @@ class BaseType(Data):
 
 
 class NumericType(BaseType):
+
     def __add__(self, other):
         if isinstance(other, NumericType):
             return self.new(self.value + other.value)
@@ -289,6 +290,7 @@ class List(Data, collections.MutableSequence):
         """
         return self._to_be_stored
 
+
 def get_true_node():
     """
     Return a Bool Data node, with value True
@@ -300,6 +302,7 @@ def get_true_node():
     """
     TRUE = Bool(typevalue=(bool, True))
     return TRUE
+
 
 def get_false_node():
     """

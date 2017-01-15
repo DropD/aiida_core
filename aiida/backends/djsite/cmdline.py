@@ -30,10 +30,10 @@ def get_group_list(user, type_string, n_days_ago=None,
                          **name_filters)
 
     return tuple([
-                     (str(g.pk), g.name, len(g.nodes), g.user.email.strip(),
-                      g.description)
-                     for g in groups
-                     ])
+        (str(g.pk), g.name, len(g.nodes), g.user.email.strip(),
+         g.description)
+        for g in groups
+    ])
 
 
 def get_workflow_list(pk_list=tuple(), user=None, all_states=False,

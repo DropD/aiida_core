@@ -8,7 +8,6 @@ class QueryManagerDjango(AbstractQueryManager):
             only_computer_user_pairs=False,
             only_enabled=True, limit=None):
         # Here I am overriding the implementation using the QueryBuilder:
-
         """
         Filter all calculations with a given state.
 
@@ -34,7 +33,7 @@ class QueryManagerDjango(AbstractQueryManager):
         """
         # I assume that calc_states are strings. If this changes in the future,
         # update the filter below from dbattributes__tval to the correct field.
-        from aiida.orm import Computer,User
+        from aiida.orm import Computer, User
         from aiida.common.exceptions import InputValidationError
         from aiida.orm.implementation.django.calculation.job import JobCalculation
         from aiida.common.datastructures import calc_states
@@ -42,9 +41,7 @@ class QueryManagerDjango(AbstractQueryManager):
 
         if state not in calc_states:
             raise InputValidationError("querying for calculation state='{}', but it "
-                                "is not a valid calculation state".format(state))
-
-
+                                       "is not a valid calculation state".format(state))
 
         kwargs = {}
         if computer is not None:
@@ -57,7 +54,6 @@ class QueryManagerDjango(AbstractQueryManager):
         if only_enabled:
             kwargs['dbcomputer__enabled'] = True
 
-
         queryresults = JobCalculation.query(
             dbattributes__key='state',
             dbattributes__tval=state,
@@ -67,7 +63,7 @@ class QueryManagerDjango(AbstractQueryManager):
             computer_users_ids = queryresults.values_list(
                 'dbcomputer__id', 'user__id').distinct()
             computer_users = []
-            for computer_id,  user_id in computer_users_ids: #return cls(dbcomputer=DbComputer.get_dbcomputer(computer))DbNode.objects.get(pk=pk).get_aiida_class()
+            for computer_id, user_id in computer_users_ids:  # return cls(dbcomputer=DbComputer.get_dbcomputer(computer))DbNode.objects.get(pk=pk).get_aiida_class()
                 computer_users.append((Computer.get(computer_id), DbUser.objects.get(pk=user_id).get_aiida_class()))
             return computer_users
 

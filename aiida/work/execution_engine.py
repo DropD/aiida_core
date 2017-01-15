@@ -10,5 +10,3 @@ __authors__ = "The AiiDA team."
 
 class ExecutionEngine(plum.engine.parallel.MultithreadedEngine):
     pass
-
-

@@ -18,13 +18,15 @@ from aiida.restapi.common.flaskrun import flaskrun
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
-## Initiate an app with its api
+# Initiate an app with its api
 app = Flask(__name__)
 api = Api(app, prefix=conf.PREFIX)
 cors = CORS(app, resources={r"/api/v2/*": {"origins": "*"}})
 
-## Error handling for error raised for invalid urls (not for non existing
+# Error handling for error raised for invalid urls (not for non existing
 # resources!)
+
+
 @app.errorhandler(Exception)
 def error_handler(error):
     if isinstance(error, RestValidationError):
@@ -38,13 +40,13 @@ def error_handler(error):
     else:
         response = jsonify({'message': 'Internal server error. The original '
                                        'message was: \"{}\"'.format(
-            error.message)})
+                                           error.message)})
         response.status_code = 500
 
     return response
 
 
-## Add resources to the api
+# Add resources to the api
 api.add_resource(Computer,
                  # supported urls
                  '/computers/',
@@ -157,16 +159,16 @@ api.add_resource(Group,
 # Standard boilerplate to run the app
 if __name__ == '__main__':
 
-    #Config the app
+    # Config the app
     app.config.update(**conf.APP_CONFIG)
 
-    #Config the serializer used by the app
+    # Config the serializer used by the app
     if conf.SERIALIZER_CONFIG:
         from aiida.restapi.common.utils import CustomJSONEncoder
         app.json_encoder = CustomJSONEncoder
 
-    #I run the app via a wrapper that accepts arguments such as host and port
-    #e.g. python api.py --host=127.0.0.2 --port=6000
+    # I run the app via a wrapper that accepts arguments such as host and port
+    # e.g. python api.py --host=127.0.0.2 --port=6000
     # Default address is 127.0.01:5000
-    #Warm up the engine - brum brum - and staaarrrt!!
+    # Warm up the engine - brum brum - and staaarrrt!!
     flaskrun(app)

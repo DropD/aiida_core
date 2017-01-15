@@ -20,7 +20,7 @@ class CodDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, int) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
         return key + " IN (" + ", ".join(map(lambda i: str(int(i)),
                                              values)) + ")"
@@ -32,7 +32,7 @@ class CodDbImporter(DbImporter):
         clause_parts = []
         for e in values:
             if not isinstance(e, int) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
             if isinstance(e, int):
                 e = str(e)
@@ -63,11 +63,11 @@ class CodDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, str):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only strings are accepted")
-        return self._str_exact_clause(key, \
-                                      alias, \
-                                      map(lambda f: "- " + str(f) + " -", \
+        return self._str_exact_clause(key,
+                                      alias,
+                                      map(lambda f: "- " + str(f) + " -",
                                           values))
 
     def _str_fuzzy_clause(self, key, alias, values):
@@ -77,7 +77,7 @@ class CodDbImporter(DbImporter):
         clause_parts = []
         for e in values:
             if not isinstance(e, int) and not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and strings are accepted")
             if isinstance(e, int):
                 e = str(e)
@@ -91,7 +91,7 @@ class CodDbImporter(DbImporter):
         clause_parts = []
         for e in values:
             if not isinstance(e, basestring):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only strings are accepted")
             clause_parts.append("formula REGEXP ' " + e + "[0-9 ]'")
         return " AND ".join(clause_parts)
@@ -102,12 +102,12 @@ class CodDbImporter(DbImporter):
         """
         for e in values:
             if not isinstance(e, int) and not isinstance(e, float):
-                raise ValueError("incorrect value for keyword '" + alias + \
+                raise ValueError("incorrect value for keyword '" + alias +
                                  "' -- only integers and floats are accepted")
-        return " OR ".join(map(lambda d: key + \
-                                         " BETWEEN " + \
-                                         str(d - precision) + " AND " + \
-                                         str(d + precision), \
+        return " OR ".join(map(lambda d: key +
+                               " BETWEEN " +
+                               str(d - precision) + " AND " +
+                               str(d + precision),
                                values))
 
     length_precision = 0.001
@@ -201,16 +201,16 @@ class CodDbImporter(DbImporter):
                 values = kwargs.pop(key)
                 if not isinstance(values, list):
                     values = [values]
-                sql_parts.append( \
-                    "(" + self._keywords[key][1](self, \
-                                                 self._keywords[key][0], \
-                                                 key, \
-                                                 values) + \
+                sql_parts.append(
+                    "(" + self._keywords[key][1](self,
+                                                 self._keywords[key][0],
+                                                 key,
+                                                 values) +
                     ")")
         if len(kwargs.keys()) > 0:
-            raise NotImplementedError( \
-                "search keyword(s) '" + \
-                "', '".join(kwargs.keys()) + "' " + \
+            raise NotImplementedError(
+                "search keyword(s) '" +
+                "', '".join(kwargs.keys()) + "' " +
                 "is(are) not implemented for COD")
         return "SELECT file, svnrevision FROM data WHERE " + \
                " AND ".join(sql_parts)
@@ -245,10 +245,10 @@ class CodDbImporter(DbImporter):
             if key in kwargs.keys():
                 self._db_parameters[key] = kwargs.pop(key)
         if len(kwargs.keys()) > 0:
-            raise NotImplementedError( \
-                "unknown database connection parameter(s): '" + \
-                "', '".join(kwargs.keys()) + \
-                "', available parameters: '" + \
+            raise NotImplementedError(
+                "unknown database connection parameter(s): '" +
+                "', '".join(kwargs.keys()) +
+                "', available parameters: '" +
                 "', '".join(self._db_parameters.keys()) + "'")
 
     def get_supported_keywords(self):
@@ -303,7 +303,7 @@ class CodSearchResults(DbSearchResults):
         """
         source_dict = {'id': result_dict['id']}
         if 'svnrevision' in result_dict and \
-                        result_dict['svnrevision'] is not None:
+                result_dict['svnrevision'] is not None:
             source_dict['version'] = result_dict['svnrevision']
         return source_dict
 
@@ -315,7 +315,7 @@ class CodSearchResults(DbSearchResults):
         """
         url = self._base_url + result_dict['id'] + ".cif"
         if 'svnrevision' in result_dict and \
-                        result_dict['svnrevision'] is not None:
+                result_dict['svnrevision'] is not None:
             return "{}@{}".format(url, result_dict['svnrevision'])
         else:
             return url

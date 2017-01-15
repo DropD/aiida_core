@@ -14,6 +14,7 @@ __license__ = "MIT license, see LICENSE.txt file."
 __version__ = "0.7.1"
 __authors__ = "The AiiDA team."
 
+
 class BasicCalculation(JobCalculation):
     """
     Basic input plugin for NWChem. Creates input from StructureData and
@@ -24,6 +25,7 @@ class BasicCalculation(JobCalculation):
     * add_cell: add *system crystal* block with lattice parameters,
         True by default.
     """
+
     def _init_internal_params(self):
         super(BasicCalculation, self)._init_internal_params()
 
@@ -31,33 +33,33 @@ class BasicCalculation(JobCalculation):
         self._default_parser = 'nwchem.basic'
 
         # Default input and output files
-        self._DEFAULT_INPUT_FILE  = 'aiida.in'
+        self._DEFAULT_INPUT_FILE = 'aiida.in'
         self._DEFAULT_OUTPUT_FILE = 'aiida.out'
-        self._DEFAULT_ERROR_FILE  = 'aiida.err'
+        self._DEFAULT_ERROR_FILE = 'aiida.err'
 
         # Default command line parameters
-        self._default_commandline_params = [ self._DEFAULT_INPUT_FILE ]
+        self._default_commandline_params = [self._DEFAULT_INPUT_FILE]
 
     @classproperty
     def _use_methods(cls):
         retdict = JobCalculation._use_methods
         retdict.update({
             "structure": {
-               'valid_types': StructureData,
-               'additional_parameter': None,
-               'linkname': 'structure',
-               'docstring': "A structure to be processed",
-               },
+                'valid_types': StructureData,
+                'additional_parameter': None,
+                'linkname': 'structure',
+                'docstring': "A structure to be processed",
+            },
             "parameters": {
-               'valid_types': ParameterData,
-               'additional_parameter': None,
-               'linkname': 'parameters',
-               'docstring': "Parameters used to describe the calculation",
-               },
-            })
+                'valid_types': ParameterData,
+                'additional_parameter': None,
+                'linkname': 'parameters',
+                'docstring': "Parameters used to describe the calculation",
+            },
+        })
         return retdict
 
-    def _prepare_for_submission(self,tempfolder,inputdict):
+    def _prepare_for_submission(self, tempfolder, inputdict):
         import numpy as np
 
         try:
@@ -81,10 +83,10 @@ class BasicCalculation(JobCalculation):
         ]
 
         lat_angles = np.arccos([
-            np.vdot(atoms.cell[1],atoms.cell[2])/lat_lengths[1]/lat_lengths[2],
-            np.vdot(atoms.cell[0],atoms.cell[2])/lat_lengths[0]/lat_lengths[2],
-            np.vdot(atoms.cell[0],atoms.cell[1])/lat_lengths[0]/lat_lengths[1],
-        ])/np.pi*180
+            np.vdot(atoms.cell[1], atoms.cell[2]) / lat_lengths[1] / lat_lengths[2],
+            np.vdot(atoms.cell[0], atoms.cell[2]) / lat_lengths[0] / lat_lengths[2],
+            np.vdot(atoms.cell[0], atoms.cell[1]) / lat_lengths[0] / lat_lengths[1],
+        ]) / np.pi * 180
 
         parameters = inputdict.pop(self.get_linkname('parameters'), None)
         if parameters is None:
@@ -93,11 +95,11 @@ class BasicCalculation(JobCalculation):
             raise InputValidationError("parameters is not of type ParameterData")
         par = parameters.get_dict()
 
-        abbreviation = par.pop('abbreviation','aiida_calc')
-        title = par.pop('title','AiiDA NWChem calculation')
-        basis = par.pop('basis',None)
-        task = par.pop('task','scf')
-        add_cell = par.pop('add_cell',True)
+        abbreviation = par.pop('abbreviation', 'aiida_calc')
+        title = par.pop('title', 'AiiDA NWChem calculation')
+        basis = par.pop('basis', None)
+        task = par.pop('task', 'scf')
+        add_cell = par.pop('add_cell', True)
 
         if basis is None:
             basis = dict()
@@ -105,22 +107,22 @@ class BasicCalculation(JobCalculation):
                 basis[atom_type] = 'library 6-31g'
 
         input_filename = tempfolder.get_abs_path(self._DEFAULT_INPUT_FILE)
-        with open(input_filename,'w') as f:
-            f.write('start {}\ntitle "{}"\n\n'.format(abbreviation,title))
+        with open(input_filename, 'w') as f:
+            f.write('start {}\ntitle "{}"\n\n'.format(abbreviation, title))
             f.write('geometry units au\n')
             if add_cell:
                 f.write('  system crystal\n')
                 f.write('    lat_a {}\n    lat_b {}\n    lat_c {}\n'.format(*lat_lengths))
                 f.write('    alpha {}\n    beta  {}\n    gamma {}\n'.format(*lat_angles))
                 f.write('  end\n')
-            for i,atom_type in enumerate(atoms.get_chemical_symbols()):
+            for i, atom_type in enumerate(atoms.get_chemical_symbols()):
                 f.write('    {} {} {} {}\n'.format(atom_type,
-                                               atoms.get_positions()[i][0],
-                                               atoms.get_positions()[i][1],
-                                               atoms.get_positions()[i][2]))
+                                                   atoms.get_positions()[i][0],
+                                                   atoms.get_positions()[i][1],
+                                                   atoms.get_positions()[i][2]))
             f.write('end\nbasis\n')
-            for atom_type,b in basis.iteritems():
-                f.write('    {} {}\n'.format(atom_type,b))
+            for atom_type, b in basis.iteritems():
+                f.write('    {} {}\n'.format(atom_type, b))
             f.write('end\ntask {}\n'.format(task))
             f.flush()
 

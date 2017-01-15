@@ -8,6 +8,7 @@ __authors__ = "The AiiDA team."
 
 
 class TestNodeNumberJobResource(unittest.TestCase):
+
     def test_init(self):
         """
         Test the __init__ of the NodeNumberJobResource class
@@ -67,5 +68,3 @@ class TestNodeNumberJobResource(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             _ = NodeNumberJobResource(num_mpiprocs_per_machine=8, tot_num_mpiprocs=15)
-        
-        

@@ -51,7 +51,7 @@ def get_configured_user_email():
     except KeyError:
         raise ConfigurationError("No 'default_user' key found in the "
                                  "AiiDA configuration file".format(
-            DEFAULT_USER_CONFIG_FIELD))
+                                     DEFAULT_USER_CONFIG_FIELD))
     return email
 
 
@@ -180,7 +180,7 @@ def validate_list_of_string_tuples(val, tuple_length):
         raise ValidationError(err_msg)
     for f in val:
         if (not isinstance(f, (list, tuple)) or
-                    len(f) != tuple_length or
+            len(f) != tuple_length or
                 not all(isinstance(s, basestring) for s in f)):
             raise ValidationError(err_msg)
 
@@ -476,7 +476,8 @@ def gzip_string(string):
     :param string: a string
     :return: a gzipped string
     """
-    import tempfile, gzip
+    import tempfile
+    import gzip
 
     with tempfile.NamedTemporaryFile() as f:
         g = gzip.open(f.name, 'wb')
@@ -492,7 +493,8 @@ def gunzip_string(string):
     :param string: a gzipped string
     :return: a string
     """
-    import tempfile, gzip
+    import tempfile
+    import gzip
 
     with tempfile.NamedTemporaryFile() as f:
         f.write(string)
@@ -536,14 +538,14 @@ def xyz_parser_iterator(string):
                     # otherwise we got too less entries
                     raise TypeError("Number of atom entries ({}) is smaller "
                                     "than the number of atoms ({})".format(
-                        self._catom, self._natoms))
+                                        self._catom, self._natoms))
 
             self._catom += 1
 
             if self._catom > self._natoms:
                 raise TypeError("Number of atom entries ({}) is larger "
                                 "than the number of atoms ({})".format(
-                    self._catom, self._natoms))
+                                    self._catom, self._natoms))
 
             return (
                 match.group('sym'),
@@ -623,6 +625,7 @@ def xyz_parser_iterator(string):
 
 
 class EmptyContextManager(object):
+
     def __enter__(self):
         pass
 
@@ -730,7 +733,7 @@ def ask_question(question, reply_type, allow_none_as_answer):
                 continue
 
         if query_yes_no("{} was parsed. Is it correct?"
-                                .format(final_answer), default="yes"):
+                        .format(final_answer), default="yes"):
             break
     return final_answer
 
@@ -890,7 +893,7 @@ def are_dir_trees_equal(dir1, dir2):
     """
     dirs_cmp = filecmp.dircmp(dir1, dir2)
     if (len(dirs_cmp.left_only) > 0 or len(dirs_cmp.right_only) > 0 or
-                len(dirs_cmp.funny_files) > 0):
+            len(dirs_cmp.funny_files) > 0):
         return False
     (_, mismatch, errors) = filecmp.cmpfiles(
         dir1, dir2, dirs_cmp.common_files, shallow=False)

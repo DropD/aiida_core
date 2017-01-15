@@ -19,6 +19,7 @@ class Backup(AbstractBackup):
     """
     Backup for django backend
     """
+
     def _query_first_workflow(self):
         """
         Query first workflow
@@ -55,7 +56,6 @@ class Backup(AbstractBackup):
 
         return query_sets
 
-
     def _get_query_set_iterator(self, query_set):
         """
         Get query set iterator
@@ -82,8 +82,8 @@ class Backup(AbstractBackup):
             # Raise exception
             self._logger.error(
                 "Unexpected item type to backup: {}"
-                    .format(type(item)))
+                .format(type(item)))
             raise BackupError(
                 "Unexpected item type to backup: {}"
-                    .format(type(item)))
+                .format(type(item)))
         return source_dir

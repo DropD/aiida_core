@@ -1,9 +1,10 @@
-## This snippet has been writtten by Armin Ronacher, who explicitely defined
+# This snippet has been writtten by Armin Ronacher, who explicitely defined
 # it to be of public domain and freely usable as the user likes.
 import optparse
 
+
 def flaskrun(app, default_host="127.0.0.1",
-                  default_port="5000"):
+             default_port="5000"):
     """
     Takes a flask.Flask instance and runs it. Parses
     command-line flags to configure the app.
@@ -12,11 +13,11 @@ def flaskrun(app, default_host="127.0.0.1",
     # Set up the command-line options
     parser = optparse.OptionParser()
     parser.add_option("-H", "--host",
-                      help="Hostname of the Flask app " + \
+                      help="Hostname of the Flask app " +
                            "[default %s]" % default_host,
                       default=default_host)
     parser.add_option("-P", "--port",
-                      help="Port for the Flask app " + \
+                      help="Port for the Flask app " +
                            "[default %s]" % default_port,
                       default=default_port)
 
@@ -38,7 +39,7 @@ def flaskrun(app, default_host="127.0.0.1",
 
         app.config['PROFILE'] = True
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app,
-                       restrictions=[30])
+                                          restrictions=[30])
         options.debug = True
 
     app.run(

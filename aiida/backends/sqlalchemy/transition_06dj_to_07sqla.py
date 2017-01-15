@@ -50,7 +50,7 @@ transition(profile="your_profile",group_size=10000)
 NODE_TABLE_NAME = "db_dbnode"
 ATTR_TABLE_NAME = "db_dbattribute"
 EXTRAS_TABLE_NAME = "db_dbextra"
-SETTINGS_TABLE_NAME= "db_dbsetting"
+SETTINGS_TABLE_NAME = "db_dbsetting"
 
 # Column name definitions
 ATTR_COL_NAME = "attributes"
@@ -193,7 +193,7 @@ def transition_extras(profile=None, group_size=1000, delete_table=False):
         from aiida.backends.sqlalchemy.models.node import DbNode
         total_nodes = sa.session.query(func.count(DbNode.id)).scalar()
 
-        total_groups = int(math.ceil(total_nodes/float(group_size)))
+        total_groups = int(math.ceil(total_nodes / float(group_size)))
         error = False
 
         for i in xrange(total_groups):
@@ -201,7 +201,7 @@ def transition_extras(profile=None, group_size=1000, delete_table=False):
             print("Migrating group {} of {}".format(i, total_groups))
             nodes = DbNode.query.options(
                 subqueryload('old_extras'), load_only('id', 'extras')
-            ).order_by(DbNode.id)[i*group_size:(i+1)*group_size]
+            ).order_by(DbNode.id)[i * group_size:(i + 1) * group_size]
 
             for node in nodes:
                 attrs, err_ = attributes_to_dict(sorted(node.old_extras,
@@ -281,7 +281,7 @@ def transition_attributes(profile=None, group_size=1000, debug=False,
         from aiida.backends.sqlalchemy.models.node import DbNode
         total_nodes = sa.session.query(func.count(DbNode.id)).scalar()
 
-        total_groups = int(math.ceil(total_nodes/float(group_size)))
+        total_groups = int(math.ceil(total_nodes / float(group_size)))
         error = False
 
         for i in xrange(total_groups):
@@ -289,7 +289,7 @@ def transition_attributes(profile=None, group_size=1000, debug=False,
 
             nodes = DbNode.query.options(
                 subqueryload('old_attrs'), load_only('id', 'attributes')
-            ).order_by(DbNode.id)[i*group_size:(i+1)*group_size]
+            ).order_by(DbNode.id)[i * group_size:(i + 1) * group_size]
 
             for node in nodes:
                 attrs, err_ = attributes_to_dict(sorted(node.old_attrs,
@@ -489,7 +489,7 @@ def set_correct_schema_version_and_backend():
             'INSERT INTO db_dbsetting (key, val, description, time) values '
             '(\'db|schemaversion\', \'{}\', '
             '\'The version of the schema used in this database.\', \'{}\')'
-                .format(SQLA_SCHEMA_VERSION, timezone.datetime.now()))
+            .format(SQLA_SCHEMA_VERSION, timezone.datetime.now()))
 
         # Setting the correct backend
         sa.session.execute('DELETE FROM db_dbsetting WHERE key=\'db|backend\'')
@@ -497,7 +497,7 @@ def set_correct_schema_version_and_backend():
             'INSERT INTO db_dbsetting (key, val, description, time) values '
             '(\'db|backend\', \'"{}"\', '
             '\'The backend used to communicate with database.\', \'{}\')'
-                .format(BACKEND_SQLA, timezone.datetime.now()))
+            .format(BACKEND_SQLA, timezone.datetime.now()))
     sa.session.commit()
 
 
@@ -516,7 +516,7 @@ def transition_db(profile=None, group_size=1000, delete_table=False):
     transition_attributes(profile=profile, group_size=group_size,
                           delete_table=delete_table)
 
-    transition_extras(profile=profile,group_size=group_size,
+    transition_extras(profile=profile, group_size=group_size,
                       delete_table=delete_table)
 
     create_gin_index()
@@ -596,6 +596,3 @@ def transition(profile=None, group_size=1000, delete_table=False):
     print("Proceeding to database tarbnsition.")
     transition_db(profile, group_size, delete_table)
     print("\nTransition finished")
-
-
-

@@ -17,6 +17,7 @@ __authors__ = "The AiiDA team."
 
 
 class TestRun(AiidaTestCase):
+
     def setUp(self):
         super(TestRun, self).setUp()
         self.assertEquals(len(plum.process_monitor.MONITOR.get_pids()), 0)

@@ -13,7 +13,7 @@ def get_group_list(user, type_string, n_days_ago=None,
     pass
 
 
-def get_workflow_list(pk_list=tuple(), user=None, all_states=False, 
+def get_workflow_list(pk_list=tuple(), user=None, all_states=False,
                       n_days_ago=None):
     """
     Get a list of workflow.
@@ -26,24 +26,25 @@ def get_workflow_list(pk_list=tuple(), user=None, all_states=False,
     from aiida.orm.workflow import Workflow
     from aiida.backends.sqlalchemy.models.workflow import DbWorkflow
     from aiida.common.datastructures import wf_states
-                                             
+
     if pk_list:
         q = DbWorkflow.query.filter(DbWorkflow.id.in_(pk_list))
     else:
-        q = DbWorkflow.query.filter(DbWorkflow.user_id==user._dbuser.id) # (user=user)
+        q = DbWorkflow.query.filter(DbWorkflow.user_id == user._dbuser.id)  # (user=user)
 
         if not all_states:
-            q = q.filter(DbWorkflow.state.in_([wf_states.CREATED, 
-                                               wf_states.RUNNING, 
-                                               wf_states.SLEEP, 
+            q = q.filter(DbWorkflow.state.in_([wf_states.CREATED,
+                                               wf_states.RUNNING,
+                                               wf_states.SLEEP,
                                                wf_states.INITIALIZED]))
         if n_days_ago:
             t = timezone.now() - datetime.timedelta(days=n_days_ago)
-            q = q.filter(DbWorkflow.ctime>=t)
+            q = q.filter(DbWorkflow.ctime >= t)
 
     wf_list = list(q.distinct().order_by('ctime'))
     return wf_list
-    
+
+
 def get_log_messages(obj):
     """
     Get the log messages for the object.

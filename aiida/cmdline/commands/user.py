@@ -65,7 +65,7 @@ class User(VerdiCommandWithSubcommands):
 
         from aiida.orm.implementation import User
 
-        #if len(args) != 1:
+        # if len(args) != 1:
         #    print >> sys.stderr, ("You have to pass (only) one parameter after "
         #                          "'user configure', the email of")
         #    print >> sys.stderr, "the user to be configured."
@@ -79,18 +79,18 @@ class User(VerdiCommandWithSubcommands):
             print ""
             print ("An AiiDA user for email '{}' is already present "
                    "in the DB:".format(email))
-            #print "First name:   {}".format(user.first_name)
-            #print "Last name:    {}".format(user.last_name)
-            #print "Institution:  {}".format(user.institution)
+            # print "First name:   {}".format(user.first_name)
+            # print "Last name:    {}".format(user.last_name)
+            # print "Institution:  {}".format(user.institution)
             configure_user = False
             reply = click.confirm("Do you want to reconfigure it?")
-            #if not reply:
+            # if not reply:
             #    pass
-            #elif reply.lower() == 'n':
+            # elif reply.lower() == 'n':
             #    pass
             if reply:
                 configure_user = True
-            #else:
+            # else:
             #    print "Invalid answer, assuming answer was 'NO'"
         else:
             configure_user = True
@@ -105,11 +105,11 @@ class User(VerdiCommandWithSubcommands):
                     verbose_name = field.capitalize()
                     readline.set_startup_hook(lambda: readline.insert_text(
                         getattr(user, field)))
-                    if field=='first_name' and first_name:
+                    if field == 'first_name' and first_name:
                         kwargs[field] = first_name
-                    elif field=='last_name' and last_name:
+                    elif field == 'last_name' and last_name:
                         kwargs[field] = last_name
-                    elif field=='institution' and institution:
+                    elif field == 'institution' and institution:
                         kwargs[field] = institution
                     else:
                         kwargs[field] = raw_input('{}: '.format(verbose_name))
@@ -156,7 +156,7 @@ class User(VerdiCommandWithSubcommands):
                             match = True
                         else:
                             print "ERROR, the two passwords do not match."
-                    ## Set the password here
+                    # Set the password here
                     user.password = new_password
                 else:
                     user.password = None
@@ -252,4 +252,3 @@ class User(VerdiCommandWithSubcommands):
                 start_color, symbol,
                 bold_sequence, user.email, nobold_sequence,
                 full_name, institution_str, permissions_str, end_color)
-
