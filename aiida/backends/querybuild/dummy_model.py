@@ -25,7 +25,7 @@ from sa_init import (
 # Aiida Django classes:
 #from aiida.orm.implementation.django.node import Node as DjangoAiidaNode
 
-#from aiida.common.pluginloader import load_plugin
+#from aiida.common.ep_pluginloader import load_plugin
 
 
 # SETTINGS:

@@ -59,8 +59,8 @@ class AbstractQueryBuilder(object):
         """
         Instantiates a QueryBuilder instance
 
-        :param bool with_dbpath: 
-            Whether to use the DbPath table (if existing) 
+        :param bool with_dbpath:
+            Whether to use the DbPath table (if existing)
             to query ancestor-descendant relations
         :param list path: A list of the vertices to traverse
         :param dict filters: The filters to apply
@@ -266,10 +266,8 @@ class AbstractQueryBuilder(object):
                 # The only valid string at this point is a string
                 # that matches exactly the _plugin_type_string
                 # of a node class
-                from aiida.common.pluginloader import (
-                        from_type_to_pluginclassname,
-                        load_plugin
-                    )
+                from aiida.common.pluginloader import from_type_to_pluginclassname
+                from aiida.common.ep_pluginloader import load_plugin
                 ormclass = self.Node
                 try:
                     pluginclassname = from_type_to_pluginclassname(ormclasstype)
@@ -1315,7 +1313,7 @@ class AbstractQueryBuilder(object):
                 isouter=isouterjoin
         ).join(
                 entity_to_join,
-   
+
              aliased_edge.output_id == entity_to_join.id,
                 isouter=isouterjoin
         )
