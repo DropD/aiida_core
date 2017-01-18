@@ -192,6 +192,7 @@ def existing_plugins(base_class, plugins_module_name, max_depth=5, suffix=None):
             raise e
         else:
             pass
+    category = _inv_category_mapping.get(plugins_module_name)
     plugins += plugin_list(category)
     return plugins
 
