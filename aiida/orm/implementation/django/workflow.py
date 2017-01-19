@@ -90,8 +90,15 @@ class Workflow(AbstractWorkflow):
             # print "caller_file", caller_file
             # print "caller_funct", caller_funct
 
-            # Accept only the aiida.workflows packages
-            if caller_module == None or not caller_module.__name__.startswith("aiida.workflows"):
+            # ~~Accept only the aiida.workflows packages~~
+            # Accept any workflow subclass, needed for plugins
+            caller_in_aiida = caller_module.__name__.startswith("aiida.")
+            caller_in_workflows = caller_module.__name__.startswith("aiida.workflows")
+            caller_is_subclass = issubclass(caller_module_class, Workflow) # super calls should be allowed
+            caller_is_internal_plugin = caller_in_workflows and caller_is_subclass
+            caller_is_external_plugin = not caller_in_aiida and caller_is_subclass
+            call_allowed = caller_is_external_plugin or caller_is_internal_plugin
+            if not call_allowed:
                 raise SystemError("The superclass can't be called directly")
 
             self.caller_module = caller_module.__name__
