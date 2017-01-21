@@ -91,8 +91,15 @@ class Workflow(AbstractWorkflow):
             # print "caller_file", caller_file
             # print "caller_funct", caller_funct
 
-            # Accept only the aiida.workflows packages
-            if caller_module == None or not caller_module.__name__.startswith("aiida.workflows"):
+            # ~~Accept only the aiida.workflows packages~~
+            # Accept any workflow subclass, needed for plugins
+            caller_in_aiida = caller_module.__name__.startswith("aiida.")
+            caller_in_workflows = caller_module.__name__.startswith("aiida.workflows")
+            caller_is_subclass = issubclass(caller_module_class, Workflow) # super calls should be allowed
+            caller_is_internal_plugin = caller_in_workflows and caller_is_subclass
+            caller_is_external_plugin = not caller_in_aiida and caller_is_subclass
+            call_allowed = caller_is_external_plugin or caller_is_internal_plugin
+            if not call_allowed:
                 raise SystemError("The superclass can't be called directly")
 
             self.caller_module = caller_module.__name__
@@ -509,12 +516,21 @@ class Workflow(AbstractWorkflow):
 
     @classmethod
     def get_subclass_from_dbnode(cls, wf_db):
+        from aiida.common.ep_pluginloader import get_plugin
+        from aiida.common.exceptions import MissingPluginError
         module = wf_db.module
         module_class = wf_db.module_class
         try:
             wf_mod = importlib.import_module(module)
         except ImportError:
-            raise InternalError("Unable to load the workflow module {}".format(module))
+            try:
+                entry_point = module.replace('aiida.workflows.', '')
+                wf_class = get_plugin('workflows', entry_point)
+                module_class = wf_class.__name__
+                module = wf_class.__module__
+                wf_mod = importlib.import_module(module)
+            except MissingPluginError:
+                raise InternalError("Unable to load the workflow module {} or workflow plugin {}".format(module))
 
         for elem_name in wf_mod.__dict__.iterkeys():
 
@@ -772,7 +788,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
         # order all steps by time and  get all the needed values
         step_list = sorted([ [_.time,_] for _ in w.steps ])
         step_list = [ _[1] for _ in step_list ]
-        
+
         steps_and_subwf_pks = []
         for step in step_list:
             wf_id = None
@@ -783,7 +799,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
             if step.sub_workflows:
                 for www in step.sub_workflows:
                     steps_and_subwf_pks.append( [step.id, www.id, calc_id, step.name, step.nextcall, step.state.value] )
-            if (not step.calculations) and (not step.sub_workflows): 
+            if (not step.calculations) and (not step.sub_workflows):
                 steps_and_subwf_pks.append( [step.id, wf_id, calc_id, step.name, step.nextcall, step.state.value] )
 
         # get the list of step pks (distinct), preserving the order
@@ -808,7 +824,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
                 subwfs_of_steps[step_pk]['calc_pks'].append(calc_pk)
 
     # TODO: replace the database access using SQLAlchemy
-    
+
         # get all subworkflows for all steps
         #wflows = DbWorkflow.query.filter_by(DbWorkflow.parent_workflow_step.in_(steps_pk))
         # although the line above is equivalent to the following, has a bug of sqlalchemy.
@@ -817,28 +833,28 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
        # with warnings.catch_warnings():
        #     warnings.simplefilter("ignore", category=sa_exc.SAWarning)
        #     wflows = DbWorkflow.parent_workflow_step.any(DbWorkflowStep.id.in_(steps_pk))
-        
+
         wflows = DbWorkflow.query.join(DbWorkflow.parent_workflow_step).filter(DbWorkflowStep.id.in_(steps_pk)).all()
 
         # dictionary mapping pks into workflows
         workflow_mapping = {_.id: _ for _ in wflows}
-        
+
         # get all calculations for all steps
         #calcs = JobCalculation.query(workflow_step__in=steps_pk)  #.order_by('ctime')
         calcs_ids = [ _[2] for _ in  steps_and_subwf_pks if _[2] is not None] # extremely inefficient!
         calcs = [ load_node(_) for _ in calcs_ids ]
         # dictionary mapping pks into calculations
         calc_mapping = {_.id: _ for _ in calcs}
-    
+
         for step_pk in steps_pk:
             lines.append(pre_string + "|" + '-' * (tab_size - 1) +
                          "* Step: {0} [->{1}] is {2}".format(
                              subwfs_of_steps[step_pk]['name'],
                              subwfs_of_steps[step_pk]['nextcall'],
                              subwfs_of_steps[step_pk]['state']))
-    
+
             calc_pks = subwfs_of_steps[step_pk]['calc_pks']
-    
+
             # print calculations only if it is not short
             if short:
                 lines.append(pre_string + "|" + " " * (tab_size - 1) +
@@ -851,7 +867,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
                         labelstring = "'{}', ".format(c.label)
                     else:
                         labelstring = ""
-    
+
                     if calc_state == calc_states.WITHSCHEDULER:
                         sched_state = c.get_scheduler_state()
                         if sched_state is None:
@@ -873,7 +889,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
                     lines.append(pre_string + "|" + " " * (tab_size - 1) +
                                  "| Calculation ({}pk: {}) is {}{}".format(
                                      labelstring, calc_pk, calc_state, remote_state))
-    
+
             ## SubWorkflows
             for subwf_pk in subwfs_of_steps[step_pk]['subwf_pks']:
                 subwf = workflow_mapping[subwf_pk]
@@ -881,7 +897,7 @@ def get_workflow_info(w, tab_size=2, short=False, pre_string="",
                                                short=short, tab_size=tab_size,
                                                pre_string=pre_string + "|" + " " * (tab_size - 1),
                                                depth=depth - 1))
-    
+
             lines.append(pre_string + "|")
-    
+
     return lines
