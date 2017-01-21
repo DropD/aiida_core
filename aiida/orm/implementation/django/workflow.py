@@ -534,12 +534,22 @@ class Workflow(AbstractWorkflow):
 
     @classmethod
     def get_subclass_from_dbnode(cls, wf_db):
+        from aiida.common.ep_pluginloader import get_plugin
+        from aiida.common.exceptions import MissingPluginError
         module = wf_db.module
         module_class = wf_db.module_class
         try:
             wf_mod = importlib.import_module(module)
         except ImportError:
-            raise InternalError("Unable to load the workflow module {}".format(module))
+            # try to load from external plugin
+            try:
+                entry_point = module.replace('aiida.workflows.', '')
+                wf_class = get_plugin('workflows', entry_point)
+                module_class = wf_class.__name__
+                module = wf_class.__module__
+                wf_mod = importlib.import_module(module)
+            except MissingPluginError:
+                raise InternalError("Unable to load the workflow module {} or workflow plugin {}".format(module, entry_point))
 
         for elem_name, elem in wf_mod.__dict__.iteritems():
 
