@@ -30,13 +30,13 @@ db_test_list = {
         'nwchem': ['aiida.backends.tests.nwchem'],
         'base_dataclasses': ['aiida.backends.tests.base_dataclasses'],
         'dataclasses': ['aiida.backends.tests.dataclasses'],
-        'quantumespressopw': ['aiida.backends.tests.quantumespressopw'],
+        #'quantumespressopw': ['aiida.backends.tests.quantumespressopw'],
         'dbimporters': ['aiida.backends.tests.dbimporters'],
         'codtools': ['aiida.backends.tests.codtools'],
         'export_and_import': ['aiida.backends.tests.export_and_import'],
         'parsers': ['aiida.backends.tests.parsers'],
-        'pwinputparser': ['aiida.backends.tests.pwinputparser'],
-        'quantumespressopwimmigrant': ['aiida.backends.tests.quantumespressopwimmigrant'],
+        # 'pwinputparser': ['aiida.backends.tests.pwinputparser'],
+        # 'quantumespressopwimmigrant': ['aiida.backends.tests.quantumespressopwimmigrant'],
         'tcodexporter': ['aiida.backends.tests.tcodexporter'],
         'query': ['aiida.backends.tests.query'],
         'workflows': ['aiida.backends.tests.workflows'],
@@ -67,7 +67,7 @@ def get_db_test_names():
             retlist.append(name)
 
 
-    # Explode the list so that if I have a.b.c, 
+    # Explode the list so that if I have a.b.c,
     # I can run it also just with 'a' or with 'a.b'
     final_list = [_ for _ in retlist]
     for k in retlist:
@@ -83,7 +83,7 @@ def get_db_test_names():
 
 def get_db_test_list():
     """
-    This function returns the db_test_list for the current backend, 
+    This function returns the db_test_list for the current backend,
     merged with the 'common' tests.
 
     :note: This function should be called only after setting the
@@ -113,7 +113,7 @@ def get_db_test_list():
         for t in tests:
             retdict[k].append(t)
 
-    # Explode the dictionary so that if I have a.b.c, 
+    # Explode the dictionary so that if I have a.b.c,
     # I can run it also just with 'a' or with 'a.b'
     final_retdict = defaultdict(list)
     for k, v in retdict.iteritems():
