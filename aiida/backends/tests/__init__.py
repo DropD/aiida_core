@@ -45,7 +45,7 @@ db_test_list = {
         'backup_setup_script': ['aiida.backends.tests.backup_setup_script'],
         'restapi': ['aiida.backends.tests.restapi'],
         'computer': ['aiida.backends.tests.computer'],
-        'work.class_loader': ['aiida.backends.tests.work.class_loader'],
+        # 'work.class_loader': ['aiida.backends.tests.work.class_loader'],
         'work.daemon': ['aiida.backends.tests.work.daemon'],
         'work.persistence': ['aiida.backends.tests.work.persistence'],
         'work.process': ['aiida.backends.tests.work.process'],
@@ -56,7 +56,7 @@ db_test_list = {
         'work.util': ['aiida.backends.tests.work.util'],
         'work.workChain': ['aiida.backends.tests.work.workChain'],
         'work.workfunction': ['aiida.backends.tests.work.workfunction'],
-        'work.legacy.job_process': ['aiida.backends.tests.work.legacy.job_process'],
+        # 'work.legacy.job_process': ['aiida.backends.tests.work.legacy.job_process'],
     }
 }
 
