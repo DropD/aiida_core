@@ -6,7 +6,7 @@ import inspect
 from aiida.backends.testbase import AiidaTestCase
 from plum.engine.ticking import TickingEngine
 import plum.process_monitor
-from aiida.orm.calculation.job.quantumespresso.pw import PwCalculation
+#from aiida.orm.calculation.job.quantumespresso.pw import PwCalculation
 from aiida.work.workchain import WorkChain,\
     ToContext, _Block, _If, _While, if_, while_
 from aiida.work.workchain import _WorkChainSpec, Outputs
@@ -21,7 +21,7 @@ __version__ = "0.7.0"
 __authors__ = "The AiiDA team."
 
 
-PwProcess = PwCalculation.process()
+#PwProcess = PwCalculation.process()
 
 
 class Wf(WorkChain):
