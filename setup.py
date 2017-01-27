@@ -37,12 +37,18 @@ if __name__ == '__main__':
         packages=find_packages(),
         entry_points={
             'console_scripts': [
-                'verdi=aiida.cmdline.verdilib:run'
+                'verdi=aiida.cmdline.verdilib:run',
+                'verdic = aiida.cmdline.verdic:verdic'
             ],
             # following are AiiDA plugin entry points:
             'aiida.calculations': [],
             'aiida.parsers': [],
             'aiida.cmdline': [],
+            'aiida.cmdline.verdi': [
+                'run = aiida.cmdline.commands2.run:run',
+                'setup = aiida.cmdline.commands2.setup:setup',
+                'quicksetup = aiida.cmdline.commands2.quicksetup:quicksetup'
+            ],
             'aiida.schedulers': [],
             'aiida.transports': [],
             'aiida.workflows': [],
