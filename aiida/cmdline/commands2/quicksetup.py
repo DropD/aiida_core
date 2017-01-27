@@ -1,6 +1,7 @@
 import click
 
-from  aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
+from aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
+from aiida.cmdline import verdic_options as cliopt
 
 _create_user_command = 'CREATE USER "{}" WITH PASSWORD \'{}\''
 _create_db_command = 'CREATE DATABASE "{}" OWNER "{}"'
@@ -197,22 +198,20 @@ def _check_db_name(dbname, method=None, **kwargs):
     return dbname, create
 
 @click.command(short_help='Quick setup for new users')
-@click.option('--email', prompt='Email Address (for publishing experiments)', type=str,
-            help='This email address will be associated with your data and will be exported along with it, should you choose to share any of your work')
-@click.option('--first-name', prompt='First Name', type=str)
-@click.option('--last-name', prompt='Last Name', type=str)
-@click.option('--institution', prompt='Institution', type=str)
-@click.option('--backend', type=click.Choice([BACKEND_DJANGO,BACKEND_SQLA]), default=BACKEND_SQLA)
-@click.option('--db-user', type=str)
-@click.option('--db-user-pw', type=str)
-@click.option('--db-name', type=str)
-@click.option('--profile', type=str)
-@click.option('--repo', type=str)
+@cliopt.email(prompt='Email Address (for publishing experiments)', help='This email address will be associated with your data and will be exported along with it, should you choose to share any of your work')
+@cliopt.first_name(prompt='First Name')
+@cliopt.last_name(prompt='Last Name')
+@cliopt.institution(prompt='Institution')
+@cliopt.backend(default=BACKEND_SQLA)
+@cliopt.db_user()
+@cliopt.db_pass()
+@cliopt.db_name()
+@click.option('--profile', type=str, metavar='PROFILE_NAME', help='defaults to quicksetup')
+@cliopt.repo()
 @click.pass_obj
 def quicksetup(email, first_name, last_name, institution, backend, db_user, db_user_pw, db_name, profile, repo):
     '''
     Quick setup for the most common usecase (1 user, 1 machine).
-
 
     Uses click for options. Creates a database user 'aiida_qs_<username>' with random password if it doesn't exist.
     Creates a 'aiidadb_qs_<username>' database (prompts to use or change the name if already exists).
