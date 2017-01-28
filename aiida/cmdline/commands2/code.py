@@ -1,4 +1,19 @@
+import sys
 import click
+from click_completion import startswith
+from click_spinner import spinner as cli_spinner
+
+def load_dbenv_if_not_loaded():
+    with cli_spinner():
+        from aiida.backends.utils import load_dbenv, is_dbenv_loaded
+        if not is_dbenv_loaded():
+            load_dbenv()
+
+def aiida_dbenv(function):
+    def decorated_function(*args, **kwargs):
+        load_dbenv_if_not_loaded()
+        return function(*args, **kwargs)
+    return decorated_function
 
 @click.group()
 def code():
@@ -41,9 +56,11 @@ def list(computer, plugin, all_users, show_owner, all_codes):
     """
     List available codes
     """
-    computer_filter = parsed_args.computer
-    plugin_filter = parsed_args.plugin
-    reveal_filter = parsed_args.all_codes
+    load_dbenv_if_not_loaded()
+
+    computer_filter = computer
+    plugin_filter = plugin
+    reveal_filter = all_codes
 
     from aiida.orm.querybuilder import QueryBuilder
     from aiida.orm.code import Code
@@ -68,7 +85,7 @@ def list(computer, plugin, all_users, show_owner, all_codes):
         qb_code_filters['attributes.hidden'] = {"~==": True}
 
     print "# List of configured codes:"
-    print "# (use 'verdi code show CODEID' to see the details)"
+    print "# (use 'verdi code show CODEID | CODENAME' to see the details)"
     if computer_filter is not None:
         qb = QueryBuilder()
         qb.append(Code, tag="code",
@@ -86,7 +103,7 @@ def list(computer, plugin, all_users, show_owner, all_codes):
         qb.append(Computer, computer_of="code",
                     project=["name"],
                     filters=qb_computer_filters)
-        self.print_list_res(qb, show_owner)
+        print_list_res(qb, show_owner)
 
     # If there is no filter on computers
     else:
@@ -103,7 +120,7 @@ def list(computer, plugin, all_users, show_owner, all_codes):
                     filters=qb_user_filters)
         qb.append(Computer, computer_of="code",
                     project=["name"])
-        self.print_list_res(qb, show_owner)
+        print_list_res(qb, show_owner)
 
         # Now print all the local codes. To get the local codes we ask
         # the dbcomputer_id variable to be None.
@@ -123,7 +140,7 @@ def list(computer, plugin, all_users, show_owner, all_codes):
         qb.append(User, creator_of="code",
                     project=["email"],
                     filters=qb_user_filters)
-        self.print_list_res(qb, show_owner)
+        print_list_res(qb, show_owner)
 
 def get_code(code_id):
     """
@@ -145,8 +162,63 @@ def get_code(code_id):
         print >> sys.stderr, e.message
         sys.exit(1)
 
+@aiida_dbenv
+def get_code_data(django_filter=None):
+    """
+    Retrieve the list of codes in the DB.
+    Return a tuple with (pk, label, computername, owneremail).
+
+    :param django_filter: a django query object (e.g. obtained
+        with Q()) to filter the results on the AiidaOrmCode class.
+    """
+    from aiida.orm import Code as AiidaOrmCode
+    from aiida.orm.querybuilder import QueryBuilder
+
+    qb = QueryBuilder()
+    qb.append(AiidaOrmCode, project=['id', 'label', 'description'])
+    qb.append(type='computer', computer_of=AiidaOrmCode, project=['name'])
+    qb.append(type='user', creator_of=AiidaOrmCode, project=['email'])
+
+    return sorted(qb.all())
+
+
+def complete_code_names():
+    code_names = [c[1] for c in get_code_data()]
+    return "\n".join(code_names)
+
+def complete_code_pks():
+    code_pks = [str(c[0]) for c in get_code_data()]
+    return "\n".join(code_pks)
+
+def complete_code_names_and_pks():
+    return "\n".join([complete_code_names(),
+                        complete_code_pks()])
+
+
+class CodeArgument(click.ParamType):
+    def get_possibilities(self, incomplete=''):
+        names = [(c[1], c[2]) for c in get_code_data() if startswith(c[1], incomplete)]
+        pks = [(str(c[0]), c[1]) for c in get_code_data() if startswith(str(c[0]), incomplete)]
+        possibilities = names + pks
+        return possibilities
+
+    @aiida_dbenv
+    def complete(self, ctx, incomplete):
+        return self.get_possibilities(incomplete=incomplete)
+
+    @aiida_dbenv
+    def get_missing_message(self, param):
+        code_item = '{:<12} {}'
+        codes = [code_item.format(*p) for p in self.get_possibilities()]
+        return 'Possible arguments are:\n\n' + '\n'.join(codes)
+
 @code.command()
-@click.argument('code', metavar='CODE', type=click.Choice(['1', '2']))
+@click.argument('code', metavar='CODE', type=CodeArgument())
 def show(code):
+    """
+    Show information on a given code
+    """
+    load_dbenv_if_not_loaded()
+
     code = get_code(code)
     print code.full_text_info

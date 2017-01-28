@@ -1,7 +1,9 @@
 import click
 from click_plugins import with_plugins
+from click_completion import init as cpl_init
 from pkg_resources import iter_entry_points
 
+cpl_init()
 
 @with_plugins(iter_entry_points('aiida.cmdline.verdi'))
 @click.group()
