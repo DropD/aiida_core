@@ -222,3 +222,63 @@ def show(code):
 
     code = get_code(code)
     print code.full_text_info
+
+def prompt_help_loop(validator_func):
+    def decorated_validator(ctx, param, value):
+        while validator_func(ctx, param, value) is None or value == '?':
+            click.echo(param.help or 'invalid input')
+            value = decorated_validator(ctx, param, click.prompt(param.prompt, default=param.default))
+        return validator_func(ctx, param, value)
+    return decorated_validator
+
+@prompt_help_loop
+def validate_text(ctx, param, value):
+    return value or None
+
+@prompt_help_loop
+def validate_bool(ctx, param, value):
+    if value in [True, 'True', 'true', 'T']:
+        return True
+    elif value in [False, 'False', 'false', 'F']:
+        return False
+    else:
+        return None
+
+@prompt_help_loop
+def validate_input_plugin(ctx, param, value):
+    load_dbenv_if_not_loaded()
+    from aiida.common.pluginloader import existing_plugins
+    from aiida.orm.calculation.job import JobCalculation
+    pluginlist = [p.rsplit('.', 1)[0] for p in existing_plugins(JobCalculation, 'aiida.orm.calculation.job')]
+    if value in pluginlist:
+        return value
+    else:
+        click.echo('one of:\n\t' + '\n\t'.join(pluginlist))
+        return None
+
+@code.command()
+@click.option('--label', prompt='Label', callback=validate_text, help='A label to refer to this code')
+@click.option('--description', prompt='Description', callback=validate_text, help='A human-readable description of this code')
+@click.option('--is-local', prompt='Local', default=False, callback=validate_bool, help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
+@click.option('--input-plugin', prompt='Default input plugin', callback=validate_input_plugin,
+              help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
+def setup(label, description, is_local, input_plugin):
+    from aiida.common.exceptions import ValidationError
+
+    set_params = CodeInputValidationClass()
+
+    set_params.ask()
+
+    code = set_params.create_code()
+
+    # Enforcing the code to be not hidden.
+    code._reveal()
+
+    try:
+        code.store()
+    except ValidationError as e:
+        print "Unable to store the computer: {}. Exiting...".format(e.message)
+        sys.exit(1)
+
+    print "Code '{}' successfully stored in DB.".format(code.label)
+    print "pk: {}, uuid: {}".format(code.pk, code.uuid)
