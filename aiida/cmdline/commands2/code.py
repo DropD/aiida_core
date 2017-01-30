@@ -236,6 +236,12 @@ def prompt_help_loop(prompt=None, suggestions=None):
             if suggestions:
                 help += '\none of:\n\t' + '\n\t'.join(suggestions())
             if not ctx.params.get('non_interactive'):
+                if isinstance(ctx.obj, dict):
+                    multiline = ctx.obj.get('multiline', [])
+                    print ctx.obj
+                    while param in multiline:
+                        value = decorated_validator( ctx, param, click.prompt(prompt or param.prompt))
+                    value = ctx.obj.get('multiline_val_'+param.opts[0])
                 while validator_func(ctx, param, value) is None or value == '?':
                     click.echo(help)
                     value = decorated_validator(ctx, param, click.prompt(prompt or param.prompt, default=param.default))
@@ -357,17 +363,29 @@ def validate_computer(ctx, param, value):
 def validate_code_remote_path(ctx, param, value):
     return value
 
+@prompt_help_loop(prompt='# This is a multiline input, press CTRL+D on an\n# empty line to accept')
+def validate_prepend_text(ctx, param, value):
+    ctx.obj = ctx.obj or {}
+    ctx.obj['multiline'] = ctx.obj.get('multiline') or []
+    ctx.obj['multiline'].append(param)
+    valkey = 'multiline_val_'+param.opts[0]
+    ctx.obj[valkey] = ctx.obj.get(valkey) or []
+    ctx.obj[valkey].append(value)
+    print ctx.obj
+    return None
+
 @code.command()
-@click.option('--label', callback=validate_label, help='A label to refer to this code')
-@click.option('--description', callback=validate_description, help='A human-readable description of this code')
-@click.option('--is-local', is_eager=True, default=False, callback=validate_local, help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
+@click.option('--label', is_eager=True, callback=validate_label, help='A label to refer to this code')
+@click.option('--description',is_eager=True , callback=validate_description, help='A human-readable description of this code')
+@click.option('--is-local', is_eager=True, callback=validate_local, help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
 @click.option('--input-plugin', callback=validate_input_plugin, help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
 @click.option('--code-folder', callback=validate_code_folder, help='For local codes: The folder on your local computer in which there are files to be stored in the AiiDA repository and then copied over for every submitted calculation')
 @click.option('--code-rel-path', callback=validate_code_rel_path, help='The relative path of the executable file inside the folder entered in the previous step or in --code-folder')
 @click.option('--computer', callback=validate_computer, help='The name of the computer on which the code resides as stored in the AiiDA database')
 @click.option('--remote-abs-path', callback=validate_code_remote_path, help='The (full) absolute path on the remote machine')
+@click.option('--prepend-text', callback=validate_prepend_text, help='Text to prepend to each command execution. FOR INSTANCE, MODULES TO BE LOADED FOR THIS CODE. This is a multiline string, whose content will be appended inside the submission script after the real execution of the job. It is your responsibility to write proper bash code!')
 @verdic_options.non_interactive(is_eager=True)
-def setup(label, description, is_local, input_plugin, code_folder, code_rel_path, non_interactive, computer, remote_abs_path):
+def setup(label, description, is_local, input_plugin, code_folder, code_rel_path, computer, remote_abs_path, prepend_text, non_interactive):
     from aiida.common.exceptions import ValidationError
 
     set_params = CodeInputValidationClass()
