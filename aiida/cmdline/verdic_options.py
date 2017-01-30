@@ -34,5 +34,5 @@ first_name = overridable_option('--first-name', metavar='FIRST', type=str, help=
 last_name = overridable_option('--last-name', metavar='LAST', type=str, help='your last name')
 institution = overridable_option('--institution', metavar='INSTITUTION', type=str, help='your institution')
 repo = overridable_option('--repo', metavar='PATH', type=click.Path(), help='data file repository')
-non_interactive = overridable_option('--non-interactive', is_flag=True, help='noninteractive mode: never prompt the user for input')
-dry_run = overridable_option('--dry-run', is_flag=True, help='do not commit to database or modify configuration files')
+non_interactive = overridable_option('--non-interactive', is_flag=True, is_eager=True, help='noninteractive mode: never prompt the user for input')
+dry_run = overridable_option('--dry-run', is_flag=True, is_eager=True, help='do not commit to database or modify configuration files')
