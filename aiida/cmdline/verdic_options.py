@@ -36,3 +36,4 @@ institution = overridable_option('--institution', metavar='INSTITUTION', type=st
 repo = overridable_option('--repo', metavar='PATH', type=click.Path(), help='data file repository')
 non_interactive = overridable_option('--non-interactive', is_flag=True, is_eager=True, help='noninteractive mode: never prompt the user for input')
 dry_run = overridable_option('--dry-run', is_flag=True, is_eager=True, help='do not commit to database or modify configuration files')
+debug = overridable_option('--debug', is_flag=True, is_eager=True, help='print debug information')

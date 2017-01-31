@@ -53,6 +53,71 @@ def get_code_data(django_filter=None):
 
     return sorted(qb.all())
 
+def create_code(**kwargs):
+    """
+    creates a code from kwargs
+
+    :kwarg label: label
+    :kwarg description: description
+    :kwarg is_local: switch wether to use local_executable or remote_computer_exec
+    :kwarg input_plugin: name for the default input plugin
+    :kwarg code_folder: folder containing the code if is_local == True
+    :kwarg code_rel_path: the relative path from code_folder to the executable
+    :kwarg computer: the remote computer running the code if is_local == False
+    :kwarg remote_abs_path: the absolute path on computer to the executable
+    :kwarg prepend_text: bash code to be run before execution
+    :kwarg append_text: bash code to be run after execution
+    """
+    import os
+    from os.path import realpath
+    from os.path import join as pjoin
+    from aiida.orm import Code as AiidaOrmCode
+
+    '''local / remote code'''
+    is_local = kwargs['is_local']
+    if is_local:
+        '''local code'''
+        code_folder = kwargs['code_folder']
+        code_rel_path = kwargs['code_rel_path']
+        file_list = [realpath(pjoin(code_folder, f)) for f in os.listdir(code_folder)]
+        code = AiidaOrmCode(local_executable=code_rel_path, files=file_list)
+    else:
+        '''remote code'''
+        computer = kwargs['computer']
+        remote_abs_path = kwargs['remote_abs_path']
+        code = AiidaOrmCode(remote_computer_exec=(computer, remote_abs_path))
+
+    '''either way'''
+    code.label = kwargs['label']
+    code.description = kwargs['description']
+    code.set_input_plugin_name(kwargs['input_plugin'])
+    code.set_prepend_text(kwargs['prepend_text'])
+    code.set_append_text(kwargs['append_text'])
+
+    return code
+
+@aiida_dbenv
+def input_plugin_list():
+    from aiida.common.pluginloader import existing_plugins
+    from aiida.orm.calculation.job import JobCalculation
+    return [p.rsplit('.', 1)[0] for p in existing_plugins(JobCalculation, 'aiida.orm.calculation.job')]
+
+@aiida_dbenv
+def computer_name_list():
+    """
+    Retrieve the list of computers in the DB.
+
+    ToDo: use an API or cache the results, sometime it is quite slow!
+    """
+    with cli_spinner():
+        from aiida.orm.querybuilder import QueryBuilder
+        qb = QueryBuilder()
+        qb.append(type='computer', project=['name'])
+        if qb.count() > 0:
+            return list(zip(*qb.all())[0])
+        else:
+            return None
+
 def print_list_res(qb_query, show_owner):
     if qb_query.count > 0:
         for tuple_ in qb_query.all():
@@ -106,15 +171,21 @@ def single_value_prompt(ctx, param, value, prompt=None, default=None, callback=d
         else:
             valid, converted_value = callback(ctx, param, inp)
             if valid:
-                return converted_value
+                value = converted_value
+                break
+            else:
+                click.echo(_help)
+    return value
 
-def multi_line_prompt(ctx, param, value, header=True, **kwargs):
+def multi_line_prompt(ctx, param, value, prompt=None, header=True, **kwargs):
     """
     prompt for multiple lines of input on the commandline
 
     :kwarg bool header: controls if the header message should be printed
     :return: list of lines
     """
+    click.echo('')
+    click.echo(prompt)
     '''print header if requested'''
     if header:
         click.echo('-------------------------------------------------')
@@ -124,7 +195,7 @@ def multi_line_prompt(ctx, param, value, header=True, **kwargs):
     keep_prompting = True
     _help = param.help or 'multline text input'
     while keep_prompting:
-        line = click.prompt('line {:<3}'.format(len(text)), default='', show_default=False)
+        line = click.prompt('line {:<3}'.format(len(lines)), default='', show_default=False)
         if line == '\\quit':
             break
         if line == '\\restart':
@@ -136,7 +207,8 @@ def multi_line_prompt(ctx, param, value, header=True, **kwargs):
             click.echo('-------------------------------------------------')
         else:
             lines.append(line)
-        return lines
+    return lines
+
 def prompt_with_help(prompt=None, default=None, suggestions=None, callback=default_callback, ni_callback=None, prompt_loop=single_value_prompt, **kwargs):
     """
     create a callback function to prompt for input which displays help if '?' is entered
@@ -156,6 +228,8 @@ def prompt_with_help(prompt=None, default=None, suggestions=None, callback=defau
 
         '''print debug info if flag is set'''
         if debug:
+            click.echo('')
+            click.echo('parsing option: ' + param.name)
             click.echo('context: ' + str(ctx))
             click.echo('parameter: ' + str(param))
             click.echo('value: ' + repr(value))
@@ -205,3 +279,117 @@ def prompt_help_loop(prompt=None, suggestions=None):
         return decorated_validator
     return decorator
 
+
+class base_validator(object):
+    def __init__(self, raise_exceptions=False, required_if=None):
+        self.raise_exceptions = raise_exceptions
+        self.required_if = required_if
+
+    def __call__(self, ctx, param, value, raise_exceptions=None):
+        """check if the path is needed and if yes, validate"""
+
+        if raise_exceptions is None:
+            raise_exceptions = self.raise_exceptions
+
+        '''gather context info'''
+        if self.required_if is not None:
+            required = self.required_if(ctx, param)
+        else:
+            required = True
+        debug = ctx.params.get('debug')
+
+        '''debug info'''
+        if debug:
+            click.echo('\trequired: ' + str(required))
+            click.echo('\traising: ' + str(raise_exceptions))
+
+        '''No validation needed'''
+        if not required:
+            return True, value
+
+        '''validation needed'''
+        result = False, value
+        if value:
+            '''try to convert'''
+            try:
+                value = self.validate(ctx, param, value)
+                result = True, value
+            except click.BadParameter as e:
+                '''conversion failed'''
+                if raise_exceptions:
+                    raise e
+                click.echo(e.format_message(), err=True)
+                result = False, value
+        else:
+            '''no value given'''
+            if raise_exceptions:
+                raise click.MissingParameter(param=param)
+        if debug:
+            click.echo('\tconverted value: ' + str(result[1]))
+            click.echo('\tvalid: ' + str(result[0]))
+        return result
+
+    def validate(ctx, param, value):
+        if value is None:
+            raise click.MissingParameter(param=param)
+        else:
+            return value
+
+    def nothrow(self, ctx, param, value):
+        return self.__call__(ctx, param, value, raise_exceptions=False)
+
+    def throw(self, ctx, param, value):
+        return self.__call__(ctx, param, value, raise_exceptions=True)
+
+
+class path_validator(base_validator):
+    """
+    wrapper around click.Path to be used in custom callbacks
+    """
+    def __init__(self, is_abs=False, expand_user=True, raise_exceptions=False, required_if=None, prefix_opt=None, **kwargs):
+        super(path_validator, self).__init__(raise_exceptions=raise_exceptions, required_if=required_if)
+        """relay kwargs to click.path"""
+        self.path_t = click.Path(**kwargs)
+        self.expand_user = expand_user
+        self.is_abs = is_abs
+        self.prefix_opt = prefix_opt
+
+    def validate(self, ctx, param, value):
+        """validate a path argument, raising click.BadParameter if invalid"""
+        if self.expand_user:
+            from os.path import expanduser
+            value = expanduser(value)
+        if self.is_abs:
+            from os.path import isabs
+            if not isabs(value):
+                raise click.BadParameter('Must be an absolute path!', param=param)
+        if self.prefix_opt:
+            from os.path import join as pjoin
+            value = pjoin(ctx.params.get(self.prefix_opt), value)
+        value = self.path_t.convert(value, param, ctx)
+        return value
+
+
+class computer_validator(base_validator):
+    def __init__(self, required_if=None, raise_exceptions=False):
+        super(computer_validator, self).__init__(raise_exceptions=raise_exceptions, required_if=required_if)
+
+    @aiida_dbenv
+    def validate(self, ctx, param, value):
+        """validate computer argument in prompt callback"""
+        '''get a list of computers to verify the given one is in there'''
+        from aiida.orm.computer import Computer
+        computers = computer_name_list()
+        if ctx.params.get('debug'):
+            click.echo('\tpossible computers: ' + str(computers))
+            click.echo('\tvalid: ' + str(value in computers))
+        if not value in computers:
+            raise click.BadParameter('{} is not a computer in your database!'.format(value), param=param)
+        return Computer.get(value)
+
+class input_plugin_validator(base_validator):
+    def validate(self, ctx, param, value):
+        pluginlist = input_plugin_list()
+        if not value in pluginlist:
+            raise click.BadParameter('{} is not an input plugin!'.format(value))
+        return value
