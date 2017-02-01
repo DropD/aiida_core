@@ -5,8 +5,10 @@ from aiida.cmdline import verdic_options
 from aiida.cmdline.verdic_utils import (
     load_dbenv_if_not_loaded, aiida_dbenv, prompt_help_loop,
     prompt_with_help, path_validator, input_plugin_list, computer_name_list,
-    computer_validator, multi_line_prompt, create_code, input_plugin_validator)
+    computer_validator, multi_line_prompt, create_code, input_plugin_validator,
+    InteractiveOption)
 from aiida.cmdline.verdic_types.code import CodeArgument
+from aiida.cmdline.verdic_types.plugin import PluginArgument
 
 @click.group()
 def code():
@@ -202,7 +204,7 @@ validate_input_plugin = input_plugin_validator()
 @click.option('--label', is_eager=True, callback=prompt_with_help(prompt='Label'), help='A label to refer to this code')
 @click.option('--description',is_eager=True , callback=prompt_with_help(prompt='Description'), help='A human-readable description of this code')
 @click.option('--is-local', is_eager=True, callback=prompt_with_help(prompt='Local', callback=validate_local), help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
-@click.option('--input-plugin', callback=prompt_with_help(prompt='Default input plugin', callback=validate_input_plugin, ni_callback=validate_input_plugin.throw, suggestions=input_plugin_list), help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
+@click.option('--input-plugin', prompt='Default input plugin', type=PluginArgument(category='calculations'), cls=InteractiveOption, help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
 @click.option('--code-folder', callback=prompt_with_help(prompt='Folder containing the code', callback=validate_code_folder, ni_callback=validate_code_folder.throw), help='For local codes: The folder on your local computer in which there are files to be stored in the AiiDA repository and then copied over for every submitted calculation')
 @click.option('--code-rel-path', callback=prompt_with_help(prompt='Relative path of the executable', callback=validate_code_rel_path, ni_callback=validate_code_rel_path.throw), help='The relative path of the executable file inside the folder entered in the previous step or in --code-folder')
 @click.option('--computer', callback=computer_callback, help='The name of the computer on which the code resides as stored in the AiiDA database')
@@ -236,3 +238,11 @@ def setup(**kwargs):
         click.echo('The following code was created:')
         click.echo(code.full_text_info)
         click.echo('Recieved --dry-run, therefore not storing the code')
+
+@code.command()
+@click.option('--code', type=CodeArgument(), prompt='Code', cls=InteractiveOption)
+@click.option('--input-plugin', type=PluginArgument(category='calculations'), prompt='Default input plugin', cls=InteractiveOption)
+@verdic_options.debug()
+def experiment(code, input_plugin, debug):
+    click.echo(str(code))
+    click.echo(str(input_plugin))

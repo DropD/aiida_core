@@ -10,9 +10,10 @@ from aiida.cmdline.verdic_utils import aiida_dbenv
 
 
 class CodeArgument(click.ParamType):
-    '''
-    handle tab-completion (relies on click-completion) for Code db entries
-    '''
+    """
+    handle verification and tab-completion (relies on click-completion) for Code db entries
+    """
+    name = 'aiida code'
     def get_possibilities(self, incomplete=''):
         from aiida.cmdline.verdic_utils import get_code_data
         names = [(c[1], c[2]) for c in get_code_data() if startswith(c[1], incomplete)]
@@ -33,3 +34,18 @@ class CodeArgument(click.ParamType):
             codes = [code_item.format(*p) for p in self.get_possibilities()]
         return 'Possible arguments are:\n\n' + '\n'.join(codes)
 
+    @aiida_dbenv
+    def unsafe_convert(self, value, param, ctx):
+        codes = [c[0] for c in self.get_possibilities()]
+        if not value in codes:
+            raise click.BadParameter('Must be a code in you database', param=param)
+        return True, value
+
+    def safe_convert(self, value, param, ctx):
+        result = False, value
+        try:
+            result = self.unsafe_convert(value, param, ctx)
+        except click.BadParameter as e:
+            click.echo(e.format_message())
+            result = False, value
+        return result

@@ -393,3 +393,90 @@ class input_plugin_validator(base_validator):
         if not value in pluginlist:
             raise click.BadParameter('{} is not an input plugin!'.format(value))
         return value
+
+
+class InteractiveOption(click.Option):
+    def __init__(self, param_decls=None, multiline=False, **attrs):
+        self.prompt_string = attrs.pop('prompt')
+        self.multiline = multiline
+        super(InteractiveOption, self).__init__(param_decls=param_decls, **attrs)
+        if self.multiline:
+            self.prompt_loop = multi_line_prompt
+        else:
+            self.prompt_loop = self.single_value_prompt
+
+        self.after_prompt_callback = self.callback or None
+        self.callback = self.argument_callback
+        self.max_suggestions = 10
+
+    def argument_callback(self, ctx, param, value, **kwargs):
+        '''gather relevant context info'''
+        non_interactive = ctx.params.get('non_interactive')
+        debug = ctx.params.get('debug')
+
+        '''print debug info if flag is set'''
+        if debug:
+            click.echo('')
+            click.echo('parsing option: ' + param.name)
+            click.echo('context: ' + str(ctx))
+            click.echo('parameter: ' + str(param))
+            click.echo('value: ' + repr(value))
+
+        '''validate and optionally convert'''
+        if non_interactive and hasattr(self.type, 'unsafe_convert'):
+            valid_input, value = self.type.unsafe_convert(value, param, ctx)
+        elif hasattr(self.type, 'safe_convert'):
+            valid_input, value = self.type.safe_convert(value, param, ctx)
+        else:
+            valid_input = value is not None
+
+        '''to prompt or not to prompt'''
+        if not valid_input and not non_interactive:
+            '''prompting necessary'''
+            value = self.prompt_loop(ctx, param, value, **kwargs)
+        '''more debug info'''
+        if debug:
+            click.echo('recieved: ' + str(value))
+
+        if self.after_prompt_callback:
+            value = self.after_prompt_callback(ctx, param, value)
+        return value
+
+    def single_value_prompt(self, ctx, param, value, **kwargs):
+        """
+        prompt for a single value on the commandline
+
+        :param ctx: context object, passed by click on callback
+        :param param: parameter object, passed by click on callback
+        :param value: parameter value, passed by click on callback
+        :return: value as converted by callback
+        """
+        import pprint
+        keep_prompting = True
+        _help = self.help or 'invalid input'
+        if hasattr(self.type, 'get_possibilities'):
+            possibilities = self.type.get_possibilities()
+            if possibilities:
+                if isinstance(possibilities[0], tuple):
+                    item = '{:<12} {}'
+                    suggestions = [item.format(*p) for p in possibilities]
+                else:
+                    suggestions = possibilities
+                if len(suggestions) > self.max_suggestions:
+                    suggestions = suggestions[:self.max_suggestions]
+                    suggestions += ['...']
+            _help += '\none of:\n\t' + '\n\t'.join(suggestions)
+        if keep_prompting:
+            click.echo(_help)
+        while keep_prompting:
+            value = click.prompt(self.prompt_string, default=self.default)
+            if value == '?':
+                click.echo(_help)
+            else:
+                valid, converted_value = self.type.safe_convert(value, param, ctx)
+                if valid:
+                    value = converted_value
+                    break
+                else:
+                    click.echo(_help)
+        return value
