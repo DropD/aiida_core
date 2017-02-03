@@ -1,17 +1,31 @@
+#-*- coding: utf8 -*-
+"""
+utilities for verdi commandline
+"""
 import click
 from click_spinner import spinner as cli_spinner
 
+
 def load_dbenv_if_not_loaded():
+    """
+    load dbenv if necessary, run spinner meanwhile to show command hasn't crashed
+    """
     with cli_spinner():
         from aiida.backends.utils import load_dbenv, is_dbenv_loaded
         if not is_dbenv_loaded():
             load_dbenv()
 
+
 def aiida_dbenv(function):
+    """
+    a function decorator that loads the dbenv if necessary before running the function
+    """
     def decorated_function(*args, **kwargs):
+        """load dbenv if not yet loaded, then run the original function"""
         load_dbenv_if_not_loaded()
         return function(*args, **kwargs)
     return decorated_function
+
 
 @aiida_dbenv
 def get_code(code_id):
@@ -24,15 +38,17 @@ def get_code(code_id):
         label equal to the ID of another code B is present, code A cannot
         be referenced by label).
     """
-    from aiida.common.exceptions import NotExistent, MultipleObjectsError
+    import sys
 
+    from aiida.common.exceptions import NotExistent, MultipleObjectsError
     from aiida.orm import Code as AiidaOrmCode
 
     try:
         return AiidaOrmCode.get_from_string(code_id)
     except (NotExistent, MultipleObjectsError) as e:
-        print >> sys.stderr, e.message
+        click.echo(e.message, err=True)
         sys.exit(1)
+
 
 @aiida_dbenv
 def get_code_data(django_filter=None):
@@ -52,6 +68,7 @@ def get_code_data(django_filter=None):
     qb.append(type='user', creator_of=AiidaOrmCode, project=['email'])
 
     return sorted(qb.all())
+
 
 def create_code(**kwargs):
     """
@@ -96,11 +113,14 @@ def create_code(**kwargs):
 
     return code
 
+
 @aiida_dbenv
 def input_plugin_list():
+    """return a list of available input plugins"""
     from aiida.common.pluginloader import existing_plugins
     from aiida.orm.calculation.job import JobCalculation
     return [p.rsplit('.', 1)[0] for p in existing_plugins(JobCalculation, 'aiida.orm.calculation.job')]
+
 
 @aiida_dbenv
 def computer_name_list():
@@ -118,7 +138,9 @@ def computer_name_list():
         else:
             return None
 
+
 def print_list_res(qb_query, show_owner):
+    """print a list of QueryBuilder results"""
     if qb_query.count > 0:
         for tuple_ in qb_query.all():
             if len(tuple_) == 3:
@@ -127,7 +149,7 @@ def print_list_res(qb_query, show_owner):
             elif len(tuple_) == 4:
                 (pk, label, useremail, computername) = tuple_
             else:
-                print "Wrong tuple size"
+                click.echo("Wrong tuple size")
                 return
 
             if show_owner:
@@ -138,13 +160,16 @@ def print_list_res(qb_query, show_owner):
                 computernamestring = ""
             else:
                 computernamestring = "@{}".format(computername)
-            print "* pk {} - {}{}{}".format(
-                pk, label, computernamestring, owner_string)
+            click.echo("* pk {} - {}{}{}".format(
+                pk, label, computernamestring, owner_string))
     else:
-        print "# No codes found matching the specified criteria."
+        click.echo("# No codes found matching the specified criteria.")
+
 
 def default_callback(ctx, param, value):
+    """return bool(value), value"""
     return bool(value), value
+
 
 def single_value_prompt(ctx, param, value, prompt=None, default=None, callback=default_callback, suggestions=None, **kwargs):
     """
@@ -177,6 +202,7 @@ def single_value_prompt(ctx, param, value, prompt=None, default=None, callback=d
                 click.echo(_help)
     return value
 
+
 def multi_line_prompt(ctx, param, value, prompt=None, header=True, **kwargs):
     """
     prompt for multiple lines of input on the commandline
@@ -208,6 +234,7 @@ def multi_line_prompt(ctx, param, value, prompt=None, header=True, **kwargs):
         else:
             lines.append(line)
     return lines
+
 
 def prompt_with_help(prompt=None, default=None, suggestions=None, callback=default_callback, ni_callback=None, prompt_loop=single_value_prompt, **kwargs):
     """
@@ -252,35 +279,51 @@ def prompt_with_help(prompt=None, default=None, suggestions=None, callback=defau
         return value
     return prompt_callback
 
+
 def prompt_help_loop(prompt=None, suggestions=None):
+    """prompt for a value, display help at ?, use decorated function for validation"""
     def decorator(validator_func):
+        """decorate a validator function with a loop prompting for a value, displaying help at ?"""
         def decorated_validator(ctx, param, value):
+            """promtp for a value, display help at ?, use inner function for validation"""
             prevalue = validator_func(ctx, param, value)
             if isinstance(ctx.obj, dict):
                 if ctx.obj.get('nocheck'):
                     return prevalue or 'UNUSED'
-            help = param.help or 'invalid input'
+            _help = param.help or 'invalid input'
             if suggestions:
-                help += '\none of:\n\t' + '\n\t'.join(suggestions())
+                _help += '\none of:\n\t' + '\n\t'.join(suggestions())
             if not ctx.params.get('non_interactive'):
                 if isinstance(ctx.obj, dict):
                     multiline = ctx.obj.get('multiline', [])
-                    print ctx.obj
+                    click.echo(ctx.obj)
                     while param in multiline:
-                        value = decorated_validator( ctx, param, click.prompt(prompt or param.prompt))
+                        value = decorated_validator(ctx, param, click.prompt(prompt or param.prompt))
                     value = ctx.obj.get('multiline_val_'+param.opts[0])
                 while validator_func(ctx, param, value) is None or value == '?':
-                    click.echo(help)
+                    click.echo(_help)
                     value = decorated_validator(ctx, param, click.prompt(prompt or param.prompt, default=param.default))
             value = validator_func(ctx, param, value)
             if ctx.params.get('non_interactive') and not value:
-                raise click.MissingParameter(ctx=ctx, param=param, param_hint='{} {}'.format(param.opts, help))
+                raise click.MissingParameter(ctx=ctx, param=param, param_hint='{} {}'.format(param.opts, _help))
             return value
         return decorated_validator
     return decorator
 
 
 class base_validator(object):
+    """
+    Base class for validators for click options
+
+    automatically provides a non-raising validation method
+    subclasses must implement validate to raise click.BadParam if validation
+    fails.
+
+    :param raise_exceptions: the default behaviour for __call__
+    :required_if: callable with signature (ctx, param) which returns True
+        if the parameter is required and False if not, in which case no validation
+        will take place
+    """
     def __init__(self, raise_exceptions=False, required_if=None):
         self.raise_exceptions = raise_exceptions
         self.required_if = required_if
@@ -329,16 +372,19 @@ class base_validator(object):
             click.echo('\tvalid: ' + str(result[0]))
         return result
 
-    def validate(ctx, param, value):
+    def validate(self, ctx, param, value):
+        """only checks if any value was given at all"""
         if value is None:
             raise click.MissingParameter(param=param)
         else:
             return value
 
     def nothrow(self, ctx, param, value):
+        """validate without raising exceptions for invalid arguments"""
         return self.__call__(ctx, param, value, raise_exceptions=False)
 
     def throw(self, ctx, param, value):
+        """validate, raising exceptions for invalid arguments"""
         return self.__call__(ctx, param, value, raise_exceptions=True)
 
 
@@ -371,6 +417,7 @@ class path_validator(base_validator):
 
 
 class computer_validator(base_validator):
+    """check that the given argument corresponds to a computer in the user database"""
     def __init__(self, required_if=None, raise_exceptions=False):
         super(computer_validator, self).__init__(raise_exceptions=raise_exceptions, required_if=required_if)
 
@@ -383,19 +430,26 @@ class computer_validator(base_validator):
         if ctx.params.get('debug'):
             click.echo('\tpossible computers: ' + str(computers))
             click.echo('\tvalid: ' + str(value in computers))
-        if not value in computers:
+        if value not in computers:
             raise click.BadParameter('{} is not a computer in your database!'.format(value), param=param)
         return Computer.get(value)
 
+
 class input_plugin_validator(base_validator):
+    """check that the given argument corresponds to an available input plugin"""
     def validate(self, ctx, param, value):
         pluginlist = input_plugin_list()
-        if not value in pluginlist:
+        if value not in pluginlist:
             raise click.BadParameter('{} is not an input plugin!'.format(value))
         return value
 
 
 class InteractiveOption(click.Option):
+    """
+    registers a callback for alternative prompting behaviour
+
+    :kwarg multiline: if True, the multiline prompt will be used
+    """
     def __init__(self, param_decls=None, multiline=False, **attrs):
         self.prompt_string = attrs.pop('prompt')
         self.multiline = multiline
@@ -451,7 +505,6 @@ class InteractiveOption(click.Option):
         :param value: parameter value, passed by click on callback
         :return: value as converted by callback
         """
-        import pprint
         keep_prompting = True
         _help = self.help or 'invalid input'
         if hasattr(self.type, 'get_possibilities'):

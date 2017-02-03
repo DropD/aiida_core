@@ -1,6 +1,11 @@
+#-*- coding: utf8 -*-
+"""
+standard options for consistency throughout the verdi commandline
+"""
 import click
 
-from  aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
+from aiida.backends.profile import (BACKEND_DJANGO, BACKEND_SQLA)
+
 
 class overridable_option(object):
     """
@@ -22,8 +27,9 @@ class overridable_option(object):
         kwargs.update(self.kwargs)
         return click.option(*self.args, **kwargs)
 
+
 backend = overridable_option('--backend', type=click.Choice([BACKEND_DJANGO, BACKEND_SQLA],),
-                       help='backend choice')
+                             help='backend choice')
 email = overridable_option('--email', metavar='EMAIL', type=str, help='valid email address for the user')
 db_host = overridable_option('--db_host', metavar='HOSTNAME', type=str, help='database hostname')
 db_port = overridable_option('--db_port', metavar='PORT', type=int, help='database port')

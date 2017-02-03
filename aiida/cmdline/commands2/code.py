@@ -1,20 +1,26 @@
+#-*- coding: utf8 -*-
+"""
+verdi code commands
+"""
 import sys
 import click
 
 from aiida.cmdline import verdic_options
 from aiida.cmdline.verdic_utils import (
     load_dbenv_if_not_loaded, aiida_dbenv, prompt_help_loop,
-    prompt_with_help, path_validator, input_plugin_list, computer_name_list,
+    prompt_with_help, path_validator, computer_name_list,
     computer_validator, multi_line_prompt, create_code, input_plugin_validator,
     InteractiveOption)
 from aiida.cmdline.verdic_types.code import CodeArgument
 from aiida.cmdline.verdic_types.plugin import PluginArgument
+
 
 @click.group()
 def code():
     """
     manage codes in your AiiDA database.
     """
+
 
 @code.command('list')
 @click.option('-c', '--computer', help='filter codes for a computer')
@@ -60,20 +66,20 @@ def _list(computer, plugin, all_users, show_owner, all_codes):
     if computer_filter is not None:
         qb = QueryBuilder()
         qb.append(Code, tag="code",
-                    filters=qb_code_filters,
-                    project=["id", "label"])
+                  filters=qb_code_filters,
+                  project=["id", "label"])
         # We have a user assigned to the code so we can ask for the
         # presence of a user even if there is no user filter
         qb.append(User, creator_of="code",
-                    project=["email"],
-                    filters=qb_user_filters)
+                  project=["email"],
+                  filters=qb_user_filters)
         # We also add the filter on computer. This will automatically
         # return codes that have a computer (and of course satisfy the
         # other filters). The codes that have a computer attached are the
         # remote codes.
         qb.append(Computer, computer_of="code",
-                    project=["name"],
-                    filters=qb_computer_filters)
+                  project=["name"],
+                  filters=qb_computer_filters)
         print_list_res(qb, show_owner)
 
     # If there is no filter on computers
@@ -82,15 +88,15 @@ def _list(computer, plugin, all_users, show_owner, all_codes):
         # (these are the remote codes)
         qb = QueryBuilder()
         qb.append(Code, tag="code",
-                    filters=qb_code_filters,
-                    project=["id", "label"])
+                  filters=qb_code_filters,
+                  project=["id", "label"])
         # We have a user assigned to the code so we can ask for the
         # presence of a user even if there is no user filter
         qb.append(User, creator_of="code",
-                    project=["email"],
-                    filters=qb_user_filters)
+                  project=["email"],
+                  filters=qb_user_filters)
         qb.append(Computer, computer_of="code",
-                    project=["name"])
+                  project=["name"])
         print_list_res(qb, show_owner)
 
         # Now print all the local codes. To get the local codes we ask
@@ -101,17 +107,18 @@ def _list(computer, plugin, all_users, show_owner, all_codes):
             qb_code_filters = comp_non_existence
         else:
             new_qb_code_filters = {"and": [qb_code_filters,
-                                    comp_non_existence]}
+                                           comp_non_existence]}
             qb_code_filters = new_qb_code_filters
         qb.append(Code, tag="code",
-                    filters=qb_code_filters,
-                    project=["id", "label"])
+                  filters=qb_code_filters,
+                  project=["id", "label"])
         # We have a user assigned to the code so we can ask for the
         # presence of a user even if there is no user filter
         qb.append(User, creator_of="code",
-                    project=["email"],
-                    filters=qb_user_filters)
+                  project=["email"],
+                  filters=qb_user_filters)
         print_list_res(qb, show_owner)
+
 
 @code.command()
 @click.argument('code', metavar='CODE', type=CodeArgument())
@@ -124,7 +131,9 @@ def show(code):
     code = get_code(code)
     click.echo(code.full_text_info)
 
+
 def validate_local(ctx, param, value):
+    """validate and convert string to boolean"""
     if value in [True, 'True', 'true', 'T']:
         return True, True
     elif value in [False, 'False', 'false', 'F']:
@@ -132,8 +141,11 @@ def validate_local(ctx, param, value):
     else:
         return False, None
 
+
 def validate_path(prefix_opt=None, is_abs=False, **kwargs):
+    """validate string input as a path"""
     def decorated_validator(ctx, param, value):
+        """validate string input as path"""
         from os import path
         from os.path import expanduser, isabs
         path_t = click.Path(**kwargs)
@@ -156,10 +168,14 @@ def validate_path(prefix_opt=None, is_abs=False, **kwargs):
         return validator_func(ctx, param, value)
     return decorated_validator
 
+
 def required_if_local(ctx, param):
+    """return the boolean value of the is_local parameter"""
     return ctx.params.get('is_local')
 
+
 def required_if_remote(ctx, param):
+    """return the inverse boolean value of the is_local parameter"""
     return not ctx.params.get('is_local')
 
 validate_code_folder = path_validator(
@@ -200,9 +216,10 @@ append_callback = prompt_with_help(
 
 validate_input_plugin = input_plugin_validator()
 
+
 @code.command()
 @click.option('--label', is_eager=True, callback=prompt_with_help(prompt='Label'), help='A label to refer to this code')
-@click.option('--description',is_eager=True , callback=prompt_with_help(prompt='Description'), help='A human-readable description of this code')
+@click.option('--description', is_eager=True, callback=prompt_with_help(prompt='Description'), help='A human-readable description of this code')
 @click.option('--is-local', is_eager=True, callback=prompt_with_help(prompt='Local', callback=validate_local), help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
 @click.option('--input-plugin', prompt='Default input plugin', type=PluginArgument(category='calculations'), cls=InteractiveOption, help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
 @click.option('--code-folder', callback=prompt_with_help(prompt='Folder containing the code', callback=validate_code_folder, ni_callback=validate_code_folder.throw), help='For local codes: The folder on your local computer in which there are files to be stored in the AiiDA repository and then copied over for every submitted calculation')
@@ -215,6 +232,7 @@ validate_input_plugin = input_plugin_validator()
 @verdic_options.dry_run()
 @verdic_options.debug()
 def setup(**kwargs):
+    """create and store a code on the commandline"""
     from aiida.common.exceptions import ValidationError
 
     code = create_code(**kwargs)
@@ -239,10 +257,12 @@ def setup(**kwargs):
         click.echo(code.full_text_info)
         click.echo('Recieved --dry-run, therefore not storing the code')
 
+
 @code.command()
 @click.option('--code', type=CodeArgument(), prompt='Code', cls=InteractiveOption)
 @click.option('--input-plugin', type=PluginArgument(category='calculations'), prompt='Default input plugin', cls=InteractiveOption)
 @verdic_options.debug()
 def experiment(code, input_plugin, debug):
+    """experiment with option behaviours"""
     click.echo(str(code))
     click.echo(str(input_plugin))
