@@ -9,8 +9,8 @@ from aiida.cmdline import verdic_options
 from aiida.cmdline.verdic_utils import (
     load_dbenv_if_not_loaded, aiida_dbenv, prompt_help_loop,
     prompt_with_help, path_validator, computer_name_list,
-    computer_validator, multi_line_prompt, create_code, input_plugin_validator,
-    InteractiveOption)
+    computer_validator, multi_line_prompt, create_code,
+    InteractiveOption, single_value_prompt)
 from aiida.cmdline.verdic_types.code import CodeArgument
 from aiida.cmdline.verdic_types.plugin import PluginArgument
 
@@ -214,12 +214,10 @@ append_callback = prompt_with_help(
     prompt_loop=multi_line_prompt
 )
 
-validate_input_plugin = input_plugin_validator()
-
 
 @code.command()
 @click.option('--label', is_eager=True, callback=prompt_with_help(prompt='Label'), help='A label to refer to this code')
-@click.option('--description', is_eager=True, callback=prompt_with_help(prompt='Description'), help='A human-readable description of this code')
+@click.option('--description', is_eager=True, prompt='Description', cls=InteractiveOption, help='A human-readable description of this code')
 @click.option('--is-local', is_eager=True, callback=prompt_with_help(prompt='Local', callback=validate_local), help='True or False; if True, then you have to provide a folder with files that will be stored in AiiDA and copied to the remote computers for every calculation submission. if True the code is just a link to a remote computer and an absolute path there')
 @click.option('--input-plugin', prompt='Default input plugin', type=PluginArgument(category='calculations'), cls=InteractiveOption, help='A string of the default input plugin to be used with this code that is recognized by the CalculationFactory. Use he verdi calculation plugins command to get the list of existing plugins')
 @click.option('--code-folder', callback=prompt_with_help(prompt='Folder containing the code', callback=validate_code_folder, ni_callback=validate_code_folder.throw), help='For local codes: The folder on your local computer in which there are files to be stored in the AiiDA repository and then copied over for every submitted calculation')
@@ -258,11 +256,104 @@ def setup(**kwargs):
         click.echo('Recieved --dry-run, therefore not storing the code')
 
 
+class ExperimentalOption(click.Option):
+    def __init__(self, pd, **kwargs):
+        click.Option.__init__(self, param_decls=pd, **kwargs)
+        self.callback = self.self_callback
+        self.controll_seq = {'?': self.print_help}
+
+    def self_callback(self, ctx, param, value):
+        if ctx.params.get('debug'):
+            click.echo('ExperimentalOption - Callback')
+            click.echo('name:  ' + str(param.name))
+            click.echo('type:  ' + str(param.type))
+            click.echo('value: ' + str(value))
+        return value or None
+
+    def print_help(self):
+        click.echo(self.type.get_missing_message(self))
+
+    def process_value(self, ctx, value):
+        if value in self.controll_seq:
+            self.controll_seq[value]()
+            raise click.BadParameter('')
+        if value is not None:
+            return click.Option.process_value(self, ctx, value)
+
+
+from aiida.cmdline.verdic_types.interactive import InteractiveParam, PromptHelp
+
+
+class ExperimentalParam(InteractiveParam):
+    name = 'Experimental'
+    def convert(self, value, param, ctx):
+        if value == 'invalid':
+            raise click.BadParameter('invalid experimental parameter', param=param)
+        return value
+
+    def get_missing_message(self, param):
+        return 'Please enter ' + param.help + '. | "?" for help'
+
+
+class ExperimentalMlParam(InteractiveParam):
+    name = 'Experimental - Multiline'
+    def __init__(self, *args, **kwargs):
+        InteractiveParam.__init__(self, *args, **kwargs)
+        self.lines = []
+        self.prompting = False
+        self.is_multiline = True
+
+    def convert(self, value, param, ctx):
+        if value == '\\restart':
+            self.lines = []
+            raise PromptHelp(self.get_missing_message(param))
+        elif value.endswith('\\EOF'):
+            self.lines.append(value.replace('\\EOF', ''))
+            return self.lines
+        else:
+            self.lines.append(value)
+            raise click.BadParameter('')
+
+    def get_missing_message(self, param):
+        return param.help + ' - Multiline Input | "?" for help, \\restart to restart, \\EOM to accept'
+
+
+def required_if_debug(ctx):
+    return ctx.params.get('debug')
+
+
+def default_required(ctx):
+    return False
+
+
+class InformativeParam(InteractiveParam):
+    name = 'Informative'
+
+    def __init__(self, prompt_if_missing=True, required_if=default_required, *args, **kwargs):
+        click.ParamType.__init__(self, *args, **kwargs)
+        self.prompt_if_missing = prompt_if_missing
+        self.required_if = required_if
+        self.valid = None
+        self.value = None
+
+    def convert(self, value, param, ctx):
+        required = self.required_if(ctx)
+        if value == 'invalid':
+            if required:
+                raise click.BadParameter('invalid value')
+            else:
+                self.valid = False
+                self.value = value
+        return self
+
 @code.command()
-@click.option('--code', type=CodeArgument(), prompt='Code', cls=InteractiveOption)
-@click.option('--input-plugin', type=PluginArgument(category='calculations'), prompt='Default input plugin', cls=InteractiveOption)
+# ~ @click.option('--code', type=CodeArgument(), prompt='Code', cls=InteractiveOption)
+# ~ @click.option('--input-plugin', type=PluginArgument(category='calculations'), prompt='Default input plugin', cls=InteractiveOption)
+@click.option('--exp', type=InformativeParam(), cls=ExperimentalOption, help='any string value')
+@click.option('--exp2', prompt='Experimental Param 2', type=ExperimentalParam(), cls=ExperimentalOption, help='any string value')
 @verdic_options.debug()
-def experiment(code, input_plugin, debug):
+def experiment(exp, exp2, debug):
     """experiment with option behaviours"""
-    click.echo(str(code))
-    click.echo(str(input_plugin))
+    # ~ click.echo(str(code))
+    # ~ click.echo(str(input_plugin))
+    click.echo(str(exp))
