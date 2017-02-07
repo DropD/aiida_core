@@ -13,7 +13,7 @@ cpl_init()
 @with_plugins(iter_entry_points('aiida.cmdline'))
 @click.group()
 @click.option('-p', '--profile', metavar='PROFILENAME')
-def verdic(profile):
+def verdi_plug(profile):
     """
     The commandline interface to AiiDA
     """
