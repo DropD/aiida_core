@@ -10,7 +10,7 @@ from pkg_resources import iter_entry_points
 cpl_init()
 
 
-@with_plugins(iter_entry_points('aiida.cmdline.verdi'))
+@with_plugins(iter_entry_points('aiida.cmdline'))
 @click.group()
 @click.option('-p', '--profile', metavar='PROFILENAME')
 def verdic(profile):

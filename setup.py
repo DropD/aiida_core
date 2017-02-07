@@ -44,12 +44,6 @@ if __name__ == '__main__':
             'aiida.calculations': [],
             'aiida.parsers': [],
             'aiida.cmdline': [],
-            'aiida.cmdline.verdi': [
-                'run = aiida.cmdline.commands2.run:run',
-                'setup = aiida.cmdline.commands2.setup:setup',
-                'quicksetup = aiida.cmdline.commands2.quicksetup:quicksetup',
-                'code = aiida.cmdline.commands2.code:code'
-            ],
             'aiida.schedulers': [],
             'aiida.transports': [],
             'aiida.workflows': [],
