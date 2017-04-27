@@ -246,7 +246,7 @@ class InteractiveOption(ConditionalOption):
                     return self.type.convert(default, param, ctx)
                 else:
                     '''... or raise Missing Parameter'''
-                    raise click.MissingParameter()
+                    raise click.MissingParameter(param=param)
             '''prompting allowed'''
             value = self.prompt_loop(ctx, param, value)
         return value

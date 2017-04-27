@@ -11,13 +11,30 @@ then
     verdi -p $TEST_AIIDA_BACKEND daemon start
     
     # Setup the torquessh computer
-    cat ${TRAVIS_BUILD_DIR}/.travis-data/computer-setup-input.txt | verdi -p $TEST_AIIDA_BACKEND computer setup
+    #cat ${TRAVIS_BUILD_DIR}/.travis-data/computer-setup-input.txt | verdi -p $TEST_AIIDA_BACKEND computer setup
+    verdi -p $TEST_AIIDA_BACKEND computer setup --non-interactive\
+        --label=torquessh\
+        --description="torque locally via ssh"\
+        --hostname=localhost\
+        --enabled\
+        --transport=ssh\
+        --scheduler=torque\
+        --workdir=/scratch/{username}/aiida_run\
+        --mpirun="mpirun -np {tot_num_mpiprocs}"\
+        --ppm=1
 
     # Configure the torquessh computer
     cat ${TRAVIS_BUILD_DIR}/.travis-data/computer-configure-input.txt | verdi -p $TEST_AIIDA_BACKEND computer configure torquessh
 
     # Configure the 'doubler' code inside torquessh
-    cat ${TRAVIS_BUILD_DIR}/.travis-data/code-setup-input.txt | verdi -p $TEST_AIIDA_BACKEND code setup
+    #cat ${TRAVIS_BUILD_DIR}/.travis-data/code-setup-input.txt | verdi -p $TEST_AIIDA_BACKEND code setup
+    verdi -p $TEST_AIIDA_BACKEND code setup --non-interactive\
+        --label=doubler\
+        --description="simple script that doubles a number and sleeps for a given number of seconds"\
+        --installed\
+        --input-plugin=simpleplugins.templatereplacer\
+        --computer=torquessh\
+        --remote-abs-path=/usr/local/bin/doubler.sh
 
     # Make sure that the torquessh (localhost:10022) key is hashed
     # in the known_hosts file

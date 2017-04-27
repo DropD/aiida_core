@@ -1,4 +1,5 @@
 torquessh
+torque on local machine via ssh
 localhost
 
 True
