@@ -4,9 +4,9 @@ verdi code setup
 """
 import click
 
-from aiida_verdi import options
-from aiida_verdi.verdic_utils import create_code
-from aiida_verdi.utils.interactive import InteractiveOption
+from aiida.cmdline.aiida_verdi import options
+from aiida.cmdline.aiida_verdi.verdic_utils import create_code
+from aiida.cmdline.aiida_verdi.utils.interactive import InteractiveOption
 
 
 @click.command()
@@ -32,7 +32,7 @@ def setup(non_interactive, dry_run, **kwargs):
     post = kwargs['append_text'] or ''
     if (not non_interactive) and ((not pre) or (not post)):
         '''let the user edit the pre and post execution scripts'''
-        from aiida_verdi.utils.mlinput import edit_pre_post
+        from aiida.cmdline.aiida_verdi.utils.mlinput import edit_pre_post
         pre, post = edit_pre_post(pre, post, kwargs)
         kwargs['prepend_text'] = pre
         kwargs['append_text'] = post
