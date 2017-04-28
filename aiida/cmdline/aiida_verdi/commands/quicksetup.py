@@ -6,6 +6,7 @@ import click
 
 from aiida.backends.profile import BACKEND_SQLA
 from aiida.cmdline.aiida_verdi import options as cliopt
+from aiida.cmdline.aiida_verdi.utils.interactive import InteractiveOption
 
 _create_user_command = 'CREATE USER "{}" WITH PASSWORD \'{}\''
 _create_db_command = 'CREATE DATABASE "{}" OWNER "{}"'
