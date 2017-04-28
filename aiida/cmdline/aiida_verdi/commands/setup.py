@@ -47,7 +47,7 @@ def setup(only_config, non_interactive, dry_run, **kwargs):
 
     if non_interactive:
         params = {i.name: i for i in setup.params}
-        required = ['profile', 'backend', 'email', 'db_host', 'db_port',
+        required = ['backend', 'email', 'db_host', 'db_port',
                   'db_name', 'db_user', 'db_pass', 'first_name',
                   'last_name', 'institution', 'no_password', 'repo']
         for i in required:
