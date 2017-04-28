@@ -59,8 +59,8 @@ def setup(only_config, non_interactive, dry_run, **kwargs):
     # create the directories to store the configuration files
     create_base_dirs()
 
-    if settings_profile.AIIDADB_PROFILE and profile:
-        click.Error('the profile argument cannot be used if verdi is called with -p option: {} and {}'.format(settings_profile.AIIDADB_PROFILE, profile))
+    if settings_profile.AIIDADB_PROFILE and kwargs['profile']:
+        click.Error('the profile argument cannot be used if verdi is called with -p option: {} and {}'.format(settings_profile.AIIDADB_PROFILE, kwargs['profile']))
     gprofile = settings_profile.AIIDADB_PROFILE or kwargs['profile']
     if gprofile == kwargs['profile']:
         settings_profile.AIIDADB_PROFILE = kwargs['profile']
