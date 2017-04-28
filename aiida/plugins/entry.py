@@ -6,6 +6,9 @@ location for the (implicit) definition of the registry format.
 
 
 class InvalidPluginEntryError(Exception):
+    """
+    Should be raised when an invalid plugin entry is encountered
+    """
     def __init__(self, msg=''):
         msg = 'Error: Invalid Plugin Registry Entry: {}'.format(msg)
         super(InvalidPluginEntryError, self).__init__(msg)
@@ -18,12 +21,13 @@ class RegistryEntry(object):
     """
     def __init__(self, **kwargs):
         """
-        stores registry entry keys and loads the setup_info from the url given in plugin_info
+        stores registry entry keys and loads the setup_info from the url
+        given in plugin_info
         """
         self.entry_point = kwargs['entry_point']
         self.name = kwargs['name']
         self.pip_url = kwargs.get('pip_url', None)
-        self.info_url = kwargs['plugin_info']
+        self.info_url = kwargs.get('plugin_info')
         self.load_setup_info(self.info_url)
 
         '''placeholders'''
@@ -31,6 +35,9 @@ class RegistryEntry(object):
 
     def load_setup_info(self, info_url):
         """Load setup kwargs from the link in the registry"""
+        if not info_url:
+            self.setup_info = {}
+            return None
         from aiida.plugins.utils import load_json_from_url
         self.setup_info = load_json_from_url(info_url)
         required = ['name', 'version', 'author', 'author_email', 'description',
@@ -43,17 +50,17 @@ class RegistryEntry(object):
     @property
     def package_name(self):
         """The name used to import the package"""
-        return self.setup_info['name']
+        return self.setup_info.get('name', '')
 
     @property
     def version(self):
         """The version of the plugin package"""
-        return self.setup_info['version']
+        return self.setup_info.get('version', '')
 
     @property
     def entry_points_raw(self):
         """The full entry point spec in setuptools.setup() format"""
-        return self.setup_info['entry_points']
+        return self.setup_info.get('entry_points', [])
 
     @property
     def entry_point_categories(self):
@@ -148,15 +155,15 @@ class RegistryEntry(object):
 
     @property
     def author(self):
-        return self.setup_info.get('author')
+        return self.setup_info.get('author', '')
 
     @property
     def author_email(self):
-        return self.setup_info.get('author_email')
+        return self.setup_info.get('author_email', '')
 
     @property
     def description(self):
-        return self.setup_info.get('description')
+        return self.setup_info.get('description', '')
 
     @property
     def tags(self):
@@ -164,7 +171,7 @@ class RegistryEntry(object):
 
     @property
     def home_url(self):
-        return self.setup_info['url']
+        return self.setup_info.get('url')
 
     @property
     def installed(self):

@@ -10,7 +10,8 @@ utilities for:
 
 def registry_cache_folder_name():
     """
-    return the name of the subfolder of aiida_dir where registry caches are stored.
+    return the name of the subfolder of aiida_dir where registry caches are
+    stored.
     """
     return 'plugin_registry_cache'
 
@@ -66,6 +67,9 @@ def unpickle_from_registry_cache_folder(fname):
     from os import path as osp
     cache_dir = registry_cache_folder_path()
     fpath = osp.join(cache_dir, fname)
+    if not osp.exists(fpath):
+        from aiida.plugins.registry import update
+        update()
     with open(fpath, 'r') as cache:
         return pload(cache)
 
@@ -88,6 +92,9 @@ def load_json_from_url(url, errorhandler=None):
 
 
 def connection_error_msg(e):
+    """
+    create a user friendly error message for a connection error
+    """
     msg = 'There seems to be a problem with your internet connection.'
     msg += ' The original error message reads:\n\n'
     '''apparently ConnectionErrors can have an exception as message'''
@@ -98,6 +105,10 @@ def connection_error_msg(e):
 
 
 def value_error_msg(e):
+    """
+    create a user friendly error message for a ValueError occurring
+    while updating the registry
+    """
     msg = 'The AiiDA plugin registry seems to be temporarily unavailable.'
     msg += ' Please try again later. If the problem persists,'
     msg += ' look at github.com/aiidateam/aiida-registry and file an issue'
