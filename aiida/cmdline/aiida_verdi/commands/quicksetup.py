@@ -212,24 +212,42 @@ def _check_db_name(dbname, method=None, **kwargs):
     return dbname, create
 
 
+def profile_info(name, dct):
+    import tabulate
+    table = []
+    table.append(['Name', name])
+    table.extend([
+        ['Backend', dct['backend']],
+        ['User Name', '{} {}'.format(dct['first_name'], dct['last_name'])],
+        ['User email', dct['email']],
+        ['User institution', dct['institution']],
+        ['DB name', dct['db_name']],
+        ['DB user', dct['db_user']],
+        ['DB host', '{}:{}'.format(dct['db_host'], dct['db_port'])],
+        ['File Repo', dct['repo']]
+    ])
+    return tabulate.tabulate(table)
+
+
 @click.command(short_help='Quick setup for new users')
-@cliopt.email(prompt='Email Address (for publishing experiments)', help='This email address will be associated with your data and will be exported along with it, should you choose to share any of your work')
-@cliopt.first_name(prompt='First Name')
-@cliopt.last_name(prompt='Last Name')
-@cliopt.institution(prompt='Institution')
+@cliopt.email(prompt='Email Address (for publishing experiments)', cls=InteractiveOption, help='This email address will be associated with your data and will be exported along with it, should you choose to share any of your work')
+@cliopt.first_name(prompt='First Name', cls=InteractiveOption)
+@cliopt.last_name(prompt='Last Name', cls=InteractiveOption)
+@cliopt.institution(prompt='Institution', cls=InteractiveOption)
 @cliopt.backend(default=BACKEND_SQLA)
 @cliopt.db_user()
-@cliopt.db_host()
 @cliopt.db_pass()
 @cliopt.db_name()
+@cliopt.db_host()
 @cliopt.db_port()
 @click.option('--profile', type=str, metavar='PROFILE_NAME', help='defaults to quicksetup')
 @cliopt.repo()
-@click.option('--make-deamonuser', is_flag=True, help='make the created profile the one that can run the daemon')
-@click.option('--make-default', is_flag=True, help='make the created profile the default verdi profile')
+@click.option('--make-default', help='make this the default profile')
+@click.option('--make-daemon', help='make this the profile that can run the daemon')
+@cliopt.dry_run(help='do not create a database or profile')
 @cliopt.non_interactive()
 @click.pass_obj
-def quicksetup(email, first_name, last_name, institution, backend, db_user, db_user_pw, db_name, db_host, db_port, profile, repo):
+def quicksetup(obj, non_interactive, dry_run, **kwargs):
     '''
     Quick setup for the most common usecase (1 user, 1 machine).
 
@@ -238,7 +256,7 @@ def quicksetup(email, first_name, last_name, institution, backend, db_user, db_u
     Makes sure not to overwrite existing databases or profiles without prompting for confirmation.),
     '''
     import os
-    from aiida.cmdline.commands2.setup import setup
+    from aiida_verdi.commands.setup import setup
     from aiida.common.setup import create_base_dirs, AIIDA_CONFIG_FOLDER
     create_base_dirs()
 
@@ -255,9 +273,9 @@ def quicksetup(email, first_name, last_name, institution, backend, db_user, db_u
     from getpass import getuser
     from aiida.common.setup import generate_random_secret_key
     osuser = getuser()
-    dbuser = db_user or 'aiida_qs_' + osuser
-    dbpass = db_user_pw or generate_random_secret_key()
-    dbname = db_name or 'aiidadb_qs_' + osuser
+    dbuser = kwargs['db_user'] or 'aiida_qs_' + osuser
+    dbpass = kwargs['db_pass'] or generate_random_secret_key()
+    dbname = kwargs['db_name'] or 'aiidadb_qs_' + osuser
 
     # check if there is a profile that contains the db user already
     # and if yes, take the db user password from there
@@ -266,44 +284,57 @@ def quicksetup(email, first_name, last_name, institution, backend, db_user, db_u
     confs = get_or_create_config()
     profs = confs.get('profiles', {})
     for v in profs.itervalues():
-        if v.get('AIIDADB_USER', '') == dbuser and not db_user_pw:
+        if v.get('AIIDADB_USER', '') == dbuser and not kwargs['db_pass']:
             dbpass = v.get('AIIDADB_PASS')
             print 'using found password for {}'.format(dbuser)
             break
 
-    try:
-        create = True
-        if not _dbuser_exists(dbuser, pg_execute, **dbinfo):
-            _create_dbuser(dbuser, dbpass, pg_execute, **dbinfo)
-        else:
-            dbname, create = _check_db_name(dbname, pg_execute, **dbinfo)
-        if create:
-            _create_db(dbuser, dbname, pg_execute, **dbinfo)
-    except Exception as e:
-        click.echo('\n'.join([
-            'Oops! Something went wrong while creating the database for you.',
-            'You may continue with the quicksetup, however:',
-            'For aiida to work correctly you will have to do that yourself as follows.',
-            'Please run the following commands as the user for PostgreSQL (Ubuntu: $sudo su postgres):',
-            '',
-            '\t$ psql template1',
-            '\t==> ' + _create_user_command.format(dbuser, dbpass),
-            '\t==> ' + _create_db_command.format(dbname, dbuser),
-            '\t==> ' + _grant_priv_command.format(dbname, dbuser),
-            '',
-            'Or setup your (OS-level) user to have permissions to create databases and rerun quicksetup.',
-            '']))
-        raise e
+    if not dry_run:
+        try:
+            create = True
+            if not _dbuser_exists(dbuser, pg_execute, **dbinfo):
+                _create_dbuser(dbuser, dbpass, pg_execute, **dbinfo)
+            else:
+                dbname, create = _check_db_name(dbname, pg_execute, **dbinfo)
+            if create:
+                _create_db(dbuser, dbname, pg_execute, **dbinfo)
+        except Exception as e:
+            click.echo('\n'.join([
+                'Oops! Something went wrong while creating the database for you.',
+                'You may continue with the quicksetup, however:',
+                'For aiida to work correctly you will have to do that yourself as follows.',
+                'Please run the following commands as the user for PostgreSQL (Ubuntu: $sudo su postgres):',
+                '',
+                '\t$ psql template1',
+                '\t==> ' + _create_user_command.format(dbuser, dbpass),
+                '\t==> ' + _create_db_command.format(dbname, dbuser),
+                '\t==> ' + _grant_priv_command.format(dbname, dbuser),
+                '',
+                'Or setup your (OS-level) user to have permissions to create databases and rerun quicksetup.',
+                '']))
+            raise e
+    else:
+        click.echo('Not creating database (--dry-run recieved)')
+        click.echo('The following or equivalent would otherwise be run:')
+        click.echo(' $ psql template1')
+        click.echo(' > {}'.format(_create_user_command.format(dbuser, '<password>')))
+        click.echo(' > {}'.format(_create_db_command.format(dbname, dbuser)))
+        click.echo(' > {}'.format(_grant_priv_command.format(dbname, dbuser)))
 
     # create a profile, by default 'quicksetup' and prompt the user if
     # already exists
-    profile_name = profile or 'quicksetup'
+    profile_name = kwargs['profile'] or 'quicksetup'
     write_profile = False
     confs = get_or_create_config()
-    profile_name = profile or 'quicksetup'
-    write_profile = False
     while not write_profile:
         if profile_name in confs.get('profiles', {}):
+            if non_interactive:
+                if kwargs['overwrite']:
+                    write_profile = True
+                    break
+                else:
+                    click.clickException('profile already exists, use --overwrite to overwrite')
+
             if click.confirm('overwrite existing profile {}?'.format(profile_name)):
                 write_profile = True
             else:
@@ -311,48 +342,54 @@ def quicksetup(email, first_name, last_name, institution, backend, db_user, db_u
         else:
             write_profile = True
 
-    dbhost = db_host or dbinfo.get('host', 'localhost')
-    dbport = db_port or dbinfo.get('port', '5432')
+    dbhost = dbinfo.get('host', 'localhost')
+    dbport = dbinfo.get('port', '5432')
 
     from os.path import isabs
-    repo = repo or 'repository-{}/'.format(profile_name)
+    repo = kwargs['repo'] or 'repository-{}/'.format(profile_name)
     if not isabs(repo):
         repo = os.path.join(aiida_dir, repo)
 
     setup_args = {
-        'backend': backend,
-        'email': email,
+        'backend': kwargs['backend'],
+        'email': kwargs['email'],
         'db_host': dbhost,
         'db_port': dbport,
         'db_name': dbname,
         'db_user': dbuser,
         'db_pass': dbpass,
         'repo': repo,
-        'first_name': first_name,
-        'last_name': last_name,
-        'institution': institution,
+        'first_name': kwargs['first_name'],
+        'last_name': kwargs['last_name'],
+        'institution': kwargs['institution'],
         'force_overwrite': write_profile,
+        'only_config': False,
+        'non_interactive': True
     }
-    setup.invoke(profile_name, only_config=False, non_interactive=True, **setup_args)
+    if not dry_run:
+        setup.invoke(profile_name, **setup_args)
+    else:
+        click.echo('profile not written (--dry-run recieved)')
+        click.echo(profile_info(profile_name, setup_args))
 
     # set as new default profile
     # prompt if there is another non-quicksetup profile
-    use_new = False
     defprof = confs.get('default_profiles', {})
     if defprof.get('daemon', '').startswith('quicksetup'):
         use_new = False
-        if kwargs['make_deamonuser']:
-            use_new = True
-        elif not kwargs['non_interactive']:
+        if non_interactive:
+            if kwargs['make_daemon']:
+                use_new = True
+        else:
             use_new = click.confirm('The daemon default profile is set to {}, do you want to set the newly created one ({}) as default? (can be changed back later)'.format(defprof['daemon'], profile_name))
         if use_new:
             set_default_profile('daemon', profile_name, force_rewrite=True)
     if defprof.get('verdi'):
         use_new = False
-        if kwargs['make_default']:
-            use_new = True
-        elif not kwargs['non_interactive']:
+        if non_interactive:
+            if kwargs['make_default']:
+                use_new = True
+        else:
             use_new = click.confirm('The verdi default profile is set to {}, do you want to set the newly created one ({}) as new default? (can be changed back later)'.format(defprof['verdi'], profile_name))
         if use_new:
             set_default_profile('verdi', profile_name, force_rewrite=True)
-
