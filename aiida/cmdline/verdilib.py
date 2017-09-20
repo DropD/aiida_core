@@ -1204,7 +1204,7 @@ def exec_from_cmdline(argv):
             v += "\n"
             # resilient_parsing suppresses interactive prompts
             v += cmd._ctx(args=[], resilient_parsing=True).get_help()
-            v = v.split('\n')  # need list of lines
+        v = v.split('\n')  # need list of lines
 
         lines = [l.strip() for l in v]
         empty_lines = [bool(l) for l in lines]
