@@ -23,3 +23,7 @@ def work():
 @verdi.group()
 def user():
     pass
+
+@verdi.group()
+def code():
+    pass

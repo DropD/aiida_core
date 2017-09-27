@@ -15,6 +15,7 @@ TODO: think if we want to allow to change path and prepend/append text.
 import sys
 
 from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
+from aiida.cmdline.commands import verdi, code
 
 
 def cmdline_fill(attributes, store, print_header=True):
@@ -579,10 +580,13 @@ class Code(VerdiCommandWithSubcommands):
             'setup': (self.code_setup, self.complete_code_pks),
             'rename': (self.code_rename, self.complete_none),
             'update': (self.code_update, self.complete_code_pks),
-            'delete': (self.code_delete, self.complete_code_pks),
+            'delete': (self.cli, self.complete_code_pks),
             'hide': (self.code_hide, self.complete_code_pks),
             'reveal': (self.code_reveal, self.complete_code_pks),
         }
+
+    def cli(self, *args):
+        verdi()
 
     def complete_code_names(self, subargs_idx, subargs):
         code_names = [c[1] for c in self.get_code_data()]
@@ -1005,27 +1009,30 @@ class Code(VerdiCommandWithSubcommands):
         # store comment, to track history
         code.add_comment(comment, user=get_automatic_user())
 
-    def code_delete(self, *args):
-        """
-        Delete a code
 
-        Does not delete the code if there are calculations that are using it
-        (i.e., if there are output links)
-        """
-        from aiida.common.exceptions import InvalidOperation
-        from aiida.orm.code import delete_code
+@code.command('delete')
+@click.argument('code', type=int)
+def code_delete(self, *args):
+    """
+    Delete a code
 
-        if len(args) != 1:
-            print >> sys.stderr, ("after 'code delete' there should be one "
-                                  "argument only, being the code id.")
-            sys.exit(1)
+    Does not delete the code if there are calculations that are using it
+    (i.e., if there are output links)
+    """
+    from aiida.common.exceptions import InvalidOperation
+    from aiida.orm.code import delete_code
 
-        code = self.get_code(args[0])
-        pk = code.pk
-        try:
-            delete_code(code)
-        except InvalidOperation as e:
-            print >> sys.stderr, e.message
-            sys.exit(1)
+    if len(args) != 1:
+        print >> sys.stderr, ("after 'code delete' there should be one "
+                              "argument only, being the code id.")
+        sys.exit(1)
 
-        print "Code '{}' deleted.".format(pk)
+    code = self.get_code(args[0])
+    pk = code.pk
+    try:
+        delete_code(code)
+    except InvalidOperation as e:
+        print >> sys.stderr, e.message
+        sys.exit(1)
+
+    print "Code '{}' deleted.".format(pk)
