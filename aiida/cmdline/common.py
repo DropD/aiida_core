@@ -7,6 +7,8 @@
 # For further information on the license, see the LICENSE.txt file        #
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
+from aiida.cmdline.commands.code import get_code
+
 
 def print_node_summary(node):
     from tabulate import tabulate
@@ -30,7 +32,7 @@ def print_node_summary(node):
                           "[{}] {}".format(node.get_computer().pk,
                                            node.get_computer().name)])
     try:
-        code = node.get_code()
+        code = get_code()
     except AttributeError:
         pass
     else:

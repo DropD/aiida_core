@@ -13,6 +13,7 @@ Tests for nodes, attributes and links
 import unittest
 
 from aiida.backends.testbase import AiidaTestCase
+from aiida.cmdline.commands.code import get_code
 from aiida.common.exceptions import ModificationNotAllowed, UniquenessError
 from aiida.common.links import LinkType
 from aiida.orm.data import Data
@@ -1530,18 +1531,18 @@ class TestSubNodesAndLinks(AiidaTestCase):
         # calc is stored, but code is not
         calc.use_code(code)
 
-        self.assertEqual(calc.get_code().uuid, code.uuid)
+        self.assertEqual(get_code().uuid, code.uuid)
         self.assertEqual(unstoredcalc.get_code().uuid, code.uuid)
 
         # calc is not stored, but code is
         code.store()
 
-        self.assertEqual(calc.get_code().uuid, code.uuid)
+        self.assertEqual(get_code().uuid, code.uuid)
         self.assertEqual(unstoredcalc.get_code().uuid, code.uuid)
 
         unstoredcalc.store()
 
-        self.assertEqual(calc.get_code().uuid, code.uuid)
+        self.assertEqual(get_code().uuid, code.uuid)
         self.assertEqual(unstoredcalc.get_code().uuid, code.uuid)
 
     def test_calculation_load(self):

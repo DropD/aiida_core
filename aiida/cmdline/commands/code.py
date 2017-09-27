@@ -14,6 +14,8 @@ TODO: think if we want to allow to change path and prepend/append text.
 """
 import sys
 
+import click
+
 from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
 from aiida.cmdline.commands import verdi, code
 
@@ -576,10 +578,10 @@ class Code(VerdiCommandWithSubcommands):
 
         self.valid_subcommands = {
             'list': (self.code_list, self.complete_none),
-            'show': (self.code_show, self.complete_code_names_and_pks),
+            'show': (self.cli, self.complete_code_names_and_pks),
             'setup': (self.code_setup, self.complete_code_pks),
             'rename': (self.code_rename, self.complete_none),
-            'update': (self.code_update, self.complete_code_pks),
+            'update': (self.cli, self.complete_code_pks),
             'delete': (self.cli, self.complete_code_pks),
             'hide': (self.code_hide, self.complete_code_pks),
             'reveal': (self.code_reveal, self.complete_code_pks),
@@ -803,48 +805,6 @@ class Code(VerdiCommandWithSubcommands):
 
         return sorted(qb.all())
 
-    def get_code(self, code_id):
-        """
-        Get a Computer object with given identifier, that can either be
-        the numeric ID (pk), or the label (if unique).
-
-        .. note:: Since all command line arguments get converted to string types, we
-            cannot assess the intended type (an integer pk or a string label) from the
-            type of the variable code_id. If the code_id can be converted into an integer
-            we will assume the value corresponds to a pk. This means, however, that if there
-            would be another code, with a label directly equivalent to the string value of that
-            pk, that this code can not be referenced by its label, as the other code, corresponding
-            to the integer pk, will get matched first.
-        """
-        from aiida.common.exceptions import NotExistent, MultipleObjectsError, InputValidationError
-        from aiida.orm import Code as AiidaOrmCode
-
-        try:
-            pk = int(code_id)
-            try:
-                return AiidaOrmCode.get(pk=pk)
-            except (NotExistent, MultipleObjectsError, InputValidationError) as e:
-                print >> sys.stderr, e.message
-                sys.exit(1)
-        except ValueError:
-            try:
-                return AiidaOrmCode.get_from_string(code_id)
-            except (NotExistent, MultipleObjectsError) as e:
-                print >> sys.stderr, e.message
-                sys.exit(1)
-
-    def code_show(self, *args):
-        """
-        Show information on a given code
-        """
-        if len(args) != 1:
-            print >> sys.stderr, ("after 'code show' there should be one "
-                                  "argument only, being the code id.")
-            sys.exit(1)
-
-        code = self.get_code(args[0])
-        print code.full_text_info
-
     def code_setup(self, *args):
         from aiida.common.exceptions import ValidationError
 
@@ -911,108 +871,149 @@ class Code(VerdiCommandWithSubcommands):
         print "Renamed code with ID={} from '{}' to '{}'".format(
             code.pk, retrieved_old_name, retrieved_new_name)
 
-    def code_update(self, *args):
-        import datetime
-        from aiida.backends.utils import get_automatic_user
 
-        if len(args) != 1:
-            print >> sys.stderr, ("after 'code update' there should be one "
-                                  "argument only, being the code id.")
+
+@code.command('update')
+@click.argument('code_pk')
+def code_update(code_pk):
+    import datetime
+    from aiida.backends.utils import get_automatic_user
+
+    code = get_code(code_pk)
+
+    if code.has_children:
+        print "***********************************"
+        print "|                                 |"
+        print "|            WARNING!             |"
+        print "| Consider to create another code |"
+        print "| You risk of losing the history  |"
+        print "|                                 |"
+        print "***********************************"
+
+    # load existing stuff
+    set_params = CodeInputValidationClass()
+    set_params.label = code.label
+    set_params.description = code.description
+    set_params.input_plugin = code.get_input_plugin_name()
+
+    was_local_before = code.is_local()
+    set_params.is_local = code.is_local()
+
+    if code.is_local():
+        set_params.local_rel_path = code.get_local_executable()
+        # I don't have saved the folder with code, so I will just have the list of files
+        # file_list = [ code._get_folder_pathsubfolder.get_abs_path(i)
+        #    for i in code.get_folder_list() ]
+    else:
+        set_params.computer = code.get_computer()
+        set_params.remote_abs_path = code.get_remote_exec_path()
+
+    set_params.prepend_text = code.get_prepend_text()
+    set_params.append_text = code.get_append_text()
+
+    # ask for the new values
+    set_params.ask()
+
+    # prepare a comment containing the previous version of the code
+    now = datetime.datetime.now()
+    new_comment = []
+    new_comment.append("Code modified on {}".format(now))
+    new_comment.append("Old configuration was:")
+    new_comment.append("label: {}".format(code.label))
+    new_comment.append("description: {}".format(code.description))
+    new_comment.append("input_plugin_name: {}".format(code.get_input_plugin_name()))
+    new_comment.append("is_local: {}".format(code.is_local()))
+    if was_local_before:
+        new_comment.append("local_executable: {}".format(code.get_local_executable()))
+    else:
+        new_comment.append("computer: {}".format(code.get_computer()))
+        new_comment.append("remote_exec_path: {}".format(code.get_remote_exec_path()))
+    new_comment.append("prepend_text: {}".format(code.get_prepend_text()))
+    new_comment.append("append_text: {}".format(code.get_append_text()))
+    comment = "\n".join(new_comment)
+
+    if set_params.is_local:
+        print "WARNING: => Folder with the code, and"
+        print "         => Relative path of the executable, "
+        print "         will be ignored! It is not possible to replace "
+        print "         the scripts, you have to create a new code for that."
+    else:
+        if was_local_before:
+            # some old files will be left in the repository, and I cannot delete them
+            print >> sys.stderr, ("It is not possible to change a "
+                                  "code from local to remote.\n"
+                                  "Modification cancelled.")
+            sys.exit(1)
+        print "WARNING: => computer"
+        print "         will be ignored! It is not possible to replace it"
+        print "         you have to create a new code for that."
+
+    code.label = set_params.label
+    code.description = set_params.description
+    code.set_input_plugin_name(set_params.input_plugin)
+    code.set_prepend_text(set_params.prepend_text)
+    code.set_append_text(set_params.append_text)
+
+    if not was_local_before:
+        if set_params.remote_abs_path != code.get_remote_exec_path():
+            print "Are you sure about changing the path of the code?"
+            print "This operation may imply loss of provenance."
+            print "[Enter] to continue, [Ctrl + C] to exit"
+            raw_input()
+
+            from aiida.backends.djsite.db.models import DbAttribute
+
+            DbAttribute.set_value_for_node(code.dbnode, 'remote_exec_path', set_params.remote_abs_path)
+
+    # store comment, to track history
+    code.add_comment(comment, user=get_automatic_user())
+
+
+def get_code(code_id):
+    """
+    Get a Computer object with given identifier, that can either be
+    the numeric ID (pk), or the label (if unique).
+
+    .. note:: Since all command line arguments get converted to string types, we
+        cannot assess the intended type (an integer pk or a string label) from the
+        type of the variable code_id. If the code_id can be converted into an integer
+        we will assume the value corresponds to a pk. This means, however, that if there
+        would be another code, with a label directly equivalent to the string value of that
+        pk, that this code can not be referenced by its label, as the other code, corresponding
+        to the integer pk, will get matched first.
+    """
+    from aiida.common.exceptions import NotExistent, MultipleObjectsError, InputValidationError
+    from aiida.orm import Code as AiidaOrmCode
+
+    try:
+        pk = int(code_id)
+        try:
+            return AiidaOrmCode.get(pk=pk)
+        except (NotExistent, MultipleObjectsError, InputValidationError) as e:
+            print >> sys.stderr, e.message
+            sys.exit(1)
+    except ValueError:
+        try:
+            return AiidaOrmCode.get_from_string(code_id)
+        except (NotExistent, MultipleObjectsError) as e:
+            print >> sys.stderr, e.message
             sys.exit(1)
 
-        code = self.get_code(args[0])
 
-        if code.has_children:
-            print "***********************************"
-            print "|                                 |"
-            print "|            WARNING!             |"
-            print "| Consider to create another code |"
-            print "| You risk of losing the history  |"
-            print "|                                 |"
-            print "***********************************"
+@code.command('show')
+@click.argument('code')
+def code_show(code):
+    """
+    Show information on a given code
+    """
 
-        # load existing stuff
-        set_params = CodeInputValidationClass()
-        set_params.label = code.label
-        set_params.description = code.description
-        set_params.input_plugin = code.get_input_plugin_name()
-
-        was_local_before = code.is_local()
-        set_params.is_local = code.is_local()
-
-        if code.is_local():
-            set_params.local_rel_path = code.get_local_executable()
-            # I don't have saved the folder with code, so I will just have the list of files
-            # file_list = [ code._get_folder_pathsubfolder.get_abs_path(i)
-            #    for i in code.get_folder_list() ]
-        else:
-            set_params.computer = code.get_computer()
-            set_params.remote_abs_path = code.get_remote_exec_path()
-
-        set_params.prepend_text = code.get_prepend_text()
-        set_params.append_text = code.get_append_text()
-
-        # ask for the new values
-        set_params.ask()
-
-        # prepare a comment containing the previous version of the code
-        now = datetime.datetime.now()
-        new_comment = []
-        new_comment.append("Code modified on {}".format(now))
-        new_comment.append("Old configuration was:")
-        new_comment.append("label: {}".format(code.label))
-        new_comment.append("description: {}".format(code.description))
-        new_comment.append("input_plugin_name: {}".format(code.get_input_plugin_name()))
-        new_comment.append("is_local: {}".format(code.is_local()))
-        if was_local_before:
-            new_comment.append("local_executable: {}".format(code.get_local_executable()))
-        else:
-            new_comment.append("computer: {}".format(code.get_computer()))
-            new_comment.append("remote_exec_path: {}".format(code.get_remote_exec_path()))
-        new_comment.append("prepend_text: {}".format(code.get_prepend_text()))
-        new_comment.append("append_text: {}".format(code.get_append_text()))
-        comment = "\n".join(new_comment)
-
-        if set_params.is_local:
-            print "WARNING: => Folder with the code, and"
-            print "         => Relative path of the executable, "
-            print "         will be ignored! It is not possible to replace "
-            print "         the scripts, you have to create a new code for that."
-        else:
-            if was_local_before:
-                # some old files will be left in the repository, and I cannot delete them
-                print >> sys.stderr, ("It is not possible to change a "
-                                      "code from local to remote.\n"
-                                      "Modification cancelled.")
-                sys.exit(1)
-            print "WARNING: => computer"
-            print "         will be ignored! It is not possible to replace it"
-            print "         you have to create a new code for that."
-
-        code.label = set_params.label
-        code.description = set_params.description
-        code.set_input_plugin_name(set_params.input_plugin)
-        code.set_prepend_text(set_params.prepend_text)
-        code.set_append_text(set_params.append_text)
-
-        if not was_local_before:
-            if set_params.remote_abs_path != code.get_remote_exec_path():
-                print "Are you sure about changing the path of the code?"
-                print "This operation may imply loss of provenance."
-                print "[Enter] to continue, [Ctrl + C] to exit"
-                raw_input()
-
-                from aiida.backends.djsite.db.models import DbAttribute
-
-                DbAttribute.set_value_for_node(code.dbnode, 'remote_exec_path', set_params.remote_abs_path)
-
-        # store comment, to track history
-        code.add_comment(comment, user=get_automatic_user())
+    code = get_code(code)
+    print code.full_text_info
 
 
 @code.command('delete')
 @click.argument('code', type=int)
-def code_delete(self, *args):
+def code_delete(code_pk):
     """
     Delete a code
 
@@ -1022,12 +1023,7 @@ def code_delete(self, *args):
     from aiida.common.exceptions import InvalidOperation
     from aiida.orm.code import delete_code
 
-    if len(args) != 1:
-        print >> sys.stderr, ("after 'code delete' there should be one "
-                              "argument only, being the code id.")
-        sys.exit(1)
-
-    code = self.get_code(args[0])
+    code = get_code(code_pk)
     pk = code.pk
     try:
         delete_code(code)
