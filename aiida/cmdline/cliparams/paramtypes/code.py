@@ -28,7 +28,6 @@ class CodeParam(NodeParam):
 
         :return: list of tuples with (name, help)
         """
-        from aiida_verdi.verdic_utils import get_code_data
         names = [(c[1], c[2]) for c in get_code_data() if startswith(c[1], incomplete)]
         pks = [(str(c[0]), c[1]) for c in get_code_data() if startswith(str(c[0]), incomplete)]
         possibilities = names + pks
@@ -58,17 +57,27 @@ class CodeParam(NodeParam):
         gets the corresponding code object from the database for a pk or name
         and returns that
         """
-        from aiida_verdi.verdic_utils import get_code
+        from aiida.orm import Code
         codes = [c[0] for c in self.get_possibilities()]
         if value not in codes:
             raise click.BadParameter('Must be a code in you database', param=param)
 
+        try:
+            # assume is pk
+            value = int(value)
+            if value < 1:
+                raise click.BadParameter("PK values start from 1")
+            code = Code.get(pk=value)
+        except:
+            # assume is label
+            code = Code.get(label=value)
+
         if self.get_from_db:
-            value = get_code(value)
+            value = code
         elif self.pass_pk:
-            value = get_code(value).pk
+            value = code.pk
         else:
-            value = get_code(value).uuid
+            value = code.uuid
         return value
 
 
@@ -86,3 +95,23 @@ class CodeNameParam(click.ParamType):
         if '@' in value:
             raise click.BadParameter("Code labels may not contain the '@' sign", param=param)
         return value
+
+
+@aiida_dbenv
+def get_code_data():
+    """
+    Retrieve the list of codes in the DB.
+    Return a tuple with (pk, label, computername, owneremail).
+
+    :param django_filter: a django query object (e.g. obtained
+      with Q()) to filter the results on the AiidaOrmCode class.
+    """
+    from aiida.orm import Code as AiidaOrmCode
+    from aiida.orm.querybuilder import QueryBuilder
+
+    qb = QueryBuilder()
+    qb.append(AiidaOrmCode, project=['id', 'label'])
+    qb.append(type='computer', computer_of=AiidaOrmCode, project=['name'])
+    qb.append(type='user', creator_of=AiidaOrmCode, project=['email'])
+
+    return sorted(qb.all())

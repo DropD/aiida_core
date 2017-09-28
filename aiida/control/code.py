@@ -5,25 +5,32 @@ from aiida.cmdline.dbenv_decorator import aiida_dbenv
 
 
 class ErrorAccumulator(object):
-    def __init__(self, *err_cls):
-        self.err_cls = err_cls
-        self.errors = {k: [] for k in self.err_cls}
+
+    def __init__(self, *error_cls):
+        self.error_cls = error_cls
+        self.errors = {k: [] for k in self.error_cls}
 
     def accumulate_errors(self, original_function):
+
         def decorated_function(*args, **kwargs):
-            self.run(original_function)
+            self.run(original_function, *args, **kwargs)
+
+        return decorated_function
 
     @staticmethod
     def mark_accumulatable(accum_list):
+
         def accumulatable_decorator(method):
             if not hasattr(method, 'im_class'):
-                raise AttributeError('@mark_accumulatable can only be used on methods')
+                raise AttributeError(
+                    '@mark_accumulatable can only be used on methods')
 
             if not hasattr(method.im_class, accum_list):
                 setattr(method.im_class, accum_list, [])
 
             getattr(method.im_class, accum_list).append(method.__name__)
             return method
+
         return accumulatable_decorator
 
     def run(self, function, *args, **kwargs):
@@ -37,7 +44,7 @@ class ErrorAccumulator(object):
             self.run(method, *args, **kwargs)
 
     def success(self):
-        return bool(not self.errors)
+        return bool(not any(self.errors.values()))
 
     def result(self, raise_error=Exception):
         if raise_error:
@@ -45,8 +52,9 @@ class ErrorAccumulator(object):
         return self.success(), self.errors
 
     def raise_errors(self, raise_cls):
-        if self.errors:
-            raise raise_cls('{}'.format(self.errors))
+        if not self.success():
+            raise raise_cls(
+                'The following errors were encountered: {}'.format(self.errors))
 
 
 class CodeBuilder(object):
@@ -54,23 +62,15 @@ class CodeBuilder(object):
 
     def __init__(self, **kwargs):
         self._code_spec = kwargs
-        self.validators = []
-        self.err_acc = ErrorAccumulator(self.CodeValidationError)
-        self.code_type = self._property('code_type')
-        self.local_executable = self._property('local_executable')
-        self.code_folder = self._property('code_folder')
-        self.computer = self._property('computer')
-        self.remote_abs_path = self._property('remote_abs_path')
-        self.label = self._property('label')
-        self.description = self._property('description')
-        self.input_plugin = self._property('input_plugin')
-        self.prepend_text = self._property('prepend_text')
-        self.append_text = self._property('append_text')
-        self.validate()
+        self._validators = []
+        self._err_acc = ErrorAccumulator(self.CodeValidationError)
 
     def validate(self, raise_error=True):
-        self.err_acc.run_all(self.validators)
-        return err_acc.result(raise_error=self.CodeValidationError if raise_error else False)
+        self._err_acc.run(self.validate_code_type)
+        self._err_acc.run(self.validate_upload)
+        self._err_acc.run(self.validate_installed)
+        return self._err_acc.result(raise_error=self.CodeValidationError
+                                    if raise_error else False)
 
     @aiida_dbenv
     def new(self):
@@ -80,12 +80,13 @@ class CodeBuilder(object):
 
         if self.code_type == self.CodeType.STORE_AND_UPLOAD:
             file_list = [
-                os.path.realpath(
-                    os.path.join(self.code_folder, f)) for f in os.listdir(self.code_folder)
+                os.path.realpath(os.path.join(self.code_folder, f))
+                for f in os.listdir(self.code_folder)
             ]
             code = Code(local_executable=self.code_rel_path, files=file_list)
         else:
-            code = Code(remote_computer_exec=(self.computer, self.remote_abs_path))
+            code = Code(remote_computer_exec=(self.computer,
+                                              self.remote_abs_path))
 
         code.label = self.label
         code.description = self.description
@@ -95,17 +96,21 @@ class CodeBuilder(object):
 
         return code
 
-    def _property(self, key):
-        return property(self._getter(key), self._setter(key))
+    def __getattr__(self, key):
+        if not key.startswith('_'):
+            try:
+                return self._code_spec[key]
+            except KeyError as err:
+                raise AttributeError(key + ' not set')
+        super(CodeBuilder, self).__getattr__(key, value)
 
-    def _getter(self, key):
-        def getter(self):
-            return self._code_spec.get(key)
+    def _get(self, key):
+        return self._code_spec.get(key)
 
-
-    def _setter(self, key):
-        def setter(self, value):
+    def __setattr__(self, key, value):
+        if not key.startswith('_'):
             self._set_code_attr(key, value)
+        super(CodeBuilder, self).__setattr__(key, value)
 
     def _set_code_attr(self, key, value):
         backup = self._code_spec.copy()
@@ -115,44 +120,49 @@ class CodeBuilder(object):
             self._code_spec = backup
             self.validate()
 
-    @ErrorAccumulator.mark_accumulatable('validators')
-    def validate_upload_or_installed(self):
-        if self.code_type not in self.CodeType:
-            raise CodeValidationError('invalid code type: must be one of {}'.format(list(self.CodeType)))
+    def validate_code_type(self):
+        if self._get('code_type') and self.code_type not in self.CodeType:
+            raise self.CodeValidationError(
+                'invalid code type: must be one of {}, not {}'.format(
+                    list(self.CodeType), self.code_type))
 
-    @ErrorAccumulator.mark_accumulatable('validators')
     def validate_upload(self):
         messages = []
-        if self.code_type == self.CodeType.STORE_AND_UPLOAD:
-            if self.computer:
-                messages.append('invalid option for store-and-upload code: "computer"')
-            if self.remote_abs_path:
-                messages.append('invalid option for store-and-upload code: "remote_abs_path"')
+        if self._get('code_type') == self.CodeType.STORE_AND_UPLOAD:
+            if self._get('computer'):
+                messages.append(
+                    'invalid option for store-and-upload code: "computer"')
+            if self._get('remote_abs_path'):
+                messages.append(
+                    'invalid option for store-and-upload code: "remote_abs_path"'
+                )
         if messages:
             raise self.CodeValidationError('{}'.format(messages))
 
-    @ErrorAccumulator.mark_accumulatable('validators')
     def validate_installed(self):
         messages = []
-        if self.code_type == self.CodeType.ON_COMPUTER:
-            if self.code_folder:
-                messages.append('invalid options for on-computer code: "code_folder"')
-            if self.code_rel_path:
-                messages.append('invalid options for on-computer code: "code_rel_path"')
+        if self._get('code_type') == self.CodeType.ON_COMPUTER:
+            if self._get('code_folder'):
+                messages.append(
+                    'invalid options for on-computer code: "code_folder"')
+            if self._get('code_rel_path'):
+                messages.append(
+                    'invalid options for on-computer code: "code_rel_path"')
         if messages:
-            raise CodeValidationError('{}'.format(messages))
-
+            raise self.CodeValidationError('{}'.format(messages))
 
     class CodeValidationError(Exception):
+
         def __init__(self, msg):
-            super(CodeValidationError, self).__init__()
+            super(CodeBuilder.CodeValidationError, self).__init__()
             self.msg = msg
 
         def __str__(self):
-            return 'Code Validation Error: {}'.format(msg)
+            return self.msg
+
+        def __repr__(self):
+            return '<CodeValidationError: {}>'.format(self)
 
     class CodeType(enum.Enum):
         STORE_AND_UPLOAD = 'store in the db and upload'
         ON_COMPUTER = 'on computer'
-
-

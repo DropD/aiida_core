@@ -17,6 +17,8 @@ import sys
 import click
 
 from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
+from aiida.cmdline.cliparams import options, arguments
+from aiida.cmdline.cliparams.paramtypes.code import CodeParam, get_code_data
 from aiida.cmdline.commands import verdi, code
 
 
@@ -417,7 +419,6 @@ class CodeInputValidationClass(object):
         Validates the input_plugin, checking it is in the list of existing plugins.
         """
         from aiida.common.exceptions import ValidationError
-        from aiida.orm import JobCalculation
         from aiida.common.pluginloader import all_plugins
 
         if input_plugin is None:
@@ -591,11 +592,11 @@ class Code(VerdiCommandWithSubcommands):
         verdi()
 
     def complete_code_names(self, subargs_idx, subargs):
-        code_names = [c[1] for c in self.get_code_data()]
+        code_names = [c[1] for c in get_code_data()]
         return "\n".join(code_names)
 
     def complete_code_pks(self, subargs_idx, subargs):
-        code_pks = [str(c[0]) for c in self.get_code_data()]
+        code_pks = [str(c[0]) for c in get_code_data()]
         return "\n".join(code_pks)
 
     def complete_code_names_and_pks(self, subargs_idx, subargs):
@@ -617,7 +618,6 @@ class Code(VerdiCommandWithSubcommands):
                             help="The pk of the codes to hide",
         )
         parsed_args = parser.parse_args(args)
-        from aiida.orm.code import Code
 
         for pk in parsed_args.pks:
             code = load_node(pk, parent_class=OrmCode)
@@ -639,7 +639,6 @@ class Code(VerdiCommandWithSubcommands):
                             help="The pk of the codes to reveal",
         )
         parsed_args = parser.parse_args(args)
-        from aiida.orm.code import Code
 
         for pk in parsed_args.pks:
             code = load_node(pk, parent_class=OrmCode)
@@ -787,24 +786,6 @@ class Code(VerdiCommandWithSubcommands):
         else:
             print "# No codes found matching the specified criteria."
 
-    def get_code_data(self, django_filter=None):
-        """
-        Retrieve the list of codes in the DB.
-        Return a tuple with (pk, label, computername, owneremail).
-
-        :param django_filter: a django query object (e.g. obtained
-          with Q()) to filter the results on the AiidaOrmCode class.
-        """
-        from aiida.orm import Code as AiidaOrmCode
-        from aiida.orm.querybuilder import QueryBuilder
-
-        qb = QueryBuilder()
-        qb.append(AiidaOrmCode, project=['id', 'label'])
-        qb.append(type='computer', computer_of=AiidaOrmCode, project=['name'])
-        qb.append(type='user', creator_of=AiidaOrmCode, project=['email'])
-
-        return sorted(qb.all())
-
     def code_setup(self, *args):
         from aiida.common.exceptions import ValidationError
 
@@ -874,21 +855,26 @@ class Code(VerdiCommandWithSubcommands):
 
 
 @code.command('update')
-@click.argument('code_pk')
-def code_update(code_pk):
+@arguments.CODE()
+def code_update(code):
+    """
+    update CODE
+
+    Label, description, input plugin can be changed for stored and uploaded as well as on-computer codes.
+    Stored codes can not be overwritten, create a new code instead. Links to on-computer codes can be updated
+    if the executable has been moved (but not modified). The computer of and on-computer code can not be updated.
+    """
     import datetime
     from aiida.backends.utils import get_automatic_user
 
-    code = get_code(code_pk)
-
-    if code.has_children:
-        print "***********************************"
-        print "|                                 |"
-        print "|            WARNING!             |"
-        print "| Consider to create another code |"
-        print "| You risk of losing the history  |"
-        print "|                                 |"
-        print "***********************************"
+    if code.has_children:  # TODO: replace with message template
+        click.echo("***********************************")
+        click.echo("|                                 |")
+        click.echo("|            WARNING!             |")
+        click.echo("| Consider to create another code |")
+        click.echo("| You risk of losing the history  |")
+        click.echo("|                                 |")
+        click.echo("***********************************")
 
     # load existing stuff
     set_params = CodeInputValidationClass()
@@ -1001,19 +987,18 @@ def get_code(code_id):
 
 
 @code.command('show')
-@click.argument('code')
+@arguments.CODE()
 def code_show(code):
     """
     Show information on a given code
     """
 
-    code = get_code(code)
     print code.full_text_info
 
 
 @code.command('delete')
-@click.argument('code', type=int)
-def code_delete(code_pk):
+@arguments.CODE()
+def code_delete(code):
     """
     Delete a code
 
@@ -1023,12 +1008,11 @@ def code_delete(code_pk):
     from aiida.common.exceptions import InvalidOperation
     from aiida.orm.code import delete_code
 
-    code = get_code(code_pk)
     pk = code.pk
     try:
         delete_code(code)
     except InvalidOperation as e:
-        print >> sys.stderr, e.message
+        click.echo(e.message, err=True)
         sys.exit(1)
 
     print "Code '{}' deleted.".format(pk)
