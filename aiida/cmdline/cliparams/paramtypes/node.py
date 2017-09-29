@@ -5,7 +5,7 @@ Node Parameter type for arguments and options
 import click
 from click_spinner import spinner as cli_spinner
 
-from aiida.cmdline.dbenv_decorator import aiida_dbenv
+from aiida.cmdline.dbenv_lazyloading import with_dbenv
 
 
 class NodeParam(click.ParamType):
@@ -21,16 +21,17 @@ class NodeParam(click.ParamType):
     name = 'aiida node'
 
     @property
-    @aiida_dbenv
+    @with_dbenv
     def node_type(self):
         from aiida.orm import Node
         return Node
 
     def __init__(self, convert=True, pass_pk=False, **kwargs):
+        super(NodeParam, self).__init__(**kwargs)
         self.get_from_db = convert
         self.pass_pk = pass_pk
 
-    @aiida_dbenv
+    @with_dbenv
     def convert(self, value, param, ctx):
         """
         tries to load a Node from the given pk / uuid.
@@ -44,29 +45,29 @@ class NodeParam(click.ParamType):
         * node is not the right type
         """
         from aiida.common.exceptions import NotExistent
+        from aiida.orm import load_node
 
         if not value:
             raise click.BadParameter('computer parameter cannot be empty')
 
         try:
-            '''assume is pk'''
+            # assume is pk
             value = int(value)
             if value < 1:
                 raise click.BadParameter("PK values start from 1")
-            input_type='ID'
+            input_type = 'ID'
         except ValueError:
-            '''assume is uuid'''
-            pass
-            input_type='UUID'
+            # assume is uuid
+            input_type = 'UUID'
 
-        '''try to load a node'''
+        # try to load a node
         try:
             node = load_node(value)
         except NotExistent:
-            '''no node found'''
+            # no node found
             raise click.BadParameter("No node exists with {}={}.".format(input_type, value))
 
-        '''ensure node is the right type'''
+        # ensure node is the right type
         if not isinstance(node, self.node_type):
             raise click.BadParameter("Node with ID={} is not of node_type; it is a {}".format(
                 node.pk, node.__class__.__name__))
@@ -80,32 +81,32 @@ class NodeParam(click.ParamType):
                 value = node.uuid
         return value
 
-    @aiida_dbenv
-    def complete(self, ctx=None, incomplete=''):
+    @with_dbenv
+    def complete(self, ctx=None, incomplete=''):  # pylint: disable=unused-argument
         """
         list node (pk with uuid and description)
         """
         with cli_spinner():
             from aiida.orm.querybuilder import QueryBuilder
-            qb = QueryBuilder()
-            qb.append(cls=self.node_type, project=['id', 'uuid', 'description', 'type'])
-            '''init match list'''
+            query_builder = QueryBuilder()
+            query_builder.append(cls=self.node_type, project=['id', 'uuid', 'description', 'type'])
+            # init match list
             matching = []
-            '''match against pk'''
+            # match against pk
             if not incomplete or incomplete.isdigit():
-                matching = [i for i in qb.iterall() if str(i[0]).startswith(incomplete)]
+                matching = [i for i in query_builder.iterall() if str(i[0]).startswith(incomplete)]
                 descstr = 'uuid = {node[1]}, type = {node[3]:<40} | {node[2]}'
-                for m in matching:
-                    m[3] = m[3].replace(self.node_type._query_type_string, '')
+                for match in matching:
+                    match[3] = match[3].replace(self.node_type._query_type_string, '')  # pylint: disable=protected-access,no-member
                 results = [(str(i[0]), descstr.format(node=i)) for i in matching]
-            '''if no matches from pk, match against uuid'''
+            # if no matches from pk, match against uuid
             if not matching:
-                matching = [i for i in qb.iterall() if  str(i[1]).startswith(incomplete)]
+                matching = [i for i in query_builder.iterall() if  str(i[1]).startswith(incomplete)]
                 descstr = 'pk = {node[0]}, type = {node[3]:<40} | {node[2]}'
-                for m in matching:
-                    m[3] = m[3].replace(self.node_type._query_type_string, '')
+                for match in matching:
+                    match[3] = match[3].replace(self.node_type._query_type_string, '')  # pylint: disable=protected-access,no-member
                 results = [(str(i[1]), descstr.format(node=i)) for i in matching]
-            '''take common part out of type string'''
+            # take common part out of type string
             return results
 
     def get_missing_message(self, param):

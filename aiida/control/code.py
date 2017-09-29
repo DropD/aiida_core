@@ -1,10 +1,20 @@
+"""Manage code objects with lazy loading of the db env"""
 import enum
 import os
 
-from aiida.cmdline.dbenv_decorator import aiida_dbenv
+from aiida.cmdline.dbenv_lazyloading import with_dbenv
 
 
 class ErrorAccumulator(object):
+    """
+    Allows to run a number of functions and collect all the errors they raise
+
+    This allows to validate multiple things and tell the user about all the
+    errors encountered at once. Works best if the individual functions do not depend on each other.
+
+    Does not allow to trace the stack of each error, therefore do not use for debugging, but for
+    semantical checking with user friendly error messages.
+    """
 
     def __init__(self, *error_cls):
         self.error_cls = error_cls
@@ -16,22 +26,6 @@ class ErrorAccumulator(object):
             self.run(original_function, *args, **kwargs)
 
         return decorated_function
-
-    @staticmethod
-    def mark_accumulatable(accum_list):
-
-        def accumulatable_decorator(method):
-            if not hasattr(method, 'im_class'):
-                raise AttributeError(
-                    '@mark_accumulatable can only be used on methods')
-
-            if not hasattr(method.im_class, accum_list):
-                setattr(method.im_class, accum_list, [])
-
-            getattr(method.im_class, accum_list).append(method.__name__)
-            return method
-
-        return accumulatable_decorator
 
     def run(self, function, *args, **kwargs):
         try:
@@ -72,8 +66,9 @@ class CodeBuilder(object):
         return self._err_acc.result(raise_error=self.CodeValidationError
                                     if raise_error else False)
 
-    @aiida_dbenv
+    @with_dbenv
     def new(self):
+        """Build and return a new code instance (not stored)"""
         self.validate()
 
         from aiida.orm import Code
@@ -97,12 +92,12 @@ class CodeBuilder(object):
         return code
 
     def __getattr__(self, key):
+        """Access code attributes used to build the code"""
         if not key.startswith('_'):
             try:
                 return self._code_spec[key]
-            except KeyError as err:
-                raise AttributeError(key + ' not set')
-        super(CodeBuilder, self).__getattr__(key, value)
+            except KeyError:
+                raise self.CodeValidationError(key + ' not set')
 
     def _get(self, key):
         return self._code_spec.get(key)
@@ -121,12 +116,14 @@ class CodeBuilder(object):
             self.validate()
 
     def validate_code_type(self):
+        """Make sure the code type is set correctly"""
         if self._get('code_type') and self.code_type not in self.CodeType:
             raise self.CodeValidationError(
                 'invalid code type: must be one of {}, not {}'.format(
                     list(self.CodeType), self.code_type))
 
     def validate_upload(self):
+        """If the code is stored and uploaded, catch invalid on-computer attributes"""
         messages = []
         if self._get('code_type') == self.CodeType.STORE_AND_UPLOAD:
             if self._get('computer'):
@@ -140,6 +137,7 @@ class CodeBuilder(object):
             raise self.CodeValidationError('{}'.format(messages))
 
     def validate_installed(self):
+        """If the code is on-computer, catch invalid store-and-upload attributes"""
         messages = []
         if self._get('code_type') == self.CodeType.ON_COMPUTER:
             if self._get('code_folder'):
@@ -152,6 +150,12 @@ class CodeBuilder(object):
             raise self.CodeValidationError('{}'.format(messages))
 
     class CodeValidationError(Exception):
+        """
+        A CodeBuilder instance may raise this
+
+         * when asked to instanciate a code with missing or invalid code attributes
+         * when asked for a code attibute that has not been set yet
+        """
 
         def __init__(self, msg):
             super(CodeBuilder.CodeValidationError, self).__init__()

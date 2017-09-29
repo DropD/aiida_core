@@ -1,11 +1,31 @@
+"""Common click options for verdi commands"""
 import click
 
 
-class overridable_option(object):
+class OverridableOption(object):
     """
-    wrapper around click option that allows to store the name
-    and some defaults but also to override them later, for example
-    to change the help message for a certain command.
+    Wrapper around click option that increases reusability
+
+    Click options are reusable already but sometimes it can improve the user interface to for example customize a help message
+    for an option on a per-command basis. Sometimes the option should be prompted for if it is not given. On some commands an option
+    might take any folder path, while on another the path only has to exist.
+
+    Overridable options store the arguments to click.option and only instanciate the click.Option on call, kwargs given to ``__call__``
+    override the stored ones.
+
+    Example::
+
+        FOLDER = OverridableOption('--folder', type=click.Path(file_okay=False), help='A folder')
+
+        @click.command()
+        @FOLDER(help='A folder, will be created if it does not exist')
+        def ls_or_create(folder):
+            click.echo(os.listdir(folder))
+
+        @click.command()
+        @FOLDER(help='An existing folder', type=click.Path(exists=True, file_okay=False, readable=True)
+        def ls(folder)
+            click.echo(os.listdir(folder))
     """
     def __init__(self, *args, **kwargs):
         """
@@ -23,4 +43,4 @@ class overridable_option(object):
         return click.option(*self.args, **kw_copy)
 
 
-FORCE = overridable_option('-f', '--force', is_flag=True, help='Do not ask for confirmation')
+FORCE = OverridableOption('-f', '--force', is_flag=True, help='Do not ask for confirmation')

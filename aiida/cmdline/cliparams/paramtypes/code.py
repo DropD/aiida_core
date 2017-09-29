@@ -1,30 +1,31 @@
 #-*- coding: utf8 -*-
 """
-click parameter types for Codes
+Click parameter types for Codes
 """
 import click
 from click_completion import startswith
 from click_spinner import spinner as cli_spinner
 
 from aiida.cmdline.cliparams.paramtypes.node import NodeParam
-from aiida.cmdline.dbenv_decorator import aiida_dbenv
+from aiida.cmdline.dbenv_lazyloading import with_dbenv
 
 
 class CodeParam(NodeParam):
     """
-    handle verification and tab-completion (relies on click-completion) for Code db entries
+    Handle verification and tab-completion (relies on click-completion) for Code db entries
     """
     name = 'aiida code'
 
     @property
-    @aiida_dbenv
+    @with_dbenv
     def node_type(self):
         from aiida.orm import Code
         return Code
 
-    def get_possibilities(self, incomplete=''):
+    @staticmethod
+    def get_possibilities(incomplete=''):
         """
-        get all possible options for codes starting with incomplete
+        Get all possible options for codes starting with incomplete
 
         :return: list of tuples with (name, help)
         """
@@ -33,31 +34,27 @@ class CodeParam(NodeParam):
         possibilities = names + pks
         return possibilities
 
-    @aiida_dbenv
-    def complete(self, ctx, incomplete):
+    def complete(self, ctx=None, incomplete=''):
         """
-        load dbenv and run spinner while getting completions
+        Load dbenv and run spinner while getting completions
         """
         with cli_spinner():
             suggestions = self.get_possibilities(incomplete=incomplete)
         return suggestions
 
-    @aiida_dbenv
     def get_missing_message(self, param):
         with cli_spinner():
             code_item = '{:<12} {}'
             codes = [code_item.format(*p) for p in self.get_possibilities()]
         return 'Possible arguments are:\n\n' + '\n'.join(codes)
 
-    @aiida_dbenv
     def convert(self, value, param, ctx):
         """
-        check the given value corresponds to a code in the db, raise BadParam else
+        Check the given value corresponds to a code in the db, raise BadParam else
 
         gets the corresponding code object from the database for a pk or name
         and returns that
         """
-        from aiida.orm import Code
         codes = [c[0] for c in self.get_possibilities()]
         if value not in codes:
             raise click.BadParameter('Must be a code in you database', param=param)
@@ -67,10 +64,10 @@ class CodeParam(NodeParam):
             value = int(value)
             if value < 1:
                 raise click.BadParameter("PK values start from 1")
-            code = Code.get(pk=value)
-        except:
+            code = self.node_type.get(pk=value)
+        except ValueError:
             # assume is label
-            code = Code.get(label=value)
+            code = self.node_type.get(label=value)
 
         if self.get_from_db:
             value = code
@@ -83,13 +80,13 @@ class CodeParam(NodeParam):
 
 class CodeNameParam(click.ParamType):
     """
-    verify there is no @ sign in the name
+    Verify there is no @ sign in the name
     """
     name = 'code label'
 
     def convert(self, value, param, ctx):
         """
-        check if valid code name
+        Check if valid code name
         """
         value = super(CodeNameParam, self).convert(value, param, ctx)
         if '@' in value:
@@ -97,7 +94,7 @@ class CodeNameParam(click.ParamType):
         return value
 
 
-@aiida_dbenv
+@with_dbenv
 def get_code_data():
     """
     Retrieve the list of codes in the DB.
@@ -109,9 +106,9 @@ def get_code_data():
     from aiida.orm import Code as AiidaOrmCode
     from aiida.orm.querybuilder import QueryBuilder
 
-    qb = QueryBuilder()
-    qb.append(AiidaOrmCode, project=['id', 'label'])
-    qb.append(type='computer', computer_of=AiidaOrmCode, project=['name'])
-    qb.append(type='user', creator_of=AiidaOrmCode, project=['email'])
+    query_builder = QueryBuilder()
+    query_builder.append(AiidaOrmCode, project=['id', 'label'])
+    query_builder.append(type='computer', computer_of=AiidaOrmCode, project=['name'])
+    query_builder.append(type='user', creator_of=AiidaOrmCode, project=['email'])
 
-    return sorted(qb.all())
+    return sorted(query_builder.all())

@@ -1,7 +1,6 @@
 """Test verdi code and subcommands"""
 import re
 
-import click
 from click.testing import CliRunner
 
 from aiida.backends.testbase import AiidaTestCase
@@ -24,6 +23,7 @@ class VerdiCodeTest(AiidaTestCase):
         self.insert_data()
 
     def _create_code(self):
+        """Create a test code"""
         from aiida.orm import Computer
         builder = CodeBuilder(
             code_type=CodeBuilder.CodeType.ON_COMPUTER,
