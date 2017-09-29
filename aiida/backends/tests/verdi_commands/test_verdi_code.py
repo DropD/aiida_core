@@ -132,16 +132,21 @@ class VerdiCodeTest(AiidaTestCase):
         self.assertNotEqual(new_location, code.get_remote_exec_path())
 
         result = self._invoke(
-            'update', '--label', new_label,
+            'update', self.code_label, '--non-interactive',
+            '--label', new_label,
             '--description', new_desc,
             '--input-plugin', new_input_plugin,
             '--prepend-text', new_prepend,
             '--append-text', new_append,
             '--remote-abs-path', new_location)  # yapf: disable
-        self.assertFalse(bool(result.exception))
+        self.assertFalse(
+            bool(result.exception),
+            msg='Got an error: {}\n---\nOutput was:\n{}'.format(
+                str(result.exception), result.output))
         code = Code.get(label=new_label)
         self.assertEquals(code.description, new_desc)
         self.assertEquals(code.get_input_plugin_name(), new_input_plugin)
         self.assertEquals(code.get_prepend_text(), new_prepend)
         self.assertEquals(code.get_append_text(), new_append)
-        self.assertEquals(code.get_remote_exec_path(), new_location)
+        self.assertEquals(
+            code.get_remote_exec_path(), new_location, msg=result.output)

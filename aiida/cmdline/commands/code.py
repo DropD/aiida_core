@@ -18,7 +18,8 @@ import click
 
 from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
 from aiida.cmdline.cliparams import options, arguments
-from aiida.cmdline.cliparams.paramtypes.code import CodeParam, get_code_data
+from aiida.cmdline.cliparams.interactive_opt import InteractiveOption, opt_prompter
+from aiida.cmdline.cliparams.paramtypes.code import CodeParam, get_code_data, CodeNameParam
 from aiida.cmdline.commands import verdi, code
 
 
@@ -853,10 +854,18 @@ class Code(VerdiCommandWithSubcommands):
             code.pk, retrieved_old_name, retrieved_new_name)
 
 
-
 @code.command('update')
+@click.pass_context
 @arguments.CODE()
-def code_update(code):
+@options.LABEL(type=CodeNameParam(), help='The new name for CODE', cls=InteractiveOption)
+@options.DESCRIPTION(help='The new description for CODE', cls=InteractiveOption)
+@options.INPUT_PLUGIN(help='The new input plugin for CODE', cls=InteractiveOption)
+@options.REMOTE_ABS_PATH(help='Change the remote executable path (CAUTION)', cls=InteractiveOption)
+@options.PREPEND_TEXT()
+@options.APPEND_TEXT()
+@options.DRY_RUN()
+@options.NON_INTERACTIVE()
+def update(ctx, code, dry_run, non_interactive, **kwargs):
     """
     update CODE
 
@@ -864,95 +873,75 @@ def code_update(code):
     Stored codes can not be overwritten, create a new code instead. Links to on-computer codes can be updated
     if the executable has been moved (but not modified). The computer of and on-computer code can not be updated.
     """
-    import datetime
     from aiida.backends.utils import get_automatic_user
 
-    if code.has_children:  # TODO: replace with message template
-        click.echo("***********************************")
-        click.echo("|                                 |")
-        click.echo("|            WARNING!             |")
-        click.echo("| Consider to create another code |")
-        click.echo("| You risk of losing the history  |")
-        click.echo("|                                 |")
-        click.echo("***********************************")
+    if not non_interactive:
+        if code.has_children:  # TODO: replace with message template
+            click.echo("***********************************")
+            click.echo("|                                 |")
+            click.echo("|            WARNING!             |")
+            click.echo("| Consider to create another code |")
+            click.echo("| You risk of losing the history  |")
+            click.echo("|                                 |")
+            click.echo("***********************************")
 
-    # load existing stuff
-    set_params = CodeInputValidationClass()
-    set_params.label = code.label
-    set_params.description = code.description
-    set_params.input_plugin = code.get_input_plugin_name()
+        '''interactively prompt for the missing options'''
+        opt_prompt = opt_prompter(ctx, update, kwargs)
+        kwargs['label'] = opt_prompt('label', 'Label', code.label)
+        kwargs['description'] = opt_prompt('description', 'Description', code.description)
+        kwargs['input_plugin'] = opt_prompt('input_plugin', 'Input plugin', code.get_input_plugin_name())
+        if not code.is_local():
+            # computer cannot be changed but remote executable path can
+            old = code.get_remote_exec_path()
+            kwargs['remote_abs_path'] = opt_prompt('remote_abs_path', 'Remote path', old)
+            if not kwargs['remote_abs_path'] == old:
+                # make sure the user understands this should not be
+                # used to change the executable, only it's location
+                if not click.confirm('Is it the same executable, just in a different path?'):
+                    kwargs['remote_abs_path'] = None
+                    click.echo('***********')
+                    click.echo('| WARNING |')
+                    click.echo('***********')
+                    click.echo('Changing the executable itself would break provenance!')
+                    click.echo('Not changing remote path')
+                    click.echo('Create a new code instead!')
+        # local code's folder and relative path cannot be changed
+        if (not kwargs['prepend_text']) or (not kwargs['append_text']):
+            # use editor to change pre and post execution scripts
+            from aiida_verdi.utils.mlinput import edit_pre_post
+            pre = kwargs['prepend_text'] or ''
+            post = kwargs['append_text'] or ''
+            kwargs['prepend_text'], kwargs['append_text'] = edit_pre_post(pre, post, kwargs)
 
-    was_local_before = code.is_local()
-    set_params.is_local = code.is_local()
+    # summarize the changes
+    if kwargs['label']:
+        click.echo('Label: {} -> {}'.format(code.label, kwargs['label']))
+    if kwargs['description']:
+        click.echo('Description: {} -> {}'.format(code.description, kwargs['description']))
+    if kwargs['input_plugin']:
+        click.echo('Input plugin: {} -> {}'.format(code.get_input_plugin_name(), kwargs['input_plugin']))
+    if kwargs['prepend_text']:
+        click.echo('Prepend text:\n{}\n->\n{}'.format(code.get_prepend_text(), kwargs['prepend_text']))
+    if kwargs['append_text']:
+        click.echo('Append text:\n{}\n->\n{}'.format(code.get_append_text(), kwargs['append_text']))
 
-    if code.is_local():
-        set_params.local_rel_path = code.get_local_executable()
-        # I don't have saved the folder with code, so I will just have the list of files
-        # file_list = [ code._get_folder_pathsubfolder.get_abs_path(i)
-        #    for i in code.get_folder_list() ]
-    else:
-        set_params.computer = code.get_computer()
-        set_params.remote_abs_path = code.get_remote_exec_path()
+    # update the code attributes
+    mod_comment = modification_comment(code)
+    if not dry_run:
+        code.label = kwargs['label'] or code.label
+        code.description = kwargs['description'] or code.description
+        code.set_input_plugin_name(kwargs['input_plugin']) or code.get_input_plugin_name()
+        code.set_prepend_text(kwargs['prepend_text']) or code.get_prepend_text()
+        code.set_append_text(kwargs['append_text']) or code.get_append_text()
 
-    set_params.prepend_text = code.get_prepend_text()
-    set_params.append_text = code.get_append_text()
-
-    # ask for the new values
-    set_params.ask()
-
-    # prepare a comment containing the previous version of the code
-    now = datetime.datetime.now()
-    new_comment = []
-    new_comment.append("Code modified on {}".format(now))
-    new_comment.append("Old configuration was:")
-    new_comment.append("label: {}".format(code.label))
-    new_comment.append("description: {}".format(code.description))
-    new_comment.append("input_plugin_name: {}".format(code.get_input_plugin_name()))
-    new_comment.append("is_local: {}".format(code.is_local()))
-    if was_local_before:
-        new_comment.append("local_executable: {}".format(code.get_local_executable()))
-    else:
-        new_comment.append("computer: {}".format(code.get_computer()))
-        new_comment.append("remote_exec_path: {}".format(code.get_remote_exec_path()))
-    new_comment.append("prepend_text: {}".format(code.get_prepend_text()))
-    new_comment.append("append_text: {}".format(code.get_append_text()))
-    comment = "\n".join(new_comment)
-
-    if set_params.is_local:
-        print "WARNING: => Folder with the code, and"
-        print "         => Relative path of the executable, "
-        print "         will be ignored! It is not possible to replace "
-        print "         the scripts, you have to create a new code for that."
-    else:
-        if was_local_before:
-            # some old files will be left in the repository, and I cannot delete them
-            print >> sys.stderr, ("It is not possible to change a "
-                                  "code from local to remote.\n"
-                                  "Modification cancelled.")
-            sys.exit(1)
-        print "WARNING: => computer"
-        print "         will be ignored! It is not possible to replace it"
-        print "         you have to create a new code for that."
-
-    code.label = set_params.label
-    code.description = set_params.description
-    code.set_input_plugin_name(set_params.input_plugin)
-    code.set_prepend_text(set_params.prepend_text)
-    code.set_append_text(set_params.append_text)
-
-    if not was_local_before:
-        if set_params.remote_abs_path != code.get_remote_exec_path():
-            print "Are you sure about changing the path of the code?"
-            print "This operation may imply loss of provenance."
-            print "[Enter] to continue, [Ctrl + C] to exit"
-            raw_input()
-
+        if kwargs['remote_abs_path']:
             from aiida.backends.djsite.db.models import DbAttribute
+            DbAttribute.set_value_for_node(code.dbnode, 'remote_exec_path', kwargs['remote_abs_path'])
 
-            DbAttribute.set_value_for_node(code.dbnode, 'remote_exec_path', set_params.remote_abs_path)
-
-    # store comment, to track history
-    code.add_comment(comment, user=get_automatic_user())
+        # add modification comment
+        code.add_comment(mod_comment, user=get_automatic_user())
+    else:
+        click.echo('Code not modified (--dry-run recieved)')
 
 
 def get_code(code_id):
@@ -1016,3 +1005,27 @@ def code_delete(code):
         sys.exit(1)
 
     print "Code '{}' deleted.".format(pk)
+
+
+def modification_comment(code):
+    from datetime import datetime
+    cmt = [
+        'Code modified on {}'.format(datetime.now()),
+        'Old configuration was:',
+        'label: {}'.format(code.label),
+        'description: {}'.format(code.description),
+        'input_plugin_name: {}'.format(code.get_input_plugin_name()),
+        'is_local: {}'.format(code.is_local())
+    ]
+    if code.is_local():
+        cmt.append('local_executable: {}'.format(code.get_local_executable()))
+    else:
+        cmt.extend([
+            'computer: {}'.format(code.get_computer()),
+            'remote_exec_path: {}'.format(code.get_remote_exec_path())
+        ])
+    cmt.extend([
+        'prepend_text: {}'.format(code.get_prepend_text()),
+        'append_text: {}'.format(code.get_append_text())
+    ])
+    return '\n'.join(cmt)
