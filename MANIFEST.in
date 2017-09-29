@@ -8,3 +8,4 @@ include aiida/common/additions/backup_script/backup_info.json.tmpl
 include examples/testdata/qepseudos/*
 
 include fastentrypoints.py
+recursive-include aiida/cmdline/templates

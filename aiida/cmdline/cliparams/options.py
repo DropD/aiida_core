@@ -49,8 +49,22 @@ FORCE = OverridableOption('-f', '--force', is_flag=True, help='Do not ask for co
 LABEL = OverridableOption('-L', '--label', help='short text to be used as a label')
 DESCRIPTION = OverridableOption('-D', '--description', help='(text) description')
 INPUT_PLUGIN = OverridableOption('--input-plugin', help='input plugin string', type=PluginParam(category='calculations'))
-REMOTE_ABS_PATH = OverridableOption('--remote-abs-path', type=click.Path(file_okay=True), help=('[if --installed]: The (full) absolute path on the remote ' 'machine'))
-PREPEND_TEXT = OverridableOption('--prepend-text', type=str, default='', help='Text to prepend to each command execution. FOR INSTANCE, MODULES TO BE LOADED FOR THIS CODE. This is a multiline string, whose content will be prepended inside the submission script after the real execution of the job. It is your responsibility to write proper bash code!')
-APPEND_TEXT = OverridableOption('--append-text', type=str, default='', help='Text to append to each command execution. This is a multiline string, whose content will be appended inside the submission script after the real execution of the job. It is your responsibility to write proper bash code!')
-DRY_RUN = OverridableOption('--dry-run', is_flag=True, is_eager=True, help='do not commit to database or modify configuration files')
-NON_INTERACTIVE = OverridableOption('--non-interactive', is_flag=True, is_eager=True, help='noninteractive mode: never prompt the user for input')
+
+REMOTE_ABS_PATH = OverridableOption('--remote-abs-path', type=click.Path(file_okay=True),
+                                    help=('[if --installed]: The (full) absolute path on the remote ' 'machine'))
+
+PREPEND_TEXT = OverridableOption('--prepend-text', type=str, default='',
+                                 help='Text to prepend to each command execution. FOR INSTANCE, MODULES TO BE LOADED FOR THIS CODE. This '
+                                      'is a multiline string, whose content will be prepended inside the submission script after the real '
+                                      'execution of the job. It is your responsibility to write proper bash code!')
+
+APPEND_TEXT = OverridableOption('--append-text', type=str, default='',
+                                help='Text to append to each command execution. This is a multiline string, whose content will be appended '
+                                     'inside the submission script after the real execution of the job. It is your responsibility to write '
+                                     'proper bash code!')
+
+DRY_RUN = OverridableOption('--dry-run', is_flag=True, is_eager=True,
+                            help='do not commit to database or modify configuration files')
+
+NON_INTERACTIVE = OverridableOption('--non-interactive', is_flag=True, is_eager=True,
+                                    help='noninteractive mode: never prompt the user for input')

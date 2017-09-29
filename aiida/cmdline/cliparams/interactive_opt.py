@@ -15,16 +15,17 @@ def noninteractive(ctx):
     return ctx.params.get('non_interactive')
 
 
-def string_wrapper(s, max_length=100):
-    words = s.split(' ')
+def string_wrapper(msg, max_length=100):
+    """Wraps a string into multiple lines according to ``max_length``"""
+    words = msg.split(' ')
     lines = ['']
-    for w in words:
+    for word in words:
         if not lines[-1]:
-            lines[-1] = w
-        elif len(lines[-1]) + len(w) + 1 <= max_length:
-            lines[-1] += ' ' + w
+            lines[-1] = word
+        elif len(lines[-1]) + len(word) + 1 <= max_length:
+            lines[-1] += ' ' + word
         else:
-            lines.append(w)
+            lines.append(word)
     return lines
 
 
@@ -48,29 +49,29 @@ class InteractiveOption(ConditionalOption):
         :param param_decls: relayed to :class:`click.Option`
         :param switch: sequence of parameter names
         """
-        '''intercept prompt kwarg'''
+        # intercept prompt kwarg
         self._prompt = kwargs.pop('prompt', None)
         self._editor = kwargs.pop('editor', None)
         if kwargs.get('required', None):
             required_fn = kwargs.get('required_fn', lambda ctx: True)
             kwargs['required_fn'] = lambda ctx: noninteractive(ctx) and required_fn(ctx)
 
-        '''super'''
+        # super
         super(InteractiveOption, self).__init__(param_decls=param_decls, **kwargs)
 
-        '''other kwargs'''
+        # other kwargs
         self.switch = switch
         self.empty_ok = empty_ok
 
-        '''set callback'''
+        # set callback
         if self._prompt:
             self._after_callback = self.callback
             self.callback = self.prompt_callback
 
-        '''set controll strings that trigger special features from the input prompt'''
+        # set controll strings that trigger special features from the input prompt
         self._ctrl = {'?': self.ctrl_help}
 
-        '''set prompting type'''
+        # set prompting type
         self.prompt_loop = self.simple_prompt_loop
         if self._editor:
             self.prompt_loop = self.editor_loop
@@ -85,7 +86,8 @@ class InteractiveOption(ConditionalOption):
 
     def prompt_func(self, ctx):
         """prompt function with args set"""
-        return click.prompt(self._prompt, default=self._get_default(ctx), hide_input=self.hide_input, confirmation_prompt=self.confirmation_prompt)
+        return click.prompt(self._prompt, default=self._get_default(ctx), hide_input=self.hide_input,
+                            confirmation_prompt=self.confirmation_prompt)
 
     def ctrl_help(self):
         """control behaviour when help is requested from the prompt"""
@@ -111,8 +113,7 @@ class InteractiveOption(ConditionalOption):
         result = not value and not isinstance(value, bool)
         if self.empty_ok:
             return False
-        else:
-            return result
+        return result
 
     def full_process_value(self, ctx, value):
         """
@@ -135,23 +136,23 @@ class InteractiveOption(ConditionalOption):
         try:
             value = self.type.convert(value, param, ctx)
             successful = True
-        except click.BadParameter as e:
-            click.echo(e.message)
+        except click.BadParameter as err:
+            click.echo(err.message)
         return successful, value
 
     def simple_prompt_loop(self, ctx, param, value):
         """prompt until successful conversion. dispatch control sequences"""
         while 1:
-            '''prompt'''
+            # prompt
             value = self.prompt_func(ctx)
             if value in self._ctrl:
-                '''dispatch'''
+                # dispatch
                 self._ctrl[value]()
             elif self.unacceptably_empty(value):
-                '''repeat prompting without trying to convert'''
+                # repeat prompting without trying to convert
                 continue
             else:
-                '''try to convert, if unsuccessful continue prompting'''
+                # try to convert, if unsuccessful continue prompting
                 successful, value = self.safely_convert(value, param, ctx)
                 if successful:
                     return value
@@ -162,39 +163,39 @@ class InteractiveOption(ConditionalOption):
         This method is currently in development and may be instable / incorrect.
         """
         while 1:
-            '''prompt'''
+            # prompt
             marker = '#= All lines beginning with "#=" will be ignored'
             helper = [marker, self._prompt] + string_wrapper(self.format_help_message(), 50)
             template = '\n' + '\n#= '.join(helper)
             inserttxt = template
             if isinstance(self._editor, list):
-                '''editor will be used to set muliple values'''
+                # editor will be used to set muliple values
                 multiedit = True
                 inserttxt = '#= ' + '\n\n#= '.join(self._editor) + '\n' + template
             mlinput = click.edit(inserttxt)
             click.echo('')
             click.echo(mlinput)
             if mlinput:
-                '''editor was saved and quitted'''
+                # editor was saved and quitted
                 value = mlinput.replace(template, '')
                 click.echo('')
                 click.echo(value)
                 if multiedit:
-                    '''separate the values using the given separator lines'''
+                    # separate the values using the given separator lines
                     values = []
                     seplines = self._editor[::-1]
                     # ~ value = value.split(seplines.pop())[1]
                     for sep in seplines:
-                        value, l = value.split('#= ' + sep)
-                        click.echo('{} <-> {}'.format(value, l))
-                        values.append(l.strip())
+                        value, line = value.split('#= ' + sep)
+                        click.echo('{} <-> {}'.format(value, line))
+                        values.append(line.strip())
                         click.echo(values)
                     value = values[::-1]
             if self.unacceptably_empty(value):
-                '''reopen editor without trying to convert'''
+                # reopen editor without trying to convert
                 continue
             else:
-                '''try to convert, reopen editor if unsuccessful'''
+                # try to convert, reopen editor if unsuccessful
                 successful, value = self.safely_convert(value, param, ctx)
                 if successful:
                     return value
@@ -203,63 +204,59 @@ class InteractiveOption(ConditionalOption):
         """if a callback was registered on init, call it and return it's value"""
         if self._after_callback:
             return self._after_callback(ctx, param, value)
-        else:
-            return value
+        return value
 
     def prompt_callback(self, ctx, param, value):
         """decide wether to initiate the prompt_loop or not"""
 
-        '''a value was given'''
+        # a value was given
         if value is not None:
             return self.after_callback(ctx, param, value)
 
-        '''parameter is not reqired anyway'''
+        # parameter is not reqired anyway
         if not self.is_required(ctx):
             return self.after_callback(ctx, param, value)
 
-        '''help option was passed on the cmdline'''
+        # help option was passed on the cmdline
         if ctx.params.get('help'):
             return self.after_callback(ctx, param, value)
 
-        '''no value was given'''
+        # no value was given
         try:
-            '''try to convert None'''
+            # try to convert None
             value = self.after_callback(ctx, param, self.type.convert(value, param, ctx))
-            '''if conversion comes up empty, make sure empty is acceptable'''
+            # if conversion comes up empty, make sure empty is acceptable
             if self.unacceptably_empty(value):
                 raise click.MissingParameter(param=param)
 
-        except Exception as e:
-            '''
-            no value was given but a value is required
+        except (click.MissingParameter, click.BadParameter):
+            # no value was given but a value is required
+            # check for BadParameter too, because convert might not check for None specifically
 
-            this needs to be Exception because generally convert does not
-            check for None and is allowed to raise any exception when
-            encountering it
-            '''
 
-            '''no prompting allowed'''
+            # no prompting allowed
             if noninteractive(ctx):
-                '''either get a default value and return ...'''
+                # either get a default value and return ...
                 default = self._get_default(ctx) or self.default
                 if default is not None:
                     return self.type.convert(default, param, ctx)
                 else:
-                    '''... or raise Missing Parameter'''
+                    # ... or raise Missing Parameter
                     raise click.MissingParameter()
-            '''prompting allowed'''
+            # prompting allowed
             value = self.prompt_loop(ctx, param, value)
         return value
 
 
 def opt_prompter(ctx, cmd, givenkwargs, oldvalues=None):
+    """Prompt interactively for the value of an option of the command with context ``ctx``"""
     cmdparams = {i.name: i for i in cmd.params}
     def opt_prompt(opt, prompt, default=None):
+        """Prompt interactively for the value of option ``opt``"""
         if not givenkwargs[opt]:
             optobj = cmdparams[opt]
-            optobj._prompt = prompt
+            optobj._prompt = prompt  # pylint: disable=protected-access
             optobj.default = default or oldvalues.get(opt)
             return optobj.prompt_loop(ctx, optobj, givenkwargs[opt])
-        else:
-            return givenkwargs[opt]
+        return givenkwargs[opt]
     return opt_prompt

@@ -19,6 +19,7 @@ import click
 from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
 from aiida.cmdline.cliparams import options, arguments
 from aiida.cmdline.cliparams.interactive_opt import InteractiveOption, opt_prompter
+from aiida.cmdline.cliparams.multi_line_input import edit_pre_post
 from aiida.cmdline.cliparams.paramtypes.code import CodeParam, get_code_data, CodeNameParam
 from aiida.cmdline.commands import verdi, code
 
@@ -908,7 +909,6 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
         # local code's folder and relative path cannot be changed
         if (not kwargs['prepend_text']) or (not kwargs['append_text']):
             # use editor to change pre and post execution scripts
-            from aiida_verdi.utils.mlinput import edit_pre_post
             pre = kwargs['prepend_text'] or ''
             post = kwargs['append_text'] or ''
             kwargs['prepend_text'], kwargs['append_text'] = edit_pre_post(pre, post, kwargs)

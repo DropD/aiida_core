@@ -18,23 +18,18 @@ class PluginParam(click.ParamType):
         self.category = category
         self.must_available = available
         super(PluginParam, self).__init__(*args, **kwargs)
-        from aiida.common import pluginloader
-        self.get_all_plugins = self.get_plugins_for_cat(category)
 
     def get_possibilities(self, incomplete=''):
         """return a list of plugins starting with incomplete"""
         return [p for p in self.get_all_plugins() if startswith(p, incomplete)]
 
-    def get_plugins_for_cat(self, category):
+    @with_dbenv
+    def get_all_plugins(self):
         """use entry points"""
+        from aiida.common.pluginloader import all_plugins
+        return all_plugins(self.category)
 
-        @with_dbenv
-        def get_plugins():
-            from aiida.common.pluginloader import all_plugins
-            return all_plugins(category)
-        return get_plugins
-
-    def complete(self, ctx, incomplete):
+    def complete(self, ctx, incomplete):  # pylint: disable=unused-argument
         """return possible completions"""
         return [(p, '') for p in self.get_possibilities(incomplete=incomplete)]
 

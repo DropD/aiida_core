@@ -2,6 +2,7 @@
 import re
 
 from click.testing import CliRunner
+from mock import mock
 
 from aiida.backends.testbase import AiidaTestCase
 from aiida.control.code import CodeBuilder
@@ -38,8 +39,8 @@ class VerdiCodeTest(AiidaTestCase):
         code.store()
         return code
 
-    def _invoke(self, *args):
-        return self.runner.invoke(self.code_grp, args)
+    def _invoke(self, *args, **kwargs):
+        return self.runner.invoke(self.code_grp, args, **kwargs)
 
     def test_help(self):
         result = self._invoke('--help')
@@ -85,6 +86,49 @@ class VerdiCodeTest(AiidaTestCase):
         with self.assertRaises(NotExistent):
             Code.get(label=self.code_label)
 
+    def updated_values(self, code):
+        """New values to test updating"""
+
+        new_label = 'new_label'
+        self.assertNotEqual(new_label, code.label)
+        new_input_plugin = 'aseplugins.ase'
+        self.assertNotEqual(new_input_plugin, code.get_input_plugin_name())
+        new_desc = 'new description'
+        self.assertNotEqual(new_desc, code.description)
+        new_prepend = 'new prepend'
+        self.assertNotEqual(new_prepend, code.get_prepend_text())
+        new_append = 'new_append'
+        self.assertNotEqual(new_append, code.get_append_text())
+        new_location = '/path/to/another/fantasy/executable'
+        self.assertNotEqual(new_location, code.get_remote_exec_path())
+
+        return {
+            'label': new_label,
+            'input-plugin': new_input_plugin,
+            'description': new_desc,
+            'prepend-text': new_prepend,
+            'append-text': new_append,
+            'remote-abs-path': new_location
+        }
+
+    def assert_code(self, data, result):
+        from aiida.orm import Code
+        code = Code.get(label=data['label'])
+        self.assertEquals(
+            code.description, data['description'], msg=result.output)
+        self.assertEquals(
+            code.get_input_plugin_name(),
+            data['input-plugin'],
+            msg=result.output)
+        self.assertEquals(
+            code.get_prepend_text(), data['prepend-text'], msg=result.output)
+        self.assertEquals(
+            code.get_append_text(), data['append-text'], msg=result.output)
+        self.assertEquals(
+            code.get_remote_exec_path(),
+            data['remote-abs-path'],
+            msg=result.output)
+
     def test_delete_pk(self):
         """Make sure ``code delete`` can be called with label and works"""
         from aiida.orm import Code
@@ -114,39 +158,43 @@ class VerdiCodeTest(AiidaTestCase):
         Code.get(label=self.code_label)
 
     def test_update_options(self):
-        """Test updating a code successfully"""
-        from aiida.orm import Code
+        """Test updating a code noninteractively successfully"""
         code = self._create_code()
-
-        new_label = 'new_label'
-        self.assertNotEqual(new_label, code.label)
-        new_input_plugin = 'aseplugins.ase'
-        self.assertNotEqual(new_input_plugin, code.get_input_plugin_name())
-        new_desc = 'new description'
-        self.assertNotEqual(new_desc, code.description)
-        new_prepend = 'new prepend'
-        self.assertNotEqual(new_prepend, code.get_prepend_text())
-        new_append = 'new_append'
-        self.assertNotEqual(new_append, code.get_append_text())
-        new_location = '/path/to/another/fantasy/executable'
-        self.assertNotEqual(new_location, code.get_remote_exec_path())
+        new_data = self.updated_values(code)
 
         result = self._invoke(
             'update', self.code_label, '--non-interactive',
-            '--label', new_label,
-            '--description', new_desc,
-            '--input-plugin', new_input_plugin,
-            '--prepend-text', new_prepend,
-            '--append-text', new_append,
-            '--remote-abs-path', new_location)  # yapf: disable
+            '--label', new_data['label'],
+            '--description', new_data['description'],
+            '--input-plugin', new_data['input-plugin'],
+            '--prepend-text', new_data['prepend-text'],
+            '--append-text', new_data['append-text'],
+            '--remote-abs-path', new_data['remote-abs-path'])  # yapf: disable
         self.assertFalse(
             bool(result.exception),
             msg='Got an error: {}\n---\nOutput was:\n{}'.format(
                 str(result.exception), result.output))
-        code = Code.get(label=new_label)
-        self.assertEquals(code.description, new_desc)
-        self.assertEquals(code.get_input_plugin_name(), new_input_plugin)
-        self.assertEquals(code.get_prepend_text(), new_prepend)
-        self.assertEquals(code.get_append_text(), new_append)
-        self.assertEquals(
-            code.get_remote_exec_path(), new_location, msg=result.output)
+        self.assert_code(new_data, result)
+
+    def test_update_prompt(self):
+        """Test updating a code interactively"""
+        from aiida.cmdline.cliparams.templates import env
+        code = self._create_code()
+        new_data = self.updated_values(code)
+
+        prepost = env.get_template('prepost.bash.tpl').render(
+            default_pre=new_data['prepend-text'],
+            default_post=new_data['append-text'],
+            summary={})
+        with mock.patch('click.edit', return_value=prepost):
+            result = self._invoke(
+                'update',
+                self.code_label,
+                input=
+                '{label}\n{description}\n{input-plugin}\n{remote-abs-path}\ny\n'.
+                format(**new_data))
+        self.assertFalse(
+            bool(result.exception),
+            msg='Got an error: {}\n---\nOutput was:\n{}'.format(
+                str(result.exception), result.output))
+        self.assert_code(new_data, result)

@@ -27,9 +27,9 @@ class ConditionalOption(click.Option):
     def full_process_value(self, ctx, value):
         try:
             value = super(ConditionalOption, self).full_process_value(ctx, value)
-        except click.MissingParameter as e:
+        except click.MissingParameter as err:
             if self.is_required(ctx):
-                raise e
+                raise err
         return value
 
     def is_required(self, ctx):
