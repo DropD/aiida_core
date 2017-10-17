@@ -224,7 +224,7 @@ class InteractiveOption(ConditionalOption):
         # no value was given
         try:
             # try to convert None
-            value = self.after_callback(ctx, param, self.type.convert(value, param, ctx))
+            value = self.after_callback(ctx, param, self.type.convert('', param, ctx))
             # if conversion comes up empty, make sure empty is acceptable
             if self.unacceptably_empty(value):
                 raise click.MissingParameter(param=param)
@@ -250,6 +250,8 @@ class InteractiveOption(ConditionalOption):
 
 def opt_prompter(ctx, cmd, givenkwargs, oldvalues=None):
     """Prompt interactively for the value of an option of the command with context ``ctx``"""
+    if not oldvalues:
+        oldvalues = {}
     cmdparams = {i.name: i for i in cmd.params}
     def opt_prompt(opt, prompt, default=None):
         """Prompt interactively for the value of option ``opt``"""

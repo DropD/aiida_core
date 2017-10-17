@@ -20,8 +20,10 @@ from aiida.cmdline.baseclass import VerdiCommandWithSubcommands
 from aiida.cmdline.cliparams import options, arguments
 from aiida.cmdline.cliparams.interactive_opt import InteractiveOption, opt_prompter
 from aiida.cmdline.cliparams.multi_line_input import edit_pre_post
-from aiida.cmdline.cliparams.paramtypes.code import CodeParam, get_code_data, CodeNameParam
+from aiida.cmdline.cliparams.paramtypes.code import get_code_data, CodeNameParam
 from aiida.cmdline.commands import verdi, code
+from aiida.cmdline.common import render_warning
+from aiida.control.code import CodeBuilder
 
 
 def cmdline_fill(attributes, store, print_header=True):
@@ -582,8 +584,8 @@ class Code(VerdiCommandWithSubcommands):
         self.valid_subcommands = {
             'list': (self.code_list, self.complete_none),
             'show': (self.cli, self.complete_code_names_and_pks),
-            'setup': (self.code_setup, self.complete_code_pks),
-            'rename': (self.code_rename, self.complete_none),
+            'setup': (self.cli, self.complete_code_pks),
+            'rename': (self.cli, self.complete_none),
             'update': (self.cli, self.complete_code_pks),
             'delete': (self.cli, self.complete_code_pks),
             'hide': (self.code_hide, self.complete_code_pks),
@@ -788,71 +790,73 @@ class Code(VerdiCommandWithSubcommands):
         else:
             print "# No codes found matching the specified criteria."
 
-    def code_setup(self, *args):
-        from aiida.common.exceptions import ValidationError
 
-        if len(args) != 0:
-            print >> sys.stderr, ("after 'code setup' there cannot be any "
-                                  "argument")
-            sys.exit(1)
+@code.command('setup')
+@click.pass_context
+@options.LABEL(prompt='Label', cls=InteractiveOption, help='The name for this code')
+@options.DESCRIPTION(prompt='Description', cls=InteractiveOption, help='A human-readable description of this code')
+@click.option('--on-computer/--store-upload', is_eager=False, default=True, prompt='Installed on Computer?', cls=InteractiveOption, help=('on-computer: the executable is installed on the remote computer. store-upload: the executable is stored in the DB and copied onto the computer before execution.'))
+@options.INPUT_PLUGIN(prompt='Default input plugin', cls=InteractiveOption)
+@options.COMPUTER(prompt='Remote computer', cls=InteractiveOption, required_fn=lambda c: c.params.get('on_computer'), help=('[if --installed]: The name of the computer on which the ' 'code resides as stored in the AiiDA database'))
+@click.option('--code-folder', prompt='Folder containing the code', type=click.Path(file_okay=False, exists=True, readable=True), required_fn=lambda c: not c.params.get('on_computer'), cls=InteractiveOption, help=('[if --upload]: folder containing the executable and ' 'all other files necessary for execution of the code'))
+@click.option('--code-rel-path', prompt='Relative path of the executable', type=click.Path(dir_okay=False), required_fn=lambda c: not c.params.get('on_computer'), cls=InteractiveOption, help=('[if --upload]: The relative path of the executable file inside ' 'the folder entered in the previous step or in --code-folder'))
+@options.REMOTE_ABS_PATH(prompt='Remote path', required_fn=lambda c: c.params.get('on_computer'), cls=InteractiveOption, help=('[if --installed]: The (full) absolute path on the remote ' 'machine'))
+@options.PREPEND_TEXT()
+@options.APPEND_TEXT()
+@options.NON_INTERACTIVE()
+@options.DRY_RUN()
+def code_setup(ctx, non_interactive, dry_run, **kwargs):
+    from aiida.common.exceptions import ValidationError
 
-        set_params = CodeInputValidationClass()
+    pre = kwargs['prepend_text'] or ''
+    post = kwargs['append_text'] or ''
+    if (not non_interactive) and ((not pre) or (not post)):
+        # let the user edit the pre and post execution scripts
+        from aiida_verdi.utils.mlinput import edit_pre_post
+        pre, post = edit_pre_post(pre, post, kwargs)
+        kwargs['prepend_text'] = pre
+        kwargs['append_text'] = post
 
-        set_params.ask()
+    if kwargs.pop('on_computer'):
+        kwargs['code_type'] = CodeBuilder.CodeType.ON_COMPUTER
+    else:
+        kwargs['code_type'] = CodeBuilder.CodeType.STORE_AND_UPLOAD
+    code_builder = CodeBuilder(**kwargs)
+    code = code_builder.new()
 
-        code = set_params.create_code()
+    # Enforcing the code to be not hidden.
+    code._reveal()
 
-        # Enforcing the code to be not hidden.
-        code._reveal()
-
+    if not dry_run:
         try:
             code.store()
         except ValidationError as e:
             print "Unable to store the computer: {}. Exiting...".format(e.message)
             sys.exit(1)
 
-        print "Code '{}' successfully stored in DB.".format(code.label)
-        print "pk: {}, uuid: {}".format(code.pk, code.uuid)
+        click.echo("Code '{}' successfully stored in DB.".format(code.label))
+        click.echo("pk: {}, uuid: {}".format(code.pk, code.uuid))
 
-    def code_rename(self, *args):
-        import argparse
-        from aiida.common.exceptions import NotExistent
+    else:
+        # dry-run, so only display
+        click.echo('The following code was created:')
+        click.echo(code.full_text_info)
+        click.echo('Recieved --dry-run, therefore not storing the code')
 
-        from aiida.orm.code import Code
+@code.command('rename')
+@click.pass_context
+@arguments.CODE()
+@arguments.LABEL(type=CodeNameParam())
+def code_rename(ctx, code, label):
+    """Rename a code (change its label)"""
 
-        parser = argparse.ArgumentParser(
-            prog=self.get_full_command_name(),
-            description='Rename a code (change its label).')
-        # The default states are those that are shown if no option is given
-        parser.add_argument('old_name', help="The old name of the code")
-        parser.add_argument('new_name', help="The new name of the code")
+    retrieved_old_name = '{}@{}'.format(code.label, code.get_computer().name)
+    # CHANGE HERE
+    code.label = label
+    retrieved_new_name = '{}@{}'.format(code.label, code.get_computer().name)
 
-        parsed_args = parser.parse_args(args)
-
-        new_name = parsed_args.new_name
-        old_name = parsed_args.old_name
-
-        try:
-            code = Code.get_from_string(old_name)
-        except NotExistent:
-            print "ERROR! A code with name {} could not be found".format(old_name)
-            sys.exit(1)
-
-        suffix = '@{}'.format(code.get_computer().name)
-        if new_name.endswith(suffix):
-            new_name = new_name[:-len(suffix)]
-
-        if '@' in new_name:
-            print >> sys.stderr, "ERROR! Do not put '@' symbols in the code name"
-            sys.exit(1)
-
-        retrieved_old_name = '{}@{}'.format(code.label, code.get_computer().name)
-        # CHANGE HERE
-        code.label = new_name
-        retrieved_new_name = '{}@{}'.format(code.label, code.get_computer().name)
-
-        print "Renamed code with ID={} from '{}' to '{}'".format(
-            code.pk, retrieved_old_name, retrieved_new_name)
+    print "Renamed code with ID={} from '{}' to '{}'".format(
+        code.pk, retrieved_old_name, retrieved_new_name)
 
 
 @code.command('update')
@@ -877,16 +881,14 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
     from aiida.backends.utils import get_automatic_user
 
     if not non_interactive:
-        if code.has_children:  # TODO: replace with message template
-            click.echo("***********************************")
-            click.echo("|                                 |")
-            click.echo("|            WARNING!             |")
-            click.echo("| Consider to create another code |")
-            click.echo("| You risk of losing the history  |")
-            click.echo("|                                 |")
-            click.echo("***********************************")
+        if code.has_children:
+            click.echo(
+                render_warning(
+                    msg='Consider creating another code, you risk losing your history', width=35)
+            )
 
-        '''interactively prompt for the missing options'''
+
+        # interactively prompt for the missing options
         opt_prompt = opt_prompter(ctx, update, kwargs)
         kwargs['label'] = opt_prompt('label', 'Label', code.label)
         kwargs['description'] = opt_prompt('description', 'Description', code.description)
@@ -900,12 +902,11 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
                 # used to change the executable, only it's location
                 if not click.confirm('Is it the same executable, just in a different path?'):
                     kwargs['remote_abs_path'] = None
-                    click.echo('***********')
-                    click.echo('| WARNING |')
-                    click.echo('***********')
-                    click.echo('Changing the executable itself would break provenance!')
-                    click.echo('Not changing remote path')
-                    click.echo('Create a new code instead!')
+                    click.echo(
+                        render_warning(
+                            msg=('Changing the executable itself would break provenance!'
+                                    'Not changing remote path. Create a new code instead!'),
+                            width=35))
         # local code's folder and relative path cannot be changed
         if (not kwargs['prepend_text']) or (not kwargs['append_text']):
             # use editor to change pre and post execution scripts
@@ -913,7 +914,7 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
             post = kwargs['append_text'] or ''
             kwargs['prepend_text'], kwargs['append_text'] = edit_pre_post(pre, post, kwargs)
 
-    # summarize the changes
+# summarize the changes
     if kwargs['label']:
         click.echo('Label: {} -> {}'.format(code.label, kwargs['label']))
     if kwargs['description']:
@@ -925,7 +926,7 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
     if kwargs['append_text']:
         click.echo('Append text:\n{}\n->\n{}'.format(code.get_append_text(), kwargs['append_text']))
 
-    # update the code attributes
+# update the code attributes
     mod_comment = modification_comment(code)
     if not dry_run:
         code.label = kwargs['label'] or code.label
@@ -942,37 +943,6 @@ def update(ctx, code, dry_run, non_interactive, **kwargs):
         code.add_comment(mod_comment, user=get_automatic_user())
     else:
         click.echo('Code not modified (--dry-run recieved)')
-
-
-def get_code(code_id):
-    """
-    Get a Computer object with given identifier, that can either be
-    the numeric ID (pk), or the label (if unique).
-
-    .. note:: Since all command line arguments get converted to string types, we
-        cannot assess the intended type (an integer pk or a string label) from the
-        type of the variable code_id. If the code_id can be converted into an integer
-        we will assume the value corresponds to a pk. This means, however, that if there
-        would be another code, with a label directly equivalent to the string value of that
-        pk, that this code can not be referenced by its label, as the other code, corresponding
-        to the integer pk, will get matched first.
-    """
-    from aiida.common.exceptions import NotExistent, MultipleObjectsError, InputValidationError
-    from aiida.orm import Code as AiidaOrmCode
-
-    try:
-        pk = int(code_id)
-        try:
-            return AiidaOrmCode.get(pk=pk)
-        except (NotExistent, MultipleObjectsError, InputValidationError) as e:
-            print >> sys.stderr, e.message
-            sys.exit(1)
-    except ValueError:
-        try:
-            return AiidaOrmCode.get_from_string(code_id)
-        except (NotExistent, MultipleObjectsError) as e:
-            print >> sys.stderr, e.message
-            sys.exit(1)
 
 
 @code.command('show')

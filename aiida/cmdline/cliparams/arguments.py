@@ -43,3 +43,4 @@ class OverridableArgument(object):
 
 
 CODE = OverridableArgument('code', metavar='CODE', type=CodeParam())
+LABEL = OverridableArgument('label')

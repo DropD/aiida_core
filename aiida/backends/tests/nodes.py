@@ -13,7 +13,7 @@ Tests for nodes, attributes and links
 import unittest
 
 from aiida.backends.testbase import AiidaTestCase
-from aiida.cmdline.commands.code import get_code
+from aiida.cmdline.common import get_code
 from aiida.common.exceptions import ModificationNotAllowed, UniquenessError
 from aiida.common.links import LinkType
 from aiida.orm.data import Data

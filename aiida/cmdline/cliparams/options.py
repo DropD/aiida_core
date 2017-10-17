@@ -2,6 +2,7 @@
 import click
 
 from aiida.cmdline.cliparams.paramtypes.plugin import PluginParam
+from aiida.cmdline.cliparams.paramtypes.computer import ComputerParam
 
 
 class OverridableOption(object):
@@ -68,3 +69,6 @@ DRY_RUN = OverridableOption('--dry-run', is_flag=True, is_eager=True,
 
 NON_INTERACTIVE = OverridableOption('--non-interactive', is_flag=True, is_eager=True,
                                     help='noninteractive mode: never prompt the user for input')
+
+COMPUTER = OverridableOption('-C', '--computer', type=ComputerParam(),
+                              help=('The name of the computer as stored in the AiiDA database'))

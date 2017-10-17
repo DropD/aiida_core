@@ -7,7 +7,10 @@
 # For further information on the license, see the LICENSE.txt file        #
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
-from aiida.cmdline.commands.code import get_code
+import sys
+import textwrap
+
+from aiida.cmdline.cliparams.templates import env
 
 
 def print_node_summary(node):
@@ -72,3 +75,39 @@ def print_node_info(node, print_summary=True):
             print ("Run 'verdi work report {}' to see them".format(node.pk))
         else:
             print ("Run 'verdi calculation logshow {}' to see them".format(node.pk))
+
+def render_warning(msg, width=35):
+    warning_tpl = env.get_template('warning.tpl')
+    msg_lines = textwrap.wrap(msg, width-4)
+    return warning_tpl.render(msg=msg_lines, width=width)
+
+
+def get_code(code_id):
+    """
+    Get a Computer object with given identifier, that can either be
+    the numeric ID (pk), or the label (if unique).
+
+    .. note:: Since all command line arguments get converted to string types, we
+        cannot assess the intended type (an integer pk or a string label) from the
+        type of the variable code_id. If the code_id can be converted into an integer
+        we will assume the value corresponds to a pk. This means, however, that if there
+        would be another code, with a label directly equivalent to the string value of that
+        pk, that this code can not be referenced by its label, as the other code, corresponding
+        to the integer pk, will get matched first.
+    """
+    from aiida.common.exceptions import NotExistent, MultipleObjectsError, InputValidationError
+    from aiida.orm import Code as AiidaOrmCode
+
+    try:
+        pk = int(code_id)
+        try:
+            return AiidaOrmCode.get(pk=pk)
+        except (NotExistent, MultipleObjectsError, InputValidationError) as e:
+            print >> sys.stderr, e.message
+            sys.exit(1)
+    except ValueError:
+        try:
+            return AiidaOrmCode.get_from_string(code_id)
+        except (NotExistent, MultipleObjectsError) as e:
+            print >> sys.stderr, e.message
+            sys.exit(1)

@@ -56,7 +56,7 @@ class CodeParam(NodeParam):
         and returns that
         """
         codes = [c[0] for c in self.get_possibilities()]
-        if value not in codes:
+        if value.split('@')[0] not in codes:
             raise click.BadParameter('Must be a code in you database', param=param)
 
         try:
@@ -66,8 +66,8 @@ class CodeParam(NodeParam):
                 raise click.BadParameter("PK values start from 1")
             code = self.node_type.get(pk=value)
         except ValueError:
-            # assume is label
-            code = self.node_type.get(label=value)
+            # assume is label or name
+            code = self.node_type.get_from_string(value)
 
         if self.get_from_db:
             value = code
