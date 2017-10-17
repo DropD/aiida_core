@@ -52,6 +52,7 @@ install_requires = [
     'validate_email==1.3',
     'click==6.7',
     'click-completion',
+    'click-spinner',
     'tabulate==0.7.5',
     'ete3==3.0.0b35',
     'uritools==1.0.2',
