@@ -1,5 +1,6 @@
 """Test verdi code and subcommands"""
 import re
+from os.path import dirname, abspath, basename
 
 from click.testing import CliRunner
 from mock import mock
@@ -112,22 +113,32 @@ class VerdiCodeTest(AiidaTestCase):
         code = Code.get(label=data['label'])
         self.assertEquals(
             code.description, data['description'], msg=result.output)
-        self.assertEquals(
-            code.get_input_plugin_name(),
-            data.get('input-plugin', data.get('input_plugin')),
-            msg=result.output)
-        self.assertEquals(
-            code.get_prepend_text(),
-            data.get('prepend-text', data.get('prepend_text')),
-            msg=result.output)
-        self.assertEquals(
-            code.get_append_text(),
-            data.get('append-text', data.get('append_text')),
-            msg=result.output)
-        self.assertEquals(
-            code.get_remote_exec_path(),
-            data.get('remote-abs-path', data.get('remote_abs_path')),
-            msg=result.output)
+
+        input_plugin = data.get('input-plugin', data.get('input_plugin'))
+        if input_plugin:
+            self.assertEquals(
+                code.get_input_plugin_name(), input_plugin, msg=result.output)
+
+        prepend_text = data.get('prepend-text', data.get('prepend_text'))
+        if prepend_text:
+            self.assertEquals(
+                code.get_prepend_text(), prepend_text, msg=result.output)
+
+        append_text = data.get('append-text', data.get('append_text'))
+        if append_text:
+            self.assertEquals(
+                code.get_append_text(), append_text, msg=result.output)
+
+        remote_abs_path = data.get('remote-abs-path',
+                                   data.get('remote_abs_path'))
+        if remote_abs_path:
+            self.assertEqual(
+                code.get_remote_exec_path(), remote_abs_path, msg=result.output)
+
+        code_folder = data.get('code-rel-path', data.get('code_rel_path'))
+        if code_folder:
+            self.assertEqual(
+                code.get_local_executable(), code_folder, msg=result.output)
 
     def assert_noexcept(self, result):
         self.assertFalse(
@@ -266,5 +277,39 @@ class VerdiCodeTest(AiidaTestCase):
             result = self._invoke(
                 'setup', input=prompt_input, catch_exceptions=False)
 
+        self.assert_noexcept(result)
+        self.assert_code(data, result)
+
+    def test_setup_prompt_local(self):
+        """Test setting up a local code"""
+        prepost = env.get_template('prepost.bash.tpl').render(
+            default_pre=self.code_data['prepend_text'],
+            default_post=self.code_data['append_text'],
+            summary={})
+        data = {
+            'label': self.code_data['label'],
+            'description': self.code_data['description'],
+            'input_plugin': self.code_data['input_plugin'],
+            'code_folder': abspath(dirname(__file__)),
+            'code_rel_path': basename(__file__)
+        }
+        prompt_input = '{label}\n{description}\nFalse\n{input_plugin}\n{code_folder}\n{code_rel_path}\n'.format(
+            **data)
+        with mock.patch('click.edit', return_value=prepost):
+            result = self._invoke(
+                'setup', input=prompt_input, catch_exceptions=False)
+
+        self.assert_noexcept(result)
+        self.assert_code(data, result)
+
+    def test_setup_options_remote(self):
+        """Test setting up a code non-interactively"""
+        result = self._invoke(
+            'setup', '--non-interactive', '--on-computer',
+            '--label={}'.format(self.code_data['label']),
+            '--description={}'.format(self.code_data['description']),
+            '--input-plugin={}'.format(self.code_data['input_plugin']),
+            '--computer={}'.format(self.code_data['computer'].name),
+            '--remote-abs-path={}'.format(self.code_data['remote_abs_path']))
         self.assert_noexcept(result)
         self.assert_code(self.code_data, result)
