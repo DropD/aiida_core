@@ -75,6 +75,7 @@ Persistence = plum.persistence.pickle_persistence.PicklePersister
 
 _GLOBAL_PERSISTENCE = None
 
+
 def get_global_persistence():
     global _GLOBAL_PERSISTENCE
 
@@ -82,6 +83,7 @@ def get_global_persistence():
         _create_storage()
 
     return _GLOBAL_PERSISTENCE
+
 
 def _create_storage():
     import aiida.common.setup as setup

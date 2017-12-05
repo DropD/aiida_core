@@ -27,7 +27,7 @@ class TestDatabasePersister(AiidaTestCase):
     # pylint: disable=missing-docstring
 
     def test_save_load_roundtrip(self):
-        """Test saving, retreaving and recreating a checkpoint."""
+        """Test saving, retrieving and recreating a checkpoint."""
 
         process = TestWorkchain(inputs={'a': 2, 'b': 4})
         persister = DatabasePersister()
