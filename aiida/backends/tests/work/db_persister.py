@@ -1,6 +1,7 @@
 # pylint: disable=astroid-error
 """Unit test the :class:`aiida.work.db_persister.DatabasePersister` class."""
 from aiida.backends.testbase import AiidaTestCase
+from aiida.orm.data.base import Int
 from aiida.work import WorkChain
 from aiida.work.db_persister import DatabasePersister
 
@@ -11,8 +12,8 @@ class TestWorkchain(WorkChain):
     @classmethod
     def define(cls, spec):
         super(TestWorkchain, cls).define(spec)
-        spec.input('a')
-        spec.input('b')
+        spec.input('a', valid_type=Int, required=True)
+        spec.input('b', valid_type=Int, required=True)
         spec.dynamic_output()
         spec.outline(cls.square_a, cls.sum_a_b)
 
@@ -29,7 +30,7 @@ class TestDatabasePersister(AiidaTestCase):
     def test_save_load_roundtrip(self):
         """Test saving, retrieving and recreating a checkpoint."""
 
-        process = TestWorkchain(inputs={'a': 2, 'b': 4})
+        process = TestWorkchain(inputs={'a': Int(2), 'b': Int(4)})
         persister = DatabasePersister()
         persister.save_checkpoint(process)
 
